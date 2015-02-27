@@ -2,11 +2,10 @@ package com.haaksmash.hst.intakes
 
 import com.haaksmash.hst.{BlockParser, StringLineTokenizer, LineReader}
 
-class StringIntake {
+class StringIntake(
+                    val string_tokenizer: StringLineTokenizer = new StringLineTokenizer,
+                    val block_parser: BlockParser = new BlockParser) {
 
-  val string_tokenizer = new StringLineTokenizer
-  val block_parser = new BlockParser
-  
   def eval(input: String)  = {
     val lines = string_tokenizer.eval(input)
     lines map {

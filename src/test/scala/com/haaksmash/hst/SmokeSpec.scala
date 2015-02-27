@@ -1,6 +1,6 @@
 package com.haaksmash.hst
 
-import com.haaksmash.hst.intakes.{FileIntake, StringIntake}
+import com.haaksmash.hst.intakes.{ConsoleIntake, FileIntake, StringIntake}
 import org.scalatest._
 
 trait Article extends SuiteMixin { this: Suite =>
@@ -16,10 +16,30 @@ trait Article extends SuiteMixin { this: Suite =>
 class SmokeSpec extends FlatSpec with Matchers with Article {
 
   "StringIntake" should "successfully evaluate a string" in {
-    StringIntake(article) map { r => println(r.get) }
+    val parse_result = StringIntake(article)
+    parse_result.isDefined shouldBe(true)
+
+    val nodes = parse_result.get
+    nodes.successful shouldBe(true)
+    nodes.next.atEnd shouldBe(true)
   }
+
   "FileIntake" should "successfully evaluate a .hst file" in {
-    FileIntake(article_filename) map { r => println(r.get) }
+    val parse_result = FileIntake(article_filename)
+    parse_result.isDefined shouldBe(true)
+
+    val nodes = parse_result.get
+    nodes.successful shouldBe(true)
+    nodes.next.atEnd shouldBe(true)
+  }
+
+  "ConsoleIntake" should "successfully evaluate a .hst file" in {
+    val parse_result = ConsoleIntake(article_filename)
+    parse_result.isDefined shouldBe(true)
+
+    val nodes = parse_result.get
+    nodes.successful shouldBe(true)
+    nodes.next.atEnd shouldBe(true)
   }
 
 }
