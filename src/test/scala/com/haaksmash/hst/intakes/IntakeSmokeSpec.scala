@@ -1,6 +1,5 @@
-package com.haaksmash.hst
+package com.haaksmash.hst.intakes
 
-import com.haaksmash.hst.intakes.{ConsoleIntake, FileIntake, StringIntake}
 import org.scalatest._
 
 trait Article extends SuiteMixin { this: Suite =>
@@ -13,7 +12,7 @@ trait Article extends SuiteMixin { this: Suite =>
   }
 }
 
-class SmokeSpec extends FlatSpec with Matchers with Article {
+class IntakeSmokeSpec extends FlatSpec with Matchers with Article {
 
   "StringIntake" should "successfully evaluate a string" in {
     val document = StringIntake(article)
