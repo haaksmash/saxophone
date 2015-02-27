@@ -1,5 +1,9 @@
 package com.haaksmash.hst.emitters
 
-class ConsoleEmitter {
+import com.haaksmash.hst.{Node, BlockParser}
 
+object ConsoleEmitter {
+  def apply(parse_result: BlockParser#ParseResult[Node]) = {
+    println(parse_result.get)
+  }
 }
