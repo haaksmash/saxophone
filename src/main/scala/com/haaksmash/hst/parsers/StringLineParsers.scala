@@ -1,7 +1,9 @@
 package com.haaksmash.hst
 
-import scala.util.parsing.combinator._
 
+/**
+ * StringLineParsers translates String -> Line
+ */
 trait StringLineParsers extends UtilParsers {
   val headingParser: Parser[HeadingLine] = "#+ ".r ~ rest ^^ {
     case glyphs ~ text => HeadingLine(glyphs, text)

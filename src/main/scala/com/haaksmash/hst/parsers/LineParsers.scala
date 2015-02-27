@@ -2,6 +2,9 @@ package com.haaksmash.hst
 
 import scala.util.parsing.combinator._
 
+/**
+ * StringLineTokenizer translates String -> Line
+ */
 class StringLineTokenizer extends Parsers {
   type Elem = String
   object lineParsers extends StringLineParsers

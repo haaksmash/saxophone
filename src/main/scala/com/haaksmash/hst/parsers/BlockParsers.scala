@@ -2,7 +2,10 @@ package com.haaksmash.hst
 
 import scala.util.parsing.combinator.Parsers
 
-class ArticleParser extends Parsers {
+/**
+  * The block parsers translate com.haaksmash.hst.Line -> com.haaksmash.hst.Node
+  */
+class BlockParser extends Parsers {
   type Elem = Line
 
   def line[T](c:Class[T]): Parser[T] = Parser { in =>

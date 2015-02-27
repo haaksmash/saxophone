@@ -1,0 +1,44 @@
+# Title
+
+this is a paragraph
+and this is the same paragraph, even though it's on a different line.
+
+new paragraph! this one has a [link to a website directly](https://www.google.com)
+as well as a [named link](bing) to a worse website. Let's follow it up with a list:
+1. in some
+2. particular
+3. order
+
+And a new paragraph again, but this one will have a footnote{hello! I'm a footnote!}
+and an unordered list:
+* see?
+* no particular order
+* no sir!
+* well there's still the implicit order but let's leave that be, shall we?
+
+## subheading here.
+
+_this text is underlined_, whereas ~this text is struck-through~. *this text is bolded*, whereas /this text is italicized/.
+
+In this paragraph, at long last, we come to the important part: `the code` (this last should appear monospaced).
+
+{{{lang:python|numbers:no
+# directives should appear in the {{{ line above, separated by '|' (pipe) characters.
+
+
+# this should be treated as pre-formatted text; no eating of    whitespace or collapsing of newlines
+# end a code block in the following way: }}}
+}}}
+
+and finally, we'll end with a little quote from a well-known fictional character:
+
+>>> I'm just gonna take Sundays off for the _rest of time_. You should too!
+>>> lolololol
+[source: God]
+
+>>> And another quote
+>>> on multiple lines
+followed by text??
+
+God should be pictured here, for those of you who haven't seen God (all of you): [path/to/some/file.jpg]
+
