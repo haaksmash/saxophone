@@ -1,5 +1,5 @@
 package com.haaksmash.hst.emitters
 
-class StringEmitter {
-
+class StringEmitter extends BaseEmitter {
+  override def emit(contents: String): Unit = ???
 }

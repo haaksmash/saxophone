@@ -1,19 +1,21 @@
 package com.haaksmash.hst.intakes
 
-class FileIntake(val string_intake:StringIntake = new StringIntake) {
+import com.haaksmash.hst.Document
 
-  def apply(filename:String) = {
+class FileIntake(val string_intake:StringIntake = new StringIntake) extends BaseIntake {
+
+  def intake(filename:String): Document = {
 
     val article_source = scala.io.Source.fromFile(filename)
     val the_article = article_source.mkString
     article_source.close()
 
-    string_intake.eval(the_article)
+    string_intake.intake(the_article)
   }
 }
 
 object FileIntake {
   def apply(filename: String) = {
-    (new FileIntake)(filename)
+    (new FileIntake).intake(filename)
   }
 }
