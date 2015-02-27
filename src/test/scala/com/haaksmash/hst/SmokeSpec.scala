@@ -16,30 +16,15 @@ trait Article extends SuiteMixin { this: Suite =>
 class SmokeSpec extends FlatSpec with Matchers with Article {
 
   "StringIntake" should "successfully evaluate a string" in {
-    val parse_result = StringIntake(article)
-    parse_result.isDefined shouldBe(true)
-
-    val nodes = parse_result.get
-    nodes.successful shouldBe(true)
-    nodes.next.atEnd shouldBe(true)
+    val document = StringIntake(article)
   }
 
   "FileIntake" should "successfully evaluate a .hst file" in {
-    val parse_result = FileIntake(article_filename)
-    parse_result.isDefined shouldBe(true)
-
-    val nodes = parse_result.get
-    nodes.successful shouldBe(true)
-    nodes.next.atEnd shouldBe(true)
+    val document = FileIntake(article_filename)
   }
 
   "ConsoleIntake" should "successfully evaluate a .hst file" in {
-    val parse_result = ConsoleIntake(article_filename)
-    parse_result.isDefined shouldBe(true)
-
-    val nodes = parse_result.get
-    nodes.successful shouldBe(true)
-    nodes.next.atEnd shouldBe(true)
+    val document = ConsoleIntake(article_filename)
   }
 
 }

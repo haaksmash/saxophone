@@ -2,14 +2,16 @@ package com.haaksmash.hst.intakes
 
 import com.haaksmash.hst.Document
 
-object ConsoleIntake extends BaseIntake {
-
-  val file_intake = new FileIntake
+class ConsoleIntake(val file_intake:FileIntake = new FileIntake) extends BaseIntake {
 
   def intake(filename:String): Document = {
     file_intake.intake(filename)
   }
 
-  def apply(filename:String) = intake(filename)
+}
 
+object ConsoleIntake {
+  def apply(filename:String) = {
+    new ConsoleIntake intake(filename)
+  }
 }

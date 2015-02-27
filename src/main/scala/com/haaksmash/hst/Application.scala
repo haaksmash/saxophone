@@ -2,6 +2,7 @@ package com.haaksmash.hst
 
 import com.haaksmash.hst.emitters.ConsoleEmitter
 import com.haaksmash.hst.intakes.ConsoleIntake
+import com.haaksmash.hst.translators.HSTTreeStringTranslator
 
 class Application {
 
@@ -14,6 +15,6 @@ object Application {
    */
   def main(args: Array[String]): Unit = {
     val filename = args(0)
-    ConsoleIntake(filename) map {ConsoleEmitter(_)}
+    ConsoleEmitter.emit(HSTTreeStringTranslator.translate(ConsoleIntake(filename)))
   }
 }

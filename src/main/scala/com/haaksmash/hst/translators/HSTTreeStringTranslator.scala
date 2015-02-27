@@ -1,7 +1,10 @@
 package com.haaksmash.hst.translators
 
-import com.haaksmash.hst.Node
+import com.haaksmash.hst.Document
 
-class HSTTreeStringTranslator extends BaseTranslator {
-  override def translate(document: Node): Unit = ???
+object HSTTreeStringTranslator extends BaseTranslator {
+
+  override def translate(document: Document) = {
+    document.toString
+  }
 }
