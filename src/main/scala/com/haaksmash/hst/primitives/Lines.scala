@@ -1,3 +1,5 @@
+package com.haaksmash.hst
+
 sealed abstract trait Line {
   def text: String
   def payload = text
@@ -33,3 +35,7 @@ sealed abstract trait ListLine extends Line {
 case class OrderedLine(text:String) extends ListLine
 
 case class UnorderedLine(text:String) extends ListLine
+
+object EOF extends Line {
+  val text = "EOF"
+}
