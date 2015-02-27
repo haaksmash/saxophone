@@ -39,15 +39,15 @@ class BlockParser extends Parsers {
   }
 
   val header_node: Parser[Heading] = line(classOf[HeadingLine]) ^^ {
-    case h => new Heading(h.headerLevel, Seq(new StandardText(h.payload)))
+    case h => Heading(h.headerLevel, Seq(StandardText(h.payload)))
   }
 
   val paragraph: Parser[Paragraph] = line(classOf[TextLine]).+ ^^ {
-    case text_lines => new Paragraph(
-      Seq(new StandardText(
-        ("" /: text_lines) ((s, l) => s + " " + l.payload).trim
-      ))
-    )
+    case text_lines =>
+      val text = text_lines.foldLeft("")((s, l) => s + " " + l.payload).trim
+      Paragraph(
+        InlineParsers.parseAll(InlineParsers.elements(Set.empty), text).get
+      )
   }
 
   def fold_text_lines_into_ordered_lines(in:List[Line]) = {
@@ -79,15 +79,15 @@ class BlockParser extends Parsers {
 
   val ordered_list_node: Parser[OrderedList] = (line(classOf[OrderedLine]) | line(classOf[TextLine]) ).+ <~ line(classOf[EmptyLine]) ^^ {
     case line_items =>
-      new OrderedList(
-        fold_text_lines_into_ordered_lines(line_items) map {li => new StandardText(li.payload)}
+      OrderedList(
+        fold_text_lines_into_ordered_lines(line_items) map {li => StandardText(li.payload)}
       )
   }
 
   val unordered_list_node: Parser[UnorderedList] = (line(classOf[UnorderedLine]) | line(classOf[TextLine])).+ <~ line(classOf[EmptyLine]) ^^ {
     case line_items =>
-      new UnorderedList(
-        fold_text_lines_into_unordered_lines(line_items) map {li => new StandardText(li.payload)} toSet
+      UnorderedList(
+        fold_text_lines_into_unordered_lines(line_items) map {li => StandardText(li.payload)} toSet
       )
   }
 
@@ -97,13 +97,13 @@ class BlockParser extends Parsers {
         case l: EmptyLine => "\n"
         case l:Line => l.text
       }
-      new Code(
+      Code(
         start.directives,
         code_strings.foldLeft("")((acc, newline) => acc ++ newline)
       )
   }
 
-  val quote_source: Parser[StandardText] = Parser { in =>
+  val quote_source: Parser[Seq[InlineNode]] = Parser { in =>
     if (!in.first.isInstanceOf[TextLine])
       Failure("not a standard text line", in)
     else if (!in.first.text.startsWith("["))
@@ -113,14 +113,17 @@ class BlockParser extends Parsers {
     else
       Success(
         // Strip out the leading "[" and trailing "]"; they're purely syntactic
-        StandardText(in.first.text.substring(1, in.first.text.length - 1)),
+        InlineParsers.parseAll(InlineParsers.elements(Set.empty), in.first.text.substring(1, in.first.text.length - 1)).get,
         in.rest
       )
   }
 
   val quote_node: Parser[Quote] = (line(classOf[QuoteLine])).+ ~ quote_source.? ^^ {
     case quotes ~ source =>
-      Quote(quotes map { case quote_line => new StandardText(quote_line.payload)}, source)
+      Quote(
+        InlineParsers.parseAll(InlineParsers.elements(Set.empty),(quotes.foldLeft("")((str, quote_line) => str + " " + quote_line.payload))).get,
+        source
+      )
   }
 
   val nodes: Parser[Node] = Parser { in =>
@@ -130,22 +133,16 @@ class BlockParser extends Parsers {
       val first_line = in.first
       val results = first_line match {
         case l:HeadingLine =>
-          println("headernode")
           header_node(in)
         case l:OrderedLine =>
-          println("ordered lines")
           ordered_list_node(in)
         case l:UnorderedLine =>
-          println("unordered lines")
           unordered_list_node(in)
         case l:CodeStartLine =>
-          println("codes")
           code_node(in)
         case l:QuoteLine =>
-          println("quote")
           quote_node(in)
         case _ =>
-          println("paragraph")
           paragraph(in)
       }
       results

@@ -18,11 +18,11 @@ trait StringLineParsers extends UtilParsers {
     )
   }
 
-  val codeEnd: Parser[CodeEndLine] = "\\}\\}\\}".r ^^^ {CodeEndLine()}
+  val codeEnd: Parser[CodeEndLine] = "}}}" ^^^ {CodeEndLine()}
 
-  val quoteParser: Parser[QuoteLine] = ">>>".r ~ rest ^^ {case _ ~ text => QuoteLine(text)}
+  val quoteParser: Parser[QuoteLine] = ">>>" ~ rest ^^ {case _ ~ text => QuoteLine(text)}
 
-  val unorderedListParser: Parser[UnorderedLine] = "\\*".r ~ rest ^^ {case _ ~ text => UnorderedLine(text)}
+  val unorderedListParser: Parser[UnorderedLine] = "*" ~ rest ^^ {case _ ~ text => UnorderedLine(text)}
   val orderedListParser: Parser[OrderedLine] = "\\d+\\.".r ~ rest ^^ {case _ ~ text => OrderedLine(text)}
 
 }

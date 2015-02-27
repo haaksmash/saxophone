@@ -1,6 +1,6 @@
 package com.haaksmash.hst
 
-sealed abstract trait Node {
+sealed trait Node {
   def children: Traversable[Node]
   val label = "node"
   def label_display = s"$label"
@@ -20,10 +20,6 @@ case class Paragraph(children: Seq[Node]) extends Node {
   override val label = "p"
 }
 
-case class Footnote(children: Seq[Node]) extends Node {
-  override val label = "foot"
-}
-
 case class ForcedNewline() extends Node {
   val children = Seq.empty
   override val toString = "<br/>"
@@ -35,7 +31,7 @@ case class Code(directives: Map[String, String], contents:String) extends Node {
   override def toString = s"""<$label ${(directives map {case (k, v) => s"""$k="$v""""}).foldLeft("")((prev, current) => s"$prev $current")}>$contents</$label>"""
 }
 
-case class Quote(children: Seq[Node], source: Option[Node]) extends Node {
+case class Quote(children: Seq[Node], source: Option[Seq[InlineNode]]) extends Node {
   override val label = "quote"
   override def label_display = {
     source match {
@@ -47,29 +43,51 @@ case class Quote(children: Seq[Node], source: Option[Node]) extends Node {
 }
 
 
-abstract trait TransformedText extends Node {
-  val children = Seq.empty
+trait InlineNode extends Node
+
+
+case class Footnote(children: Seq[Node]) extends InlineNode {
+  override val label = "foot"
+}
+
+
+trait TransformedText extends InlineNode {
+  val children = Seq.empty[Node]
+  def text:String
+  override def toString = s"<$label_display>$text</$label>"
 }
 
 case class StandardText(text:String) extends TransformedText {
   override def toString = "<text>" + text + "</text>"
 }
 
-case class EmphasizedText(text:String) extends TransformedText
+case class EmphasizedText(text:String) extends TransformedText {
+  override val label = "em"
+}
 
-case class WeightedText(weight:Int, text:String) extends TransformedText
+case class WeightedText(weight:Int, text:String) extends TransformedText {
+  override val label = "strong"
+}
 
-case class UnderlinedText(text:String) extends TransformedText
+case class UnderlinedText(text:String) extends TransformedText {
+  override val label = "u"
+}
 
-case class MonospaceText(text:String) extends TransformedText
+case class MonospaceText(text:String) extends TransformedText {
+  override val label = "mono"
+}
+
+case class StruckthroughText(text:String) extends TransformedText {
+  override val label = "strike"
+}
 
 
-case class Link(children: Seq[Node], to: LinkTarget) extends Node {
+case class Link(override val children: Seq[Node], to: LinkTarget) extends InlineNode {
   override val label = "a"
   override def label_display = s"$label target=$to"
 }
 
-case class LinkTarget(target: String) extends Node {
+case class LinkTarget(target: String) extends InlineNode {
   val children = Seq.empty
   override def toString = target
 }

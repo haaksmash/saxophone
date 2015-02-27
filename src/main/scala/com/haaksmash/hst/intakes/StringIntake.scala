@@ -9,12 +9,9 @@ class StringIntake {
   
   def eval(input: String)  = {
     val lines = string_tokenizer.eval(input)
-    println("parsing Lines into Nodes")
-    val document = lines map {
+    lines map {
       l => block_parser.blocks(new LineReader(l))
     }
-
-    document
   }
 
 }
