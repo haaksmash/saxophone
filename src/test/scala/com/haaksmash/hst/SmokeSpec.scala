@@ -1,5 +1,6 @@
 package com.haaksmash.hst
 
+import com.haaksmash.hst.intakes.StringIntake
 import org.scalatest._
 
 trait Article extends SuiteMixin { this: Suite =>
@@ -14,8 +15,7 @@ trait Article extends SuiteMixin { this: Suite =>
 class SmokeSpec extends FlatSpec with Matchers with Article {
 
   "BlockParsers" should "successfully evaluate a .hst file" in {
-    val block_parser = new BlockParser()
-    block_parser.eval(article) map { r => println(r.get) }
+    StringIntake(article) map { r => println(r.get) }
   }
 
 }

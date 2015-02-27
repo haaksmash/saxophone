@@ -145,16 +145,4 @@ class BlockParser extends Parsers {
   the blocks parser simply strips out all EmptyLines after a matching nodes group of lines
    */
   val blocks: Parser[Document] = (nodes <~ (line(classOf[EmptyLine])).*).+ ^^ { Document(_) }
-
-  val stringTokenizer = new StringLineTokenizer
-
-  def eval(input: String)  = {
-    val lines = stringTokenizer.eval(input)
-    println("parsing Lines into Nodes")
-    val document = lines map {
-      l => blocks(new LineReader(l))
-    }
-
-    document
-  }
 }
