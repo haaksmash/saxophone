@@ -1,5 +1,7 @@
-package com.haaksmash.hst.parsers
+package com.haaksmash.hst
 
-class InlineParsers {
+import util.parsing.combinator.{Parsers, RegexParsers}
+
+class InlineParsers extends RegexParsers {
 
 }

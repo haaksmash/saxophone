@@ -8,6 +8,12 @@ import scala.util.parsing.combinator.Parsers
 class BlockParser extends Parsers {
   type Elem = Line
 
+  /**
+   * Matches & consumes a line of type T. Notably, it will __not__ match lines that
+   * are subtypes of T.
+   *
+   * @param c the specific class of Line @tparam T
+   */
   def line[T](c:Class[T]): Parser[T] = Parser { in =>
     if (in.first.getClass == c) Success(in.first.asInstanceOf[T], in.rest)
     else {
@@ -16,7 +22,12 @@ class BlockParser extends Parsers {
   }
 
   /**
-   * Parses a line of any type *but* T
+   * Matches & consumes a line of any type __except for__ T. the in-library `not` combinator
+   * isn't sufficient because it interacts incorrectly with the `line` combinator
+   * defined here.
+   *
+   * @param c the specific class of Line to *not* match.
+   * @tparam T
    */
   def notLine[T](c:Class[T]):Parser[Line] = Parser {in =>
     if (in.atEnd)
@@ -80,8 +91,8 @@ class BlockParser extends Parsers {
       )
   }
 
-  val code_node: Parser[Code] = (line(classOf[CodeStartLine]) ~ notLine(classOf[CodeEndLine]).+ ~ line(classOf[CodeEndLine])) ^^ {
-    case start ~ code ~ end =>
+  val code_node: Parser[Code] = (line(classOf[CodeStartLine]) ~ notLine(classOf[CodeEndLine]).+ <~ line(classOf[CodeEndLine])) ^^ {
+    case start ~ code =>
       val code_strings = code map {
         case l: EmptyLine => "\n"
         case l:Line => l.text
