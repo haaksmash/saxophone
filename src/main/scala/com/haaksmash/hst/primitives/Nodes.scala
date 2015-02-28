@@ -1,6 +1,6 @@
 package com.haaksmash.hst
 
-sealed trait Node {
+sealed abstract class Node {
   def children: Traversable[Node]
   val label = "node"
   def label_display = s"$label"

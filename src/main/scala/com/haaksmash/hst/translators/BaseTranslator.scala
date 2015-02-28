@@ -1,9 +1,9 @@
 package com.haaksmash.hst.translators
 
-import com.haaksmash.hst.Document
+import com.haaksmash.hst.Node
 
 trait BaseTranslator {
 
-  def translate(document: Document): String
+  def translate(document: Node): String
 
 }
