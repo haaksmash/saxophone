@@ -99,7 +99,7 @@ class BlockParser extends Parsers {
       }
       Code(
         start.directives,
-        code_strings.foldLeft("")((acc, newline) => acc ++ newline)
+        code_strings.foldLeft("")((acc, newline) => acc ++ "\n" + newline.trim)
       )
   }
 
