@@ -1,8 +1,8 @@
 package com.haaksmash.saxophone
 
-import com.haaksmash.saxophone.emitters.ConsoleEmitter
-import com.haaksmash.saxophone.intakes.ConsoleIntake
-import com.haaksmash.saxophone.translators.{HTMLTranslator, HSTTreeStringTranslator}
+import com.haaksmash.saxophone.emitters.{FileEmitter, ConsoleEmitter}
+import com.haaksmash.saxophone.intakes.FileIntake
+import com.haaksmash.saxophone.translators.{HTMLTranslator, SaxophoneTreeStringTranslator}
 
 class Application {
 
@@ -10,12 +10,21 @@ class Application {
 
 object Application {
   /**
-   * @param args should only be a single path-to-file-name. All other passed-in things are ignored.
+   * @param args [-d] [-o filename] input_filename
    */
   def main(args: Array[String]): Unit = {
-    val saxophone_filename = args(0)
-    val document = ConsoleIntake(saxophone_filename)
-    ConsoleEmitter.emit(HSTTreeStringTranslator.translate(document))
-    ConsoleEmitter.emit(HTMLTranslator.translate(document))
+    val saxophone_filename = args(args.length - 1)
+
+    val document = FileIntake(saxophone_filename)
+
+    if (args.contains("-o")) {
+      val output_filename = args(args.indexOf("-o") + 1)
+      FileEmitter(output_filename).emit(HTMLTranslator.translate(document))
+    } else {
+      ConsoleEmitter.emit(HTMLTranslator.translate(document))
+    }
+
+    if (args.contains("-d"))
+      ConsoleEmitter.emit(SaxophoneTreeStringTranslator.translate(document))
   }
 }

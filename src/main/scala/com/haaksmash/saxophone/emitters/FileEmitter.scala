@@ -10,3 +10,7 @@ class FileEmitter(val filename:String) extends BaseEmitter {
     writer.close()
   }
 }
+
+object FileEmitter {
+  def apply(filename:String) = new FileEmitter(filename)
+}
