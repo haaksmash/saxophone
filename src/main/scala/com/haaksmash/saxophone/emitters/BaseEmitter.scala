@@ -1,4 +1,4 @@
-package com.haaksmash.hst.emitters
+package com.haaksmash.saxophone.emitters
 
 trait BaseEmitter {
 

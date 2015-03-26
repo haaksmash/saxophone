@@ -1,6 +1,6 @@
-package com.haaksmash.hst.intakes
+package com.haaksmash.saxophone.intakes
 
-import com.haaksmash.hst.{BlockParser, StringLineTokenizer, LineReader}
+import com.haaksmash.saxophone.{BlockParser, StringLineTokenizer, LineReader}
 import scala.util.parsing.combinator._
 
 class StringIntake(

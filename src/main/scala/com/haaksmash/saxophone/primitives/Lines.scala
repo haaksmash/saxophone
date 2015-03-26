@@ -1,4 +1,4 @@
-package com.haaksmash.hst
+package com.haaksmash.saxophone
 
 sealed abstract trait Line {
   def text: String

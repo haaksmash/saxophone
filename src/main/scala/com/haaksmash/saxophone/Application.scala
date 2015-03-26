@@ -1,8 +1,8 @@
-package com.haaksmash.hst
+package com.haaksmash.saxophone
 
-import com.haaksmash.hst.emitters.ConsoleEmitter
-import com.haaksmash.hst.intakes.ConsoleIntake
-import com.haaksmash.hst.translators.{HTMLTranslator, HSTTreeStringTranslator}
+import com.haaksmash.saxophone.emitters.ConsoleEmitter
+import com.haaksmash.saxophone.intakes.ConsoleIntake
+import com.haaksmash.saxophone.translators.{HTMLTranslator, HSTTreeStringTranslator}
 
 class Application {
 

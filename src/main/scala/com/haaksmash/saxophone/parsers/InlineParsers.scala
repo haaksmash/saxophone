@@ -1,4 +1,4 @@
-package com.haaksmash.hst
+package com.haaksmash.saxophone
 
 import util.parsing.combinator.{Parsers, RegexParsers}
 

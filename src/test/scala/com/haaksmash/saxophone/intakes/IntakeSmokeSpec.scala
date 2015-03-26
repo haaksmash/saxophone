@@ -1,4 +1,4 @@
-package com.haaksmash.hst.intakes
+package com.haaksmash.saxophone.intakes
 
 import org.scalatest._
 
@@ -18,11 +18,11 @@ class IntakeSmokeSpec extends FlatSpec with Matchers with Article {
     val document = StringIntake(article)
   }
 
-  "FileIntake" should "successfully evaluate a .hst file" in {
+  "FileIntake" should "successfully evaluate a .saxophone file" in {
     val document = FileIntake(article_filename)
   }
 
-  "ConsoleIntake" should "successfully evaluate a .hst file" in {
+  "ConsoleIntake" should "successfully evaluate a .saxophone file" in {
     val document = ConsoleIntake(article_filename)
   }
 

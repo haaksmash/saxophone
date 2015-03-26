@@ -1,6 +1,6 @@
-package com.haaksmash.hst.intakes
+package com.haaksmash.saxophone.intakes
 
-import com.haaksmash.hst.Document
+import com.haaksmash.saxophone.Document
 
 class ConsoleIntake(val file_intake:FileIntake = new FileIntake) extends BaseIntake {
 

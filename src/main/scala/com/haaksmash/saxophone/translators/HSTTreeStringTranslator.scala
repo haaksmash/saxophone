@@ -1,6 +1,6 @@
-package com.haaksmash.hst.translators
+package com.haaksmash.saxophone.translators
 
-import com.haaksmash.hst._
+import com.haaksmash.saxophone._
 
 object HSTTreeStringTranslator extends BaseTranslator {
 

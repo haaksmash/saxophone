@@ -1,9 +1,9 @@
-package com.haaksmash.hst
+package com.haaksmash.saxophone
 
 import scala.util.parsing.combinator.Parsers
 
 /**
-  * The block parsers translate com.haaksmash.hst.Line -> com.haaksmash.hst.Node
+  * The block parsers translate com.haaksmash.saxophone.Line -> com.haaksmash.saxophone.Node
   */
 class BlockParser extends Parsers {
   type Elem = Line
