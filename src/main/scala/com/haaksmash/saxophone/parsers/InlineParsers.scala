@@ -1,6 +1,6 @@
 package com.haaksmash.saxophone
 
-import util.parsing.combinator.{Parsers, RegexParsers}
+import scala.util.parsing.combinator.RegexParsers
 
 object InlineParsers extends RegexParsers {
 

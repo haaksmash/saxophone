@@ -1,12 +1,9 @@
 package com.haaksmash.saxophone
 
-import com.haaksmash.saxophone.emitters.{FileEmitter, ConsoleEmitter}
+import com.haaksmash.saxophone.emitters.{ConsoleEmitter, FileEmitter}
 import com.haaksmash.saxophone.intakes.FileIntake
 import com.haaksmash.saxophone.translators.{HTMLTranslator, SaxophoneTreeStringTranslator}
 
-class Application {
-
-}
 
 object Application {
 

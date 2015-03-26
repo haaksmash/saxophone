@@ -22,8 +22,4 @@ class IntakeSmokeSpec extends FlatSpec with Matchers with Article {
     val document = FileIntake(article_filename)
   }
 
-  "ConsoleIntake" should "successfully evaluate a .saxophone file" in {
-    val document = ConsoleIntake(article_filename)
-  }
-
 }

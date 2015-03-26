@@ -1,13 +1,14 @@
 package com.haaksmash.saxophone.intakes
 
-import com.haaksmash.saxophone.{BlockParser, StringLineTokenizer, LineReader}
-import scala.util.parsing.combinator._
+import com.haaksmash.saxophone.{BlockParser, LineReader, StringLineTokenizer}
 
 class StringIntake(
-                    val string_tokenizer: StringLineTokenizer = new StringLineTokenizer,
-                    val block_parser: BlockParser = new BlockParser) extends BaseIntake {
+  val string_tokenizer: StringLineTokenizer,
+  val block_parser: BlockParser) extends BaseIntake {
 
-  def intake(input: String) = {
+  type IntakeType = String;
+
+  def intake(input: IntakeType) = {
     val lines = string_tokenizer.eval(input)
     (lines map {
       l => block_parser.blocks(new LineReader(l))
@@ -18,6 +19,9 @@ class StringIntake(
 
 object StringIntake {
   def apply(input:String) = {
-    new StringIntake intake(input)
+    new StringIntake(
+      string_tokenizer = new StringLineTokenizer,
+      block_parser = new BlockParser
+    ).intake(input)
   }
 }
