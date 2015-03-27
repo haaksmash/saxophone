@@ -40,4 +40,10 @@ class InlineParsersSpec extends FlatSpec {
     }
   }
 
+  "emphasized_text" should "match characters between /" in {
+    val input = "/hello/"
+    val result = parsers.parseAll(parsers.emphasized_text, input).get
+
+    assert(result.text == "hello")
+  }
 }
