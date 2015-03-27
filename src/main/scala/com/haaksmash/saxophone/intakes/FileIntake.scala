@@ -1,9 +1,11 @@
 package com.haaksmash.saxophone.intakes
 
+import java.io.File
+
 import com.haaksmash.saxophone.Document
 
 class FileIntake extends BaseIntake {
-  type IntakeType = String
+  type IntakeType = File
 
   def intake(filename:IntakeType): Document = {
 
@@ -17,6 +19,6 @@ class FileIntake extends BaseIntake {
 
 object FileIntake {
   def apply(filename: String) = {
-    (new FileIntake).intake(filename)
+    (new FileIntake).intake(new File(filename))
   }
 }
