@@ -3,7 +3,7 @@ package com.haaksmash.saxophone.parsers
 import com.haaksmash.saxophone.UtilParsers
 import org.scalatest._
 
-class UtilParserSpec extends FlatSpec with Matchers{
+class UtilParserSpec extends FlatSpec {
 
   object parsers extends UtilParsers
 

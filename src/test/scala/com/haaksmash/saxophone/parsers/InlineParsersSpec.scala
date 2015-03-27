@@ -3,7 +3,7 @@ package com.haaksmash.saxophone.parsers
 import com.haaksmash.saxophone.InlineParsers
 import org.scalatest._
 
-class InlineParsersSpec extends FlatSpec with Matchers {
+class InlineParsersSpec extends FlatSpec {
   val parsers = InlineParsers
 
   "standard_text" should "match a regular sentence" in {
