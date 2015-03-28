@@ -82,7 +82,7 @@ case class StruckthroughText(text:String) extends TransformedText {
 }
 
 
-case class Link(override val children: Seq[Node], to: LinkTarget) extends InlineNode {
+case class Link(override val children: Seq[InlineNode], to: LinkTarget) extends InlineNode {
   override val label = "a"
   override def label_display = s"$label target=$to"
 }

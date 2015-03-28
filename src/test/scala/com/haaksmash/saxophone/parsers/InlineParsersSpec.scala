@@ -1,6 +1,6 @@
 package com.haaksmash.saxophone.parsers
 
-import com.haaksmash.saxophone.InlineParsers
+import com.haaksmash.saxophone._
 import org.scalatest._
 
 class InlineParsersSpec extends FlatSpec {
@@ -45,5 +45,62 @@ class InlineParsersSpec extends FlatSpec {
     val result = parsers.parseAll(parsers.emphasized_text, input).get
 
     assert(result.text == "hello")
+  }
+
+  "weighted_text" should "match characters between *" in {
+    val input = "*hello*"
+    val result = parsers.parseAll(parsers.weighted_text, input).get
+
+    assert(result.text == "hello")
+  }
+
+  "underlined_text" should "match characters between _" in {
+    val input = "_hello_"
+    val result = parsers.parseAll(parsers.underlined_text, input).get
+
+    assert(result.text == "hello")
+  }
+
+  "struckthrough_text" should "match characters between ~" in {
+    val input = "~hello~"
+    val result = parsers.parseAll(parsers.struckthrough_text, input).get
+
+    assert(result.text == "hello")
+  }
+
+  "monospaced_text" should "match characters between `" in {
+    val input = "`hello`"
+    val result = parsers.parseAll(parsers.monospaced_text, input).get
+
+    assert(result.text == "hello")
+  }
+
+  "link_text" should "match text inside []" in {
+    val input = "[hello]"
+    val result = parsers.parseAll(parsers.link_text, input).get
+
+    assert(result.children.length == 1)
+    assert(result.children(0).asInstanceOf[StandardText].text == "hello")
+  }
+
+  it should "recognize a link's target, after a link, inside ()" in {
+    val input = "[hello](goodbye)"
+    val result = parsers.parseAll(parsers.link_text, input).get
+
+    assert(result.to.target == "goodbye")
+  }
+
+  it should "recursively parse inline nodes" in {
+    val input = "[_hello_/this/*is*something~bold~]"
+    val result = parsers.parseAll(parsers.link_text, input).get
+
+    assert(result.children.length == 5)
+  }
+
+  it should "not allow nested links" in {
+    val input = "[[hello]]"
+    val result = parsers.parseAll(parsers.link_text, input)
+
+    assert(result.isEmpty)
   }
 }
