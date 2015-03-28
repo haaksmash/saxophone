@@ -97,10 +97,43 @@ class InlineParsersSpec extends FlatSpec {
     assert(result.children.length == 5)
   }
 
+  it should "not parse elements of the target as InlineNodes" in {
+    val input = "[hello](_hello_/this/*is*something~bold~)"
+    val result = parsers.parseAll(parsers.link_text, input).get
+
+    assert(result.to.target == "_hello_/this/*is*something~bold~")
+    assert(result.to.children.isEmpty)
+  }
+
   it should "not allow nested links" in {
     val input = "[[hello]]"
     val result = parsers.parseAll(parsers.link_text, input)
 
     assert(result.isEmpty)
+  }
+
+  "footnote_text" should "match text between {}" in {
+    val input = "{hello}"
+    val result = parsers.parseAll(parsers.footnote_text, input).get
+
+    assert(result.children.length == 1)
+    assert(result.children(0).asInstanceOf[StandardText].text == "hello")
+  }
+
+  it should "recursively parse inline nodes" in {
+    val input = "{_hello_/this/*is*something~bold~}"
+    val result = parsers.parseAll(parsers.footnote_text, input).get
+
+    assert(result.children.length == 5)
+  }
+
+  it should "not allow nested footnotes" in {
+    val input = "{{hello}}"
+    val result = parsers.parseAll(parsers.footnote_text, input)
+
+    assert(result.isEmpty)
+  }
+
+  "element" should "prevent nesting" in {
   }
 }
