@@ -10,20 +10,20 @@ object InlineParsers extends RegexParsers {
   val LINK_END = ']'
   val LINK_TARGET_START = '('
   val LINK_TARGET_END = ')'
-  val WEIGHTED_START = '*'
-  val EMPHASIZED_START = '/'
-  val STRUCKTHROUGH_START = '~'
-  val UNDERLINE_START = '_'
-  val MONOSPACE_START = '`'
+  val WEIGHTED_START, WEIGHTED_END = '*'
+  val EMPHASIZED_START, EMPHASIZED_END = '/'
+  val STRUCKTHROUGH_START, STRUCKTHROUGH_END = '~'
+  val UNDERLINE_START, UNDERLINE_END = '_'
+  val MONOSPACE_START, MONOSPACE_END = '`'
 
-  val special_chars = Set(
-    FOOTNOTE_START,
-    LINK_START,
-    WEIGHTED_START,
-    EMPHASIZED_START,
-    STRUCKTHROUGH_START,
-    UNDERLINE_START,
-    MONOSPACE_START
+  val special_char_to_tracking_char = Map(
+    FOOTNOTE_START -> ("f", FOOTNOTE_END),
+    LINK_START -> ("a", LINK_END),
+    WEIGHTED_START -> ("b", WEIGHTED_END),
+    EMPHASIZED_START -> ("i", EMPHASIZED_END),
+    STRUCKTHROUGH_START -> ("s", STRUCKTHROUGH_END),
+    UNDERLINE_START -> ("u", UNDERLINE_END),
+    MONOSPACE_START -> ("m", MONOSPACE_END)
   )
 
   def aChar = Parser{ in =>
@@ -37,33 +37,33 @@ object InlineParsers extends RegexParsers {
   val standard_text: Parser[StandardText] = Parser{ in =>
     if (in.atEnd)
       Failure("End of input reached.", in)
-    else if (special_chars.contains(in.first))
+    else if (special_char_to_tracking_char.contains(in.first))
       Failure("not standard text", in)
     else {
       val subsource = in.source.subSequence(in.offset, in.source.length)
-      val regular_text = subsource.toString.toList.takeWhile(!special_chars.contains(_)).mkString
+      val regular_text = subsource.toString.toList.takeWhile(!special_char_to_tracking_char.contains(_)).mkString
       Success(StandardText(regular_text), in.drop(regular_text.length))
     }
   }
 
-  val emphasized_text: Parser[EmphasizedText] = EMPHASIZED_START ~> (not(EMPHASIZED_START) ~> aChar+) <~ EMPHASIZED_START ^^ {
+  val emphasized_text: Parser[EmphasizedText] = EMPHASIZED_START ~> (not(EMPHASIZED_END) ~> aChar+) <~ EMPHASIZED_END ^^ {
     case chars => EmphasizedText(chars.mkString)
   }
 
-  val weighted_text: Parser[WeightedText] = WEIGHTED_START ~> (not(WEIGHTED_START) ~> aChar+) <~ WEIGHTED_START ^^ {
+  val weighted_text: Parser[WeightedText] = WEIGHTED_START ~> (not(WEIGHTED_END) ~> aChar+) <~ WEIGHTED_END^^ {
     // For now, only support a single level of added-weight
     case text => WeightedText(1, text.mkString)
   }
 
-  val underlined_text: Parser[UnderlinedText] = UNDERLINE_START ~> (not(UNDERLINE_START) ~> aChar+) <~ UNDERLINE_START ^^ {
+  val underlined_text: Parser[UnderlinedText] = UNDERLINE_START ~> (not(UNDERLINE_END) ~> aChar+) <~ UNDERLINE_END ^^ {
     case chars => UnderlinedText(chars.mkString)
   }
 
-  val struckthrough_text: Parser[StruckthroughText] = STRUCKTHROUGH_START ~> (not(STRUCKTHROUGH_START) ~> aChar+) <~ STRUCKTHROUGH_START ^^ {
+  val struckthrough_text: Parser[StruckthroughText] = STRUCKTHROUGH_START ~> (not(STRUCKTHROUGH_END) ~> aChar+) <~ STRUCKTHROUGH_END ^^ {
     case chars => StruckthroughText(chars.mkString)
   }
 
-  val monospaced_text: Parser[MonospaceText] = MONOSPACE_START ~> (not(MONOSPACE_START) ~> aChar+) <~ MONOSPACE_START ^^ {
+  val monospaced_text: Parser[MonospaceText] = MONOSPACE_START ~> (not(MONOSPACE_END) ~> aChar+) <~ MONOSPACE_END ^^ {
     case chars => MonospaceText(chars.mkString)
   }
 
@@ -88,28 +88,41 @@ object InlineParsers extends RegexParsers {
     else {
       in.first match {
         case FOOTNOTE_START =>
-          if (visited.contains("f"))
+          if (visited contains special_char_to_tracking_char(FOOTNOTE_START)._1)
             Failure("can't nest footnotes", in)
           else
             footnote_text(in)
         case LINK_START =>
-          if (visited.contains("a"))
+          if (visited contains special_char_to_tracking_char(LINK_START)._1)
             Failure("can't nest links", in)
           else
             link_text(in)
         case WEIGHTED_START =>
-          if (visited.contains("b"))
+          if (visited contains special_char_to_tracking_char(WEIGHTED_START)._1)
             Failure("can't nest weights", in)
           else
             weighted_text(in)
         case EMPHASIZED_START =>
-          if (visited.contains("i"))
+          if (visited contains special_char_to_tracking_char(EMPHASIZED_START)._1)
             Failure("can't nest italics", in)
           else
             emphasized_text(in)
-        case STRUCKTHROUGH_START => struckthrough_text(in)
-        case UNDERLINE_START => underlined_text(in)
-        case MONOSPACE_START => monospaced_text(in)
+        case STRUCKTHROUGH_START =>
+          if (visited contains special_char_to_tracking_char(STRUCKTHROUGH_START)._1)
+            Failure("can't nest strikethrough", in)
+          else
+            struckthrough_text(in)
+        case UNDERLINE_START =>
+          if (visited contains special_char_to_tracking_char(UNDERLINE_START)._1)
+            Failure("can't nest underline", in)
+          else
+            underlined_text(in)
+        case MONOSPACE_START =>
+          if (visited contains special_char_to_tracking_char(MONOSPACE_START)._1)
+            Failure("can't nest monospace", in)
+          else
+            monospaced_text(in)
+
         case _ => Failure(s"didn't recognize symbol ${in.first}", in)
       }
     }
