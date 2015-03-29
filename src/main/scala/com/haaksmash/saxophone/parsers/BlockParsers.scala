@@ -5,7 +5,7 @@ import scala.util.parsing.combinator.Parsers
 /**
   * The block parsers translate com.haaksmash.saxophone.Line -> com.haaksmash.saxophone.Node
   */
-class BlockParser extends Parsers {
+class BlockParsers extends Parsers {
   type Elem = Line
 
   /**
