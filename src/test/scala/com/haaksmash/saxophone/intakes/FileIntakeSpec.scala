@@ -2,11 +2,22 @@ package com.haaksmash.saxophone.intakes
 
 import org.scalatest._
 
+import java.io.File
+
 class FileIntakeSpec extends FlatSpec {
 
-  val article_filename = "/Users/haak/Dropbox/git_projects/personal_site/app/utility/article_example.hs"
+  val article_filepath = getClass.getResource("/article_example.sax").getPath
 
-  "FileIntake" should "successfully evaluate a .saxophone file" in {
-    val document = FileIntake(article_filename)
+  "FileIntake" should "successfully evaluate a .sax file by path" in {
+    val document = FileIntake(article_filepath)
+
+    assert(document.children.length > 1)
+  }
+
+  it should "evaluate a .sax file directly" in {
+    val article = new File(article_filepath)
+    val document = FileIntake(article)
+
+    assert(document.children.length > 1)
   }
 }

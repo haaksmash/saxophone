@@ -21,4 +21,8 @@ object FileIntake {
   def apply(filename: String) = {
     (new FileIntake).intake(new File(filename))
   }
+
+  def apply(file:File) = {
+    (new FileIntake).intake(file)
+  }
 }
