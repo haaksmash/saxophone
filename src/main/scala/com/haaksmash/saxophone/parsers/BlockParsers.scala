@@ -50,22 +50,22 @@ class BlockParsers extends Parsers {
       )
   }
 
-  def flatten_list_lines[T <: ListLine](line_object_apply: (String => T), in: List[Line], accumulator: List[Line]): List[Line] = in match {
+  def flatten_list_lines[T <: ListLine](line_object_apply: (String => T))(in: List[Line], accumulator: List[Line]): List[Line] = in match {
     case (x: T) :: (y: TextLine) :: ys => {
       val new_line = line_object_apply(x.text + " " + y.text)
-      flatten_list_lines(line_object_apply, new_line :: ys, accumulator)
+      flatten_list_lines(line_object_apply)(new_line :: ys, accumulator)
     }
     case x :: xs =>
-      flatten_list_lines(line_object_apply, xs, x :: accumulator)
+      flatten_list_lines(line_object_apply)(xs, x :: accumulator)
     case Nil => accumulator
   }
 
   def fold_text_lines_into_ordered_lines(in:List[Line]) = {
-    flatten_list_lines[OrderedLine](OrderedLine.apply, in, Nil:List[Line]).reverse
+    flatten_list_lines[OrderedLine](OrderedLine.apply)(in, Nil:List[Line]).reverse
   }
 
   def fold_text_lines_into_unordered_lines(in:List[Line]) = {
-    flatten_list_lines[UnorderedLine](UnorderedLine.apply, in, Nil:List[Line]).reverse
+    flatten_list_lines[UnorderedLine](UnorderedLine.apply)(in, Nil:List[Line]).reverse
   }
 
   val ordered_list_node: Parser[OrderedList] = (line(classOf[OrderedLine]) | line(classOf[TextLine]) ).+ <~ line(classOf[EmptyLine]) ^^ {
