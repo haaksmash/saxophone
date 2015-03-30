@@ -3,14 +3,15 @@ package com.haaksmash.saxophone
 import scala.util.parsing.combinator._
 
 /**
- * StringLineTokenizer translates String -> Line
+ * Provides parsers that translate [[String]] -> [[com.haaksmash.saxophone.Line]]
  */
-class StringLineTokenizer extends Parsers {
+class LineParsers extends Parsers {
   type Elem = String
   object lineParsers extends StringLineParsers
 
-  /*
-   * Stupid hack so this tokenizer can use StringLineParsers parsers as if they were its own.
+  /**
+   * Stupid hack so this tokenizer can use [[com.haaksmash.saxophone.StringLineParsers]]
+   * parsers as if they were its own.
    */
   def p[T](parser:lineParsers.Parser[T]):Parser[T] = Parser {in =>
     if (in.atEnd)

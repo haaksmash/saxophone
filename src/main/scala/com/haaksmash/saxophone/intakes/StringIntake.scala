@@ -1,9 +1,9 @@
 package com.haaksmash.saxophone.intakes
 
-import com.haaksmash.saxophone.{Document, BlockParsers, LineReader, StringLineTokenizer}
+import com.haaksmash.saxophone.{Document, BlockParsers, LineReader, LineParsers}
 
 class StringIntake(
-  val string_tokenizer: StringLineTokenizer,
+  val string_tokenizer: LineParsers,
   val block_parser: BlockParsers) extends BaseIntake {
 
   type IntakeType = String;
@@ -20,7 +20,7 @@ class StringIntake(
 object StringIntake {
   def apply(input:String): Document = {
     new StringIntake(
-      string_tokenizer = new StringLineTokenizer,
+      string_tokenizer = new LineParsers,
       block_parser = new BlockParsers
     ).intake(input)
   }

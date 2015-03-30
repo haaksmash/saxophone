@@ -2,7 +2,7 @@ package com.haaksmash.saxophone
 
 
 /**
- * StringLineParsers translates String -> Line
+ * Translates [[String]] to specific instances of [[com.haaksmash.saxophone.Line]]
  */
 trait StringLineParsers extends UtilParsers {
   val headingParser: Parser[HeadingLine] = "#+ ".r ~ rest ^^ {
