@@ -11,8 +11,8 @@ trait StringLineParsers extends UtilParsers {
       HeadingLine(glyphs.slice(0, glyphs.length - 1), text)
   }
 
-  val codeStart: Parser[CodeStartLine] = "{{{" ~ rest ^^ {
-    case _ ~ directives =>
+  val codeStart: Parser[CodeStartLine] = "{{{" ~> rest ^^ {
+    case directives =>
       val directive_map = if (!directives.isEmpty) {
         directives.split('|') map {pair =>
           val keyval = pair.split(':')
@@ -29,10 +29,10 @@ trait StringLineParsers extends UtilParsers {
 
   val codeEnd: Parser[CodeEndLine] = "}}}" ^^^ {CodeEndLine()}
 
-  val quoteParser: Parser[QuoteLine] = ">>>\\s?".r ~ rest ^^ {case _ ~ text => QuoteLine(text)}
+  val quoteParser: Parser[QuoteLine] = ">>>\\s?".r ~> rest ^^ {case text => QuoteLine(text)}
 
-  val unorderedListParser: Parser[UnorderedLine] = "\\*\\s?".r ~ rest ^^ {case _ ~ text => UnorderedLine(text)}
-  val orderedListParser: Parser[OrderedLine] = "\\d+\\.\\s?".r ~ rest ^^ {case _ ~ text => OrderedLine(text)}
+  val unorderedListParser: Parser[UnorderedLine] = "\\*\\s?".r ~> rest ^^ {case text => UnorderedLine(text)}
+  val orderedListParser: Parser[OrderedLine] = "\\d+\\.\\s?".r ~> rest ^^ {case text => OrderedLine(text)}
 
 }
 
