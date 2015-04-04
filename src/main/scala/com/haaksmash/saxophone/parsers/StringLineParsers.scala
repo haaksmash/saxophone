@@ -5,13 +5,19 @@ package com.haaksmash.saxophone
  * Translates [[String]] to specific instances of [[com.haaksmash.saxophone.Line]]
  */
 trait StringLineParsers extends UtilParsers {
-  val headingParser: Parser[HeadingLine] = "#+ ".r ~ rest ^^ {
+
+  val HEADING_GLYPH = "#"
+  val CODE_START = "{{{"
+  val CODE_END = "}}}"
+  val QUOTE_LINE = ">>>"
+
+  val headingParser: Parser[HeadingLine] = s"${HEADING_GLYPH}+ ".r ~ rest ^^ {
     case glyphs ~ text =>
       // glyphs will end with a space that we want to throw away
       HeadingLine(glyphs.slice(0, glyphs.length - 1), text)
   }
 
-  val codeStart: Parser[CodeStartLine] = "{{{" ~> rest ^^ {
+  val codeStart: Parser[CodeStartLine] = CODE_START ~> rest ^^ {
     case directives =>
       val directive_map = if (!directives.isEmpty) {
         directives.split('|') map {pair =>
@@ -27,9 +33,9 @@ trait StringLineParsers extends UtilParsers {
       )
   }
 
-  val codeEnd: Parser[CodeEndLine] = "}}}" ^^^ {CodeEndLine()}
+  val codeEnd: Parser[CodeEndLine] = CODE_END ^^^ {CodeEndLine()}
 
-  val quoteParser: Parser[QuoteLine] = ">>>\\s?".r ~> rest ^^ {case text => QuoteLine(text)}
+  val quoteParser: Parser[QuoteLine] = s"$QUOTE_LINE\\s?".r ~> rest ^^ {case text => QuoteLine(text)}
 
   val unorderedListParser: Parser[UnorderedLine] = "\\*\\s?".r ~> rest ^^ {case text => UnorderedLine(text)}
   val orderedListParser: Parser[OrderedLine] = "\\d+\\.\\s?".r ~> rest ^^ {case text => OrderedLine(text)}
