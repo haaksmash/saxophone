@@ -4,5 +4,5 @@ import com.haaksmash.saxophone.Document
 
 trait BaseIntake {
   type IntakeType
-  def intake(input:IntakeType): Document
+  def intake(input:IntakeType): Option[Document]
 }

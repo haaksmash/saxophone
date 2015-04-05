@@ -10,7 +10,7 @@ object HTMLTranslator extends BaseTranslator {
    * children translated recursively.
    */
   def heading(node:Heading) = s"""<h${node.level}>${translate(node)}</h${node.level}>"""
-  def paragraph(node:Paragraph) = s"""<p>${translate(node)}</p>"""
+  def paragraph(node:Paragraph) = s"""<delegateParsing>${translate(node)}</delegateParsing>"""
   def code(node:Code) = s"""<pre><code>${node.contents}</code></pre>"""
   def quote(node:Quote) = s"""<blockquote>${translate(node)}</blockquote>"""
   def orderedList(node:OrderedList) = {

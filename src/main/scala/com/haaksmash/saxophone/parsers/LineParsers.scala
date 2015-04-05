@@ -7,44 +7,44 @@ import scala.util.parsing.combinator._
  */
 class LineParsers extends Parsers {
   type Elem = String
-  object lineParsers extends StringLineParsers
+  object line_parsers extends StringLineParsers
 
   /**
    * Stupid hack so this tokenizer can use [[com.haaksmash.saxophone.StringLineParsers]]
    * parsers as if they were its own.
    */
-  def p[T](parser:lineParsers.Parser[T]):Parser[T] = Parser {in =>
+  def delegateParsing[T](parser:line_parsers.Parser[T]):Parser[T] = Parser {in =>
     if (in.atEnd)
       Failure("End of input in "+ parser, in)
     else {
-      lineParsers.parseAll(parser, in.first) match {
-        case lineParsers.Success(t, _) => Success(t.asInstanceOf[T], in.rest)
-        case n:lineParsers.NoSuccess => Failure(n.msg, in)
+      line_parsers.parseAll(parser, in.first) match {
+        case line_parsers.Success(t, _) => Success(t.asInstanceOf[T], in.rest)
+        case n:line_parsers.NoSuccess => Failure(n.msg, in)
       }
     }
   }
 
-  val lineToken:Parser[Line] = Parser {in =>
+  val line_token:Parser[Line] = Parser {in =>
     if (in.atEnd)
-      Failure("End of input in lineToken", in)
+      Failure("End of input in line_token", in)
     else {
       val line = in.first
       val char = if (line.isEmpty) '\n' else line.charAt(0)
 
       char match {
-        case '#' => p(lineParsers.headingParser)(in)
-        case '*' => p(lineParsers.unorderedListParser)(in)
+        case '#' => delegateParsing(line_parsers.headingParser)(in)
+        case '*' => delegateParsing(line_parsers.unorderedListParser)(in)
         case '\n' => Success(EmptyLine(), in.rest)
-        case n if ('0' <= n && n <= '9') => p(lineParsers.orderedListParser)(in)
-        case '>' => p(lineParsers.quoteParser)(in)
-        case '{' => p(lineParsers.codeStart)(in)
-        case '}' => p(lineParsers.codeEnd)(in)
+        case n if ('0' <= n && n <= '9') => delegateParsing(line_parsers.orderedListParser)(in)
+        case '>' => delegateParsing(line_parsers.quoteParser)(in)
+        case '{' => delegateParsing(line_parsers.codeStart)(in)
+        case '}' => delegateParsing(line_parsers.codeEnd)(in)
         case _ => Success(TextLine(line), in.rest)
       }
     }
   }
 
-  val lines: Parser[Seq[Line]] = lineToken.*
+  val lines: Parser[Seq[Line]] = line_token.*
 
   def eval(input:String) = {
     lines(new StringLineReader(input)) match {

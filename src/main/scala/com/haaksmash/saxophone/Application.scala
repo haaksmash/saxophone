@@ -21,16 +21,22 @@ object Application {
 
     val saxophone_filename = args(args.length - 1)
 
-    val document = FileIntake(saxophone_filename)
+    val document_result = FileIntake(saxophone_filename)
 
-    if (args.contains("-o")) {
-      val output_filename = args(args.indexOf("-o") + 1)
-      FileEmitter(output_filename).emit(HTMLTranslator.translate(document))
-    } else {
-      ConsoleEmitter.emit(HTMLTranslator.translate(document))
+    document_result match {
+      case Some(document) =>
+        if (args.contains ("-o") ) {
+          val output_filename = args (args.indexOf ("-o") + 1)
+          FileEmitter (output_filename).emit (HTMLTranslator.translate (document) )
+          } else {
+          ConsoleEmitter.emit (HTMLTranslator.translate (document) )
+        }
+
+        if (args.contains ("-d") )
+        ConsoleEmitter.emit (SaxophoneTreeStringTranslator.translate (document) )
+      case _ =>
+        System.err.println("Could not process input as a saxophone document")
+        System.exit(1)
     }
-
-    if (args.contains("-d"))
-      ConsoleEmitter.emit(SaxophoneTreeStringTranslator.translate(document))
   }
 }
