@@ -3,7 +3,7 @@ package com.haaksmash.saxophone.translators
 import com.haaksmash.saxophone._
 
 
-object HTMLTranslator extends BaseTranslator {
+class HTMLTranslator extends BaseTranslator {
 
   /*
    * These are block-level nodes; i.e., nodes that should have their
@@ -12,7 +12,13 @@ object HTMLTranslator extends BaseTranslator {
   def heading(node:Heading) = s"""<h${node.level}>${translate(node)}</h${node.level}>"""
   def paragraph(node:Paragraph) = s"""<delegateParsing>${translate(node)}</delegateParsing>"""
   def code(node:Code) = s"""<pre><code>${node.contents}</code></pre>"""
-  def quote(node:Quote) = s"""<blockquote>${translate(node)}</blockquote>"""
+  def quote(node:Quote) = {
+    val quote = s"""<blockquote>${translate(node)}</blockquote>"""
+    if (node.source.isDefined)
+      quote + (s"""<div class="source">${node.source.get.foldLeft("")((s, n) => s + translate(n))}<div>""")
+    else
+      quote
+  }
   def orderedList(node:OrderedList) = {
     val list_items = node.items.foldLeft("")((s, li) => s + s"""<li>${translate(li)}</li>""")
     s"""<ol>$list_items</ol>"""
@@ -35,12 +41,18 @@ object HTMLTranslator extends BaseTranslator {
   def underlinedText(node:UnderlinedText) = s"""<span style="text-decoration:underline">${node.text}</span>"""
   def weightedText(node:WeightedText) = s"<strong>${node.text}</strong>"
 
-  override def translate(node: Node): String = {
+  def translate(node: Node): String = {
 
     val html = node.children match {
       case Seq() => Traversable(translateSingle(node))
       case children => children map {node_to_translator(_)}
     }
     html.mkString
+  }
+}
+
+object HTMLTranslator {
+  def translate(node:Node): String = {
+    (new HTMLTranslator(true)).translate(node)
   }
 }

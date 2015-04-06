@@ -51,7 +51,7 @@ class BlockParsers extends Parsers {
   }
 
   private def flatten_list_lines[T <: ListLine](line_object_apply: (String => T))(in: List[Line], accumulator: List[Line]): List[Line] = in match {
-    case (x: T) :: (y: TextLine) :: ys => {
+    case (x: T @unchecked) :: (y: TextLine) :: ys => {
       val new_line = line_object_apply(x.text + " " + y.text)
       flatten_list_lines(line_object_apply)(new_line :: ys, accumulator)
     }
@@ -140,8 +140,8 @@ class BlockParsers extends Parsers {
     }
   }
 
-  /*
-  the blocks parser simply strips out all EmptyLines after a matching nodes group of lines
+  /**
+   * strips out all EmptyLines after a matching nodes group of lines
    */
   val blocks: Parser[Document] = (nodes <~ (line(classOf[EmptyLine])).*).+ ^^ { Document(_) }
 }
