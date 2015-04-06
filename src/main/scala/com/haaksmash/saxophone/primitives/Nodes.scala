@@ -43,6 +43,19 @@ case class Quote(children: Seq[Node], source: Option[Seq[InlineNode]]) extends N
 }
 
 
+sealed abstract class ListNode(items: Traversable[Node]) extends Node {
+  def children = items
+}
+
+case class OrderedList(items: Seq[Node]) extends ListNode(items) {
+  override val label = "ol"
+}
+
+case class UnorderedList(items: Set[Node]) extends ListNode(items){
+  override val label = "ul"
+}
+
+
 trait InlineNode extends Node
 
 
@@ -90,17 +103,4 @@ case class Link(override val children: Seq[InlineNode], to: LinkTarget) extends 
 case class LinkTarget(target: String) extends InlineNode {
   val children = Seq.empty
   override def toString = target
-}
-
-
-sealed abstract class ListNode(items: Traversable[Node]) extends Node {
-  def children = items
-}
-
-case class OrderedList(items: Seq[Node]) extends ListNode(items) {
-  override val label = "ol"
-}
-
-case class UnorderedList(items: Set[Node]) extends ListNode(items){
-  override val label = "ul"
 }

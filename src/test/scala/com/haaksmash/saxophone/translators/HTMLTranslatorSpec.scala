@@ -7,7 +7,7 @@ class HTMLTranslatorSpec extends FlatSpec {
 
   val translator = new HTMLTranslator
 
-  "HTMLTranslator.quote" should "translate a Quote" in {
+  "quote" should "translate a Quote" in {
     val quote = Quote(Seq(StandardText("Hello, Clarice.")), None)
 
     val result = translator.quote(quote)
@@ -23,7 +23,7 @@ class HTMLTranslatorSpec extends FlatSpec {
     assert(result == "<blockquote>Hello, Clarice.</blockquote><div class=\"source\">Silence of the Lambs</div>")
   }
 
-  "HTMLTranslator.heading" should "translate a Heading" in {
+  "heading" should "translate a Heading" in {
     for (level <- 1 to 5) {
       val heading = Heading(level, Seq(StandardText("This is a heading!")))
 
@@ -33,7 +33,7 @@ class HTMLTranslatorSpec extends FlatSpec {
     }
   }
 
-  "HTMLTranslator.paragraph" should "translate a Paragraph" in {
+  "paragraph" should "translate a Paragraph" in {
     val paragraph = Paragraph(Seq(StandardText("This is a paragraph")))
 
     val result = translator.paragraph(paragraph)
@@ -41,7 +41,7 @@ class HTMLTranslatorSpec extends FlatSpec {
     assert(result == "<p>This is a paragraph</p>")
   }
 
-  "HTMLTranslator.code" should "translate a Code" in {
+  "code" should "translate a Code" in {
     val code = Code(Map[String,String](), "this  is code,\n yes")
 
     val result = translator.code(code)
@@ -69,6 +69,20 @@ class HTMLTranslatorSpec extends FlatSpec {
     assert(result ==
       """<pre><code language="magic">square = lambda x: x ** 2
         |square(2)</code></pre>""".stripMargin)
+  }
+
+ "orderedList" should "translate an OrderedList" in {
+    val list = OrderedList(
+      Seq(
+        Paragraph(Seq(StandardText("Line One"))),
+        Paragraph(Seq(StandardText("Line Two"))),
+        Paragraph(Seq(StandardText("Line Three")))
+      )
+    )
+
+    val result = translator.orderedList(list)
+
+    assert(result == "<ol><li>Line One</li><li>Line Two</li><li>Line Three</li></ol>")
   }
 
 }
