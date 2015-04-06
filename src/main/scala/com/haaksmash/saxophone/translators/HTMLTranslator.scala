@@ -3,19 +3,25 @@ package com.haaksmash.saxophone.translators
 import com.haaksmash.saxophone._
 
 
-class HTMLTranslator extends BaseTranslator {
+class HTMLTranslator(wrap_code_with_pre: Boolean = true) extends BaseTranslator {
 
   /*
    * These are block-level nodes; i.e., nodes that should have their
    * children translated recursively.
    */
   def heading(node:Heading) = s"""<h${node.level}>${translate(node)}</h${node.level}>"""
-  def paragraph(node:Paragraph) = s"""<delegateParsing>${translate(node)}</delegateParsing>"""
-  def code(node:Code) = s"""<pre><code>${node.contents}</code></pre>"""
+  def paragraph(node:Paragraph) = s"""<p>${translate(node)}</p>"""
+  def code(node:Code) = {
+    val code_block = s"""<code${node.directives.foldLeft(""){case (s, (k, v)) => s"""$s $k="$v""""}}>${node.contents}</code>"""
+    if (wrap_code_with_pre)
+      s"""<pre>$code_block</pre>"""
+    else
+      code_block
+  }
   def quote(node:Quote) = {
     val quote = s"""<blockquote>${translate(node)}</blockquote>"""
     if (node.source.isDefined)
-      quote + (s"""<div class="source">${node.source.get.foldLeft("")((s, n) => s + translate(n))}<div>""")
+      quote + (s"""<div class="source">${node.source.get.map(translate(_)).mkString}</div>""")
     else
       quote
   }
