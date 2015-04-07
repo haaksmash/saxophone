@@ -4,7 +4,6 @@ import com.haaksmash.saxophone._
 
 trait BaseTranslator {
 
-  def translate(document: Node): String
 
   /**
    * Fallback translator, blindly returns `node.toString`. If we reach
@@ -34,10 +33,6 @@ trait BaseTranslator {
   def underlinedText(node:UnderlinedText): String
   def weightedText(node:WeightedText): String
 
-  def translateSingle(node:Node): String = {
-    node_to_translator(node)
-  }
-
   def node_to_translator(n:Node) = n match {
     case n: StandardText => standardText(n)
     case n: Link => link(n)
@@ -54,4 +49,16 @@ trait BaseTranslator {
     case n => this.node(n)
   }
 
+  def translate(node: Node): String = {
+
+    val output = node.children match {
+      case Seq() => Traversable(translateSingle(node))
+      case children => children map {node_to_translator(_)}
+    }
+    output.mkString
+  }
+
+  def translateSingle(node:Node): String = {
+    node_to_translator(node)
+  }
 }

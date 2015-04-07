@@ -85,4 +85,88 @@ class HTMLTranslatorSpec extends FlatSpec {
     assert(result == "<ol><li>Line One</li><li>Line Two</li><li>Line Three</li></ol>")
   }
 
+  "unorderedList" should "translate an UnorderedList" in {
+    val list = UnorderedList(
+      Set(
+        Paragraph(Seq(StandardText("Line One"))),
+        // ensures recursive translation
+        Paragraph(Seq(EmphasizedText("Line Two"))),
+        Paragraph(Seq(StandardText("Line Three")))
+      )
+    )
+
+    val result = translator.unorderedList(list)
+
+    // We can't assert the actual HTML string output because Seq doesn't make
+    // guarantees about the order of the list elements
+    assert(result startsWith "<ul>")
+    assert(result endsWith "</ul>")
+    assert(result contains "<li>Line One</li>")
+    assert(result contains "<li><em>Line Two</em></li>")
+    assert(result contains "<li>Line Three</li>")
+  }
+
+  "link" should "translate a Link" in {
+    val link = Link(Seq(StandardText("the link!")), LinkTarget("the target"))
+
+    val result = translator.link(link)
+
+    assert(result == "<a href=\"the target\">the link!</a>")
+  }
+
+  it should "recursively translate" in {
+    val link = Link(Seq(EmphasizedText("the link!")), LinkTarget("the target"))
+
+    val result = translator.link(link)
+
+    assert(result == "<a href=\"the target\"><em>the link!</em></a>")
+ }
+
+  "emphasizedText" should "translate an EmphasizedText" in {
+    val text = EmphasizedText("IMPORTANT!")
+
+    val result = translator.emphasizedText(text)
+
+    assert(result == "<em>IMPORTANT!</em>")
+  }
+
+  "weightedText" should "translate a WeightedText" in {
+    val text = WeightedText(1, "HEAVY!")
+
+    val result = translator.weightedText(text)
+
+    assert(result == "<strong>HEAVY!</strong>")
+  }
+
+  "standardText" should "translate a StandardText" in {
+    val text = StandardText("this is text")
+
+    val result = translator.standardText(text)
+
+    assert(result == "this is text")
+  }
+
+  "struckthroughText" should "translate a StruckthroughText" in {
+    val text = StruckthroughText("mah texticles!")
+
+    val result = translator.struckthroughText(text)
+
+    assert(result == "<s>mah texticles!</s>")
+  }
+
+  "underlinedText" should "translate an UnderlinedText" in {
+    val text = UnderlinedText("defective link")
+
+    val result = translator.underlinedText(text)
+
+    assert(result == "<span class=\"underline\">defective link</span>")
+  }
+
+  "forcedNewline" should "translate a ForcedNewLine" in {
+    val text = ForcedNewline()
+
+    val result = translator.forcedNewLine(text)
+
+    assert(result == "<br/>")
+  }
 }

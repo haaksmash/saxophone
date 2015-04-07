@@ -34,27 +34,18 @@ class HTMLTranslator(wrap_code_with_pre: Boolean = true) extends BaseTranslator 
     s"""<ul>${list_items}</ul>"""
   }
   def footnote(node:Footnote) = "FOOTNOTE FUNC"
-  def link(node:Link) = s"""<a href="${node.to}">${translate(node)}</a>"""
 
   /*
    * Inline nodes; i.e., nodes that don't have children, but only capture
    * meta data about their contents.
    */
+  def link(node:Link) = s"""<a href="${node.to}">${translate(node)}</a>"""
   def emphasizedText(node:EmphasizedText) = s"<em>${node.text}</em>"
-  def forcedNewLine(node:ForcedNewline) = "BR FUNC"
+  def forcedNewLine(node:ForcedNewline) = "<br/>"
   def standardText(node:StandardText) = node.text
   def struckthroughText(node:StruckthroughText) = s"<s>${node.text}</s>"
-  def underlinedText(node:UnderlinedText) = s"""<span style="text-decoration:underline">${node.text}</span>"""
+  def underlinedText(node:UnderlinedText) = s"""<span class="underline">${node.text}</span>"""
   def weightedText(node:WeightedText) = s"<strong>${node.text}</strong>"
-
-  def translate(node: Node): String = {
-
-    val html = node.children match {
-      case Seq() => Traversable(translateSingle(node))
-      case children => children map {node_to_translator(_)}
-    }
-    html.mkString
-  }
 }
 
 object HTMLTranslator {
