@@ -33,7 +33,8 @@ class HTMLTranslator(wrap_code_with_pre: Boolean = true) extends BaseTranslator 
     val list_items = node.items.foldLeft("")((s, li) => s + s"""<li>${translate(li)}</li>""")
     s"""<ul>${list_items}</ul>"""
   }
-  def footnote(node:Footnote) = "FOOTNOTE FUNC"
+
+  def footnote(node:Footnote) = "" // footnote isn't supported yet, sorry!
 
   /*
    * Inline nodes; i.e., nodes that don't have children, but only capture
