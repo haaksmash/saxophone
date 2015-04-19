@@ -41,14 +41,14 @@ class StringLineParserSpec extends FlatSpec {
     val input = ">>> a quote goes here"
     val quote_line = parsers.parseAll(parsers.quoteParser, input).get
 
-    assert(quote_line.text == "a quote goes here")
+    assert(quote_line.payload == "a quote goes here")
   }
 
   "unordered_line" should "match *" in {
-    val input = "* unorderd line!"
+    val input = "* unordered line!"
     val unordered_line = parsers.parseAll(parsers.unorderedListParser, input).get
 
-    assert(unordered_line.text == "unorderd line!")
+    assert(unordered_line.payload == "unordered line!")
   }
 
   "ordered_line" should "match any number followed by a period" in {
@@ -56,7 +56,7 @@ class StringLineParserSpec extends FlatSpec {
       val input = s"$n. derpy derpy"
       val ordered_line = parsers.parseAll(parsers.orderedListParser, input).get
 
-      assert(ordered_line.text == "derpy derpy")
+      assert(ordered_line.payload == "derpy derpy")
     }
   }
 

@@ -14,11 +14,17 @@ class HTMLTranslator(wrap_code_with_pre: Boolean = true) extends BaseTranslator 
   def heading(node:Heading) = s"""<h${node.level}>${translate(node)}</h${node.level}>"""
   def paragraph(node:Paragraph) = s"""<p>${translate(node)}</p>"""
   def code(node:Code) = {
-    val code_block = s"""<code${node.directives.foldLeft(""){case (s, (k, v)) => s"""$s $k="$v""""}}>${node.contents}</code>"""
+    val code_contents = {
+      if (wrap_code_with_pre)
+        node.contents
+      else
+        escapeTextForHTML(node.contents)
+    }
+    val code_block = s"""<code${node.directives.foldLeft(""){case (s, (k, v)) => s"""$s $k="$v""""}}>${code_contents}</code>"""
     if (wrap_code_with_pre)
       s"""<pre>$code_block</pre>"""
     else
-      escapeTextForHTML(code_block)
+      code_block
   }
   def quote(node:Quote) = {
     if (node.source.isDefined)
