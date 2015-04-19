@@ -21,11 +21,10 @@ class HTMLTranslator(wrap_code_with_pre: Boolean = true) extends BaseTranslator 
       escapeTextForHTML(code_block)
   }
   def quote(node:Quote) = {
-    val quote = s"""<blockquote>${translate(node)}</blockquote>"""
     if (node.source.isDefined)
-      quote + (s"""<div class="source">${node.source.get.map(translate(_)).mkString}</div>""")
+      s"""<blockquote>${translate(node)}<footer>${node.source.get.map(translate(_)).mkString}</footer></blockquote>"""
     else
-      quote
+      s"""<blockquote>${translate(node)}</blockquote>"""
   }
   def orderedList(node:OrderedList) = {
     val list_items = node.items.foldLeft("")((s, li) => s + s"""<li>${translate(li)}</li>""")

@@ -22,7 +22,7 @@ case class CodeStartLine(directives:Map[String, String], text:String="") extends
 case class CodeEndLine(text:String="") extends Line
 
 case class QuoteLine(text:String) extends Line {
-  override val payload: String = text.trim.reverse.dropWhile(_ == '>').reverse.trim
+  override val payload: String = text.trim.dropWhile(_ == '>').trim
   override def toString = "QuoteLine(" + payload + ")"
 }
 
