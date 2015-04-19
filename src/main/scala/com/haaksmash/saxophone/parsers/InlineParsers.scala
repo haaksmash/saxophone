@@ -16,7 +16,7 @@ object InlineParsers extends RegexParsers {
   val UNDERLINE_START, UNDERLINE_END = '_'
   val MONOSPACE_START, MONOSPACE_END = '`'
 
-  val special_char_to_tracking_char = Map(
+  val special_char_to_tracking_and_ending_char = Map(
     FOOTNOTE_START -> ("f", FOOTNOTE_END),
     LINK_START -> ("a", LINK_END),
     WEIGHTED_START -> ("b", WEIGHTED_END),
@@ -37,11 +37,11 @@ object InlineParsers extends RegexParsers {
   val standard_text: Parser[StandardText] = Parser{ in =>
     if (in.atEnd)
       Failure("End of input reached.", in)
-    else if (special_char_to_tracking_char.contains(in.first))
+    else if (special_char_to_tracking_and_ending_char.contains(in.first))
       Failure("not standard text", in)
     else {
       val subsource = in.source.subSequence(in.offset, in.source.length)
-      val regular_text = subsource.toString.toList.takeWhile(!special_char_to_tracking_char.contains(_)).mkString
+      val regular_text = subsource.toString.toList.takeWhile(!special_char_to_tracking_and_ending_char.contains(_)).mkString
       Success(StandardText(regular_text), in.drop(regular_text.length))
     }
   }
@@ -88,37 +88,37 @@ object InlineParsers extends RegexParsers {
     else {
       in.first match {
         case FOOTNOTE_START =>
-          if (visited contains special_char_to_tracking_char(FOOTNOTE_START)._1)
+          if (visited contains special_char_to_tracking_and_ending_char(FOOTNOTE_START)._1)
             Failure("can't nest footnotes", in)
           else
             footnote_text(in)
         case LINK_START =>
-          if (visited contains special_char_to_tracking_char(LINK_START)._1)
+          if (visited contains special_char_to_tracking_and_ending_char(LINK_START)._1)
             Failure("can't nest links", in)
           else
             link_text(in)
         case WEIGHTED_START =>
-          if (visited contains special_char_to_tracking_char(WEIGHTED_START)._1)
+          if (visited contains special_char_to_tracking_and_ending_char(WEIGHTED_START)._1)
             Failure("can't nest weights", in)
           else
             weighted_text(in)
         case EMPHASIZED_START =>
-          if (visited contains special_char_to_tracking_char(EMPHASIZED_START)._1)
+          if (visited contains special_char_to_tracking_and_ending_char(EMPHASIZED_START)._1)
             Failure("can't nest italics", in)
           else
             emphasized_text(in)
         case STRUCKTHROUGH_START =>
-          if (visited contains special_char_to_tracking_char(STRUCKTHROUGH_START)._1)
+          if (visited contains special_char_to_tracking_and_ending_char(STRUCKTHROUGH_START)._1)
             Failure("can't nest strikethrough", in)
           else
             struckthrough_text(in)
         case UNDERLINE_START =>
-          if (visited contains special_char_to_tracking_char(UNDERLINE_START)._1)
+          if (visited contains special_char_to_tracking_and_ending_char(UNDERLINE_START)._1)
             Failure("can't nest underline", in)
           else
             underlined_text(in)
         case MONOSPACE_START =>
-          if (visited contains special_char_to_tracking_char(MONOSPACE_START)._1)
+          if (visited contains special_char_to_tracking_and_ending_char(MONOSPACE_START)._1)
             Failure("can't nest monospace", in)
           else
             monospaced_text(in)

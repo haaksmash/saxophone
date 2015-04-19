@@ -159,7 +159,7 @@ class HTMLTranslatorSpec extends FlatSpec {
 
     val result = translator.underlinedText(text)
 
-    assert(result == "<span class=\"underline\">defective link</span>")
+    assert(result == "<mark>defective link</mark>")
   }
 
   "forcedNewline" should "translate a ForcedNewLine" in {
@@ -168,5 +168,13 @@ class HTMLTranslatorSpec extends FlatSpec {
     val result = translator.forcedNewLine(text)
 
     assert(result == "<br/>")
+  }
+
+  "monospacedText" should "translate a MonospaceText" in {
+    val text = MonospaceText("some_codeling")
+
+    val result = translator.monospacedText(text)
+
+    assert(result == "<code>some_codeling</code>")
   }
 }

@@ -21,7 +21,7 @@ class InlineParsersSpec extends FlatSpec {
 
   it should "not match a string with a special char at the front" in {
     val base_input = "something something something"
-    for (c <- parsers.special_char_to_tracking_char) {
+    for (c <- parsers.special_char_to_tracking_and_ending_char) {
       val result = parsers.parseAll(parsers.standard_text, c + base_input)
 
       assert(result.isEmpty)
@@ -32,7 +32,7 @@ class InlineParsersSpec extends FlatSpec {
     val left_input = "the left side"
     val right_input = "the right side"
 
-    for (c <- parsers.special_char_to_tracking_char.keys) {
+    for (c <- parsers.special_char_to_tracking_and_ending_char.keys) {
       val result = parsers.parse(parsers.standard_text, left_input + c + right_input)
 
       assert(!result.isEmpty)
@@ -135,7 +135,7 @@ class InlineParsersSpec extends FlatSpec {
   }
 
   "element" should "successfully parse things" in {
-    for ((s,(_,e)) <- parsers.special_char_to_tracking_char) {
+    for ((s,(_,e)) <- parsers.special_char_to_tracking_and_ending_char) {
       val result = parsers.parse(parsers.element(Set.empty), s"${s}hello${e}")
 
       assert(!result.isEmpty)
@@ -144,7 +144,7 @@ class InlineParsersSpec extends FlatSpec {
   }
 
   it should "prevent nesting" in {
-    for ((s:Char,(f:String, e:Char)) <- parsers.special_char_to_tracking_char) {
+    for ((s:Char,(f:String, e:Char)) <- parsers.special_char_to_tracking_and_ending_char) {
       val nested_result = parsers.parseAll(parsers.element(visited = Set(f)), s"${s}hello${e}")
 
       assert(nested_result.isEmpty)

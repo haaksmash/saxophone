@@ -28,13 +28,16 @@ case class QuoteLine(text:String) extends Line {
 
 
 sealed abstract trait ListLine extends Line {
-  override val payload: String = text.trim
+  def glyph: String
+  def raw_text: String
+  override val payload: String = raw_text.trim
+  override def text = glyph + payload
   override def toString = getClass.getName + "(" + text + ")"
 }
 
-case class OrderedLine(text:String) extends ListLine
+case class OrderedLine(glyph: String, raw_text:String) extends ListLine
 
-case class UnorderedLine(text:String) extends ListLine
+case class UnorderedLine(glyph: String, raw_text:String) extends ListLine
 
 object EOF extends Line {
   val text = "EOF"

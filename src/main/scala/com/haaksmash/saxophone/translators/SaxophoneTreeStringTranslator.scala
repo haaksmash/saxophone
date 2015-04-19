@@ -2,7 +2,7 @@ package com.haaksmash.saxophone.translators
 
 import com.haaksmash.saxophone._
 
-object SaxophoneTreeStringTranslator extends BaseTranslator {
+class SaxophoneTreeStringTranslator extends BaseTranslator {
 
   override def heading(node: Heading): String = ???
 
@@ -36,7 +36,10 @@ object SaxophoneTreeStringTranslator extends BaseTranslator {
 
   override def code(node: Code): String = ???
 
+  override def monospacedText(node: MonospaceText): String = ???
+
   override def translate(document: Node) = {
     document.toString
   }
+
 }

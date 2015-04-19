@@ -13,7 +13,7 @@ class LineParsers extends Parsers {
    * Stupid hack so this tokenizer can use [[com.haaksmash.saxophone.StringLineParsers]]
    * parsers as if they were its own.
    */
-  def delegateParsing[T](parser:line_parsers.Parser[T]):Parser[T] = Parser {in =>
+  private def delegateParsing[T](parser:line_parsers.Parser[T]):Parser[T] = Parser {in =>
     if (in.atEnd)
       Failure("End of input in "+ parser, in)
     else {

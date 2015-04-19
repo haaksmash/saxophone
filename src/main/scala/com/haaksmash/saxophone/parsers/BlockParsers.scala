@@ -45,14 +45,13 @@ class BlockParsers extends Parsers {
   val paragraph: Parser[Paragraph] = line(classOf[TextLine]).+ ^^ {
     case text_lines =>
       val text = text_lines.foldLeft("")((s, l) => s + " " + l.payload).trim
-      Paragraph(
-        InlineParsers.parseAll(InlineParsers.elements(Set.empty), text).get
-      )
+      val parsed_text = InlineParsers.parseAll(InlineParsers.elements(Set.empty), text).get
+      Paragraph(parsed_text)
   }
 
-  private def flatten_list_lines[T <: ListLine](line_object_apply: (String => T))(in: List[Line], accumulator: List[Line]): List[Line] = in match {
+  private def flatten_list_lines[T <: ListLine](line_object_apply: ((String, String) => T))(in: List[Line], accumulator: List[Line]): List[Line] = in match {
     case (x: T @unchecked) :: (y: TextLine) :: ys => {
-      val new_line = line_object_apply(x.text + " " + y.text)
+      val new_line = line_object_apply(x.glyph, x.payload + " " + y.payload)
       flatten_list_lines(line_object_apply)(new_line :: ys, accumulator)
     }
     case x :: xs =>
@@ -68,14 +67,14 @@ class BlockParsers extends Parsers {
     flatten_list_lines[UnorderedLine](UnorderedLine.apply)(in, Nil:List[Line]).reverse
   }
 
-  val ordered_list_node: Parser[OrderedList] = (line(classOf[OrderedLine]) | line(classOf[TextLine]) ).+ <~ line(classOf[EmptyLine]) ^^ {
+  val ordered_list_node: Parser[OrderedList] = (line(classOf[OrderedLine]) | line(classOf[TextLine]) ).+ <~ line(classOf[EmptyLine]).? ^^ {
     case line_items =>
       OrderedList(
         fold_text_lines_into_ordered_lines(line_items) map {li => StandardText(li.payload)}
       )
   }
 
-  val unordered_list_node: Parser[UnorderedList] = (line(classOf[UnorderedLine]) | line(classOf[TextLine])).+ <~ line(classOf[EmptyLine]) ^^ {
+  val unordered_list_node: Parser[UnorderedList] = (line(classOf[UnorderedLine]) | line(classOf[TextLine])).+ <~ line(classOf[EmptyLine]).? ^^ {
     case line_items =>
       UnorderedList(
         fold_text_lines_into_unordered_lines(line_items) map {li => StandardText(li.payload)} toSet
@@ -86,11 +85,11 @@ class BlockParsers extends Parsers {
     case start ~ code =>
       val code_strings = code map {
         case l: EmptyLine => "\n"
-        case l:Line => l.text
+        case l:Line => l.payload
       }
       Code(
         start.directives,
-        code_strings.foldLeft("")((acc, newline) => acc ++ "\n" + newline.trim)
+        code_strings.foldLeft("")((acc, newline) => acc ++ "\n" + newline)
       )
   }
 

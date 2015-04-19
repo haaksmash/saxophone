@@ -45,8 +45,9 @@ class HTMLTranslator(wrap_code_with_pre: Boolean = true) extends BaseTranslator 
   def forcedNewLine(node:ForcedNewline) = "<br/>"
   def standardText(node:StandardText) = node.text
   def struckthroughText(node:StruckthroughText) = s"<s>${node.text}</s>"
-  def underlinedText(node:UnderlinedText) = s"""<span class="underline">${node.text}</span>"""
+  def underlinedText(node:UnderlinedText) = s"""<mark>${node.text}</mark>"""
   def weightedText(node:WeightedText) = s"<strong>${node.text}</strong>"
+  def monospacedText(node:MonospaceText) = s"<code>${node.text}</code>"
 }
 
 object HTMLTranslator {
