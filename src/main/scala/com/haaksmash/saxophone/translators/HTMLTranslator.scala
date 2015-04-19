@@ -2,6 +2,8 @@ package com.haaksmash.saxophone.translators
 
 import com.haaksmash.saxophone._
 
+import scala.collection.immutable.ListMap
+
 
 class HTMLTranslator(wrap_code_with_pre: Boolean = true) extends BaseTranslator {
 
@@ -16,7 +18,7 @@ class HTMLTranslator(wrap_code_with_pre: Boolean = true) extends BaseTranslator 
     if (wrap_code_with_pre)
       s"""<pre>$code_block</pre>"""
     else
-      code_block
+      escapeTextForHTML(code_block)
   }
   def quote(node:Quote) = {
     val quote = s"""<blockquote>${translate(node)}</blockquote>"""
@@ -38,16 +40,39 @@ class HTMLTranslator(wrap_code_with_pre: Boolean = true) extends BaseTranslator 
 
   /*
    * Inline nodes; i.e., nodes that don't have children, but only capture
-   * meta data about their contents.
+   * metadata about their contents.
    */
   def link(node:Link) = s"""<a href="${node.to}">${translate(node)}</a>"""
-  def emphasizedText(node:EmphasizedText) = s"<em>${node.text}</em>"
+  def emphasizedText(node:EmphasizedText) = s"<em>${escapeTextForHTML(node.text)}</em>"
   def forcedNewLine(node:ForcedNewline) = "<br/>"
-  def standardText(node:StandardText) = node.text
-  def struckthroughText(node:StruckthroughText) = s"<s>${node.text}</s>"
-  def underlinedText(node:UnderlinedText) = s"""<mark>${node.text}</mark>"""
-  def weightedText(node:WeightedText) = s"<strong>${node.text}</strong>"
-  def monospacedText(node:MonospaceText) = s"<code>${node.text}</code>"
+  def standardText(node:StandardText) = escapeTextForHTML(node.text)
+  def struckthroughText(node:StruckthroughText) = s"<s>${escapeTextForHTML(node.text)}</s>"
+  def underlinedText(node:UnderlinedText) = s"""<mark>${escapeTextForHTML(node.text)}</mark>"""
+  def weightedText(node:WeightedText) = s"<strong>${escapeTextForHTML(node.text)}</strong>"
+  def monospacedText(node:MonospaceText) = s"<code>${escapeTextForHTML(node.text)}</code>"
+
+  /**
+   * Escapes a string so that it's safe for HTML; e.g., replacing {@code <} with {@code &amp;lt;}.
+   * @param text the string that needs escaping
+   * @return
+   */
+  private def escapeTextForHTML(text:String):String = {
+    // Order is important here, so we use a ListMap to preserve it.
+    val chars_to_escape_sequence = ListMap(
+      "&" -> "&amp;", // must be first so we don't accidentally kill anything in the below
+      "<" -> "&lt;",
+      ">" -> "&gt;",
+      "---" -> "&mdash;", // but really you should just use the correct character, —.
+      "--" -> "&ndash;" // same here; just use the en-dash character directly.
+    )
+
+    var new_text = text
+    for (char <- chars_to_escape_sequence.keys){
+      new_text = new_text.replaceAll(char, chars_to_escape_sequence(char))
+    }
+    new_text
+  }
+
 }
 
 object HTMLTranslator {
