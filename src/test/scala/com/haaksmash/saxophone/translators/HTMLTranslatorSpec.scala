@@ -61,6 +61,22 @@ class HTMLTranslatorSpec extends FlatSpec {
         | yes</code>""".stripMargin)
   }
 
+  it should "escape characters if not using the pre tag" in {
+    val code = Code(Map[String,String](), "x <= y")
+
+    val result = (new HTMLTranslator(wrap_code_with_pre = false)).code(code)
+
+    assert(result == "<code>x &lt;= y</code>")
+  }
+
+  it should "not escape characters if using the pre tag" in {
+    val code = Code(Map[String,String](), "x <= y")
+
+    val result = (new HTMLTranslator(wrap_code_with_pre = true)).code(code)
+
+    assert(result == "<pre><code>x <= y</code></pre>")
+  }
+
   it should "handle directives like a boss" in {
     val code = Code(Map("language" -> "magic"), "square = lambda x: x ** 2\nsquare(2)")
 
@@ -130,6 +146,16 @@ class HTMLTranslatorSpec extends FlatSpec {
     assert(result == "<em>IMPORTANT!</em>")
   }
 
+  it should "escape its text" in {
+
+    val text = EmphasizedText("<look> &<a tag>")
+    val result = translator.translate(text)
+
+    assert(result.contains("&gt;"))
+    assert(result.contains("&lt;"))
+    assert(result.contains("&amp;"))
+  }
+
   "weightedText" should "translate a WeightedText" in {
     val text = WeightedText(1, "HEAVY!")
 
@@ -138,12 +164,32 @@ class HTMLTranslatorSpec extends FlatSpec {
     assert(result == "<strong>HEAVY!</strong>")
   }
 
+  it should "escape its text" in {
+
+    val text = WeightedText(1, "<look> &<a tag>")
+    val result = translator.translate(text)
+
+    assert(result.contains("&gt;"))
+    assert(result.contains("&lt;"))
+    assert(result.contains("&amp;"))
+  }
+
   "standardText" should "translate a StandardText" in {
     val text = StandardText("this is text")
 
     val result = translator.standardText(text)
 
     assert(result == "this is text")
+  }
+
+  it should "escape its text" in {
+
+    val text = StandardText("<look> &<a tag>")
+    val result = translator.translate(text)
+
+    assert(result.contains("&gt;"))
+    assert(result.contains("&lt;"))
+    assert(result.contains("&amp;"))
   }
 
   "struckthroughText" should "translate a StruckthroughText" in {
@@ -162,6 +208,16 @@ class HTMLTranslatorSpec extends FlatSpec {
     assert(result == "<mark>defective link</mark>")
   }
 
+  it should "escape its text" in {
+
+    val text = UnderlinedText("<look> &<a tag>")
+    val result = translator.translate(text)
+
+    assert(result.contains("&gt;"))
+    assert(result.contains("&lt;"))
+    assert(result.contains("&amp;"))
+  }
+
   "forcedNewline" should "translate a ForcedNewLine" in {
     val text = ForcedNewline()
 
@@ -176,5 +232,15 @@ class HTMLTranslatorSpec extends FlatSpec {
     val result = translator.monospacedText(text)
 
     assert(result == "<code>some_codeling</code>")
+  }
+
+  it should "escape its text" in {
+
+    val text = MonospaceText("<look> &<a tag>")
+    val result = translator.translate(text)
+
+    assert(result.contains("&gt;"))
+    assert(result.contains("&lt;"))
+    assert(result.contains("&amp;"))
   }
 }

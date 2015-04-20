@@ -60,7 +60,7 @@ trait BaseTranslator {
     output.mkString
   }
 
-  def translateSingle(node:Node): String = {
+  private def translateSingle(node:Node): String = {
     node_to_translator(node)
   }
 }
