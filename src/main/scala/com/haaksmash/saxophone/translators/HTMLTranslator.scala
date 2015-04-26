@@ -20,7 +20,7 @@ class HTMLTranslator(wrap_code_with_pre: Boolean = true) extends BaseTranslator 
       else
         escapeTextForHTML(node.contents)
     }
-    val code_block = s"""<code${node.directives.foldLeft(""){case (s, (k, v)) => s"""$s $k="$v""""}}>${code_contents}</code>"""
+    val code_block = s"""<code${node.directives.foldLeft(""){case (s, (k, v)) => s"""$s $k="$v""""}}>$code_contents</code>"""
     if (wrap_code_with_pre)
       s"""<pre>$code_block</pre>"""
     else
@@ -33,12 +33,12 @@ class HTMLTranslator(wrap_code_with_pre: Boolean = true) extends BaseTranslator 
       s"""<blockquote>${translate(node)}</blockquote>"""
   }
   def orderedList(node:OrderedList) = {
-    val list_items = node.items.foldLeft("")((s, li) => s + s"""<li>${translate(li)}</li>""")
+    val list_items = node.items.map(li => s"<li>${translate(li)}</li>") mkString ""
     s"""<ol>$list_items</ol>"""
   }
   def unorderedList(node:UnorderedList) = {
-    val list_items = node.items.foldLeft("")((s, li) => s + s"""<li>${translate(li)}</li>""")
-    s"""<ul>${list_items}</ul>"""
+    val list_items = node.items.map(li => s"""<li>${translate(li)}</li>""") mkString ""
+    s"""<ul>$list_items</ul>"""
   }
 
   def footnote(node:Footnote) = "" // footnote isn't supported yet, sorry!
@@ -59,7 +59,7 @@ class HTMLTranslator(wrap_code_with_pre: Boolean = true) extends BaseTranslator 
   /**
    * Escapes a string so that it's safe for HTML; e.g., replacing {@code <} with {@code &amp;lt;}.
    * @param text the string that needs escaping
-   * @return
+   * @return escaped version of the input
    */
   private def escapeTextForHTML(text:String):String = {
     // Order is important here, so we use a ListMap to preserve it.
@@ -82,6 +82,6 @@ class HTMLTranslator(wrap_code_with_pre: Boolean = true) extends BaseTranslator 
 
 object HTMLTranslator {
   def translate(node:Node): String = {
-    (new HTMLTranslator(true)).translate(node)
+    new HTMLTranslator(true).translate(node)
   }
 }
