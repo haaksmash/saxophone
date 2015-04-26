@@ -86,6 +86,14 @@ class BlockParsersSpec extends FlatSpec{
     assert(result.items == Set(StandardText("list item A item A continued"), StandardText("list item B")))
   }
 
+  it should "not scoop nonTextLines into the previous UnorderedLine" in {
+    val list = Seq(UnorderedLine("*", "list item A"), UnorderedLine("*", "list item B"), QuoteLine("item B NOT continued"))
+
+    val result = parsers.unordered_list_node(new LineReader(list)).get
+
+    assert(result.items == Set(StandardText("list item A"), StandardText("list item B")))
+  }
+
   "ordered_list_node" should "recognize OrderedLines" in {
     val list = Seq(OrderedLine("1.", "list item 1"), OrderedLine("2.", "list item 2"))
 
@@ -100,5 +108,13 @@ class BlockParsersSpec extends FlatSpec{
     val result = parsers.ordered_list_node(new LineReader(list)).get
 
     assert(result.items == Seq(StandardText("list item 1 item 1 continued"), StandardText("list item 2")))
+  }
+
+  it should "not scoop nonTextLines into the previous UnorderedLine" in {
+    val list = Seq(OrderedLine("1.", "list item 1"), OrderedLine("2.", "list item 2"), QuoteLine("item 2 NOT continued"))
+
+    val result = parsers.ordered_list_node(new LineReader(list)).get
+
+    assert(result.items == Seq(StandardText("list item 1"), StandardText("list item 2")))
   }
 }
