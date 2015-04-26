@@ -21,7 +21,6 @@ class StringIntake(
       return None
     }
 
-    println(lines.get)
     val blocks = block_parser.blocks(new LineReader(lines.get))
 
     if (blocks.isEmpty) {

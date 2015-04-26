@@ -46,7 +46,6 @@ class BlockParsers extends Parsers {
 
   val paragraph: Parser[Paragraph] = line(classOf[TextLine]).+ ^^ {
     case text_lines =>
-      println(text_lines)
       val text = text_lines.foldLeft("")((s, l) => s + " " + l.payload).trim
       val parsed_text = InlineParsers.parseAll(InlineParsers.elements(Set.empty), text).get
       Paragraph(parsed_text)
@@ -126,7 +125,6 @@ class BlockParsers extends Parsers {
       Failure("end of input", in)
     else {
       val first_line = in.first
-      println(first_line)
       val results = first_line match {
         case l:HeadingLine =>
           header_node(in)

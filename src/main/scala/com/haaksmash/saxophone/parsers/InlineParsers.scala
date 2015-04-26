@@ -88,7 +88,6 @@ object InlineParsers extends RegexParsers {
     if (in.atEnd)
       Failure("End of input.", in)
     else {
-      println(in.first)
       in.first match {
         case FOOTNOTE_START =>
           if (visited contains special_char_to_tracking_and_ending_char(FOOTNOTE_START)._1)
