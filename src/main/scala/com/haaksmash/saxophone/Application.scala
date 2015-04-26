@@ -25,6 +25,10 @@ object Application {
         } else
           "html"
       }
+
+      if (args.contains("-d"))
+        println(s"language output: $language")
+
       language match {
         case "github" => new GithubMDTranslator
         case "debug" => new SaxophoneTreeStringTranslator
@@ -40,13 +44,13 @@ object Application {
       case Some(document) =>
         if (args.contains ("-o")) {
           val output_filename = args (args.indexOf ("-o") + 1)
-          FileEmitter (output_filename).emit (HTMLTranslator.translate (document) )
+          FileEmitter(output_filename).emit(translator.translate(document))
         } else {
-          ConsoleEmitter.emit (translator.translate(document) )
+          ConsoleEmitter.emit(translator.translate(document))
         }
 
         if (args.contains ("-d"))
-          ConsoleEmitter.emit (translator.translate(document) )
+          ConsoleEmitter.emit(translator.translate(document))
       case _ =>
         System.err.println("Could not process input as a saxophone document")
         System.exit(1)

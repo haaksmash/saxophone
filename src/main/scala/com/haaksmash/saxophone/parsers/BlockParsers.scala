@@ -85,7 +85,7 @@ class BlockParsers extends Parsers {
     case start ~ code =>
       val code_strings = code map {
         case l: EmptyLine => "\n"
-        case l:Line => l.payload
+        case l:Line => l.text
       }
       Code(
         start.directives,
