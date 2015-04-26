@@ -1,6 +1,6 @@
 package com.haaksmash.saxophone.translators
 
-import com.haaksmash.saxophone._
+import com.haaksmash.saxophone.primitives._
 import org.scalatest._
 
 class HTMLTranslatorSpec extends FlatSpec {

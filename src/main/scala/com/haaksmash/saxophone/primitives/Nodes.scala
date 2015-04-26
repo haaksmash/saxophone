@@ -1,4 +1,4 @@
-package com.haaksmash.saxophone
+package com.haaksmash.saxophone.primitives
 
 sealed abstract class Node {
   def children: Traversable[Node]

@@ -1,6 +1,6 @@
 package com.haaksmash.saxophone.intakes
 
-import com.haaksmash.saxophone.Document
+import com.haaksmash.saxophone.primitives.Document
 
 
 object ConsoleIntake {

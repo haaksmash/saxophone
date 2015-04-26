@@ -1,4 +1,4 @@
-package com.haaksmash.saxophone
+package com.haaksmash.saxophone.primitives
 
 sealed abstract trait Line {
   def text: String
@@ -31,7 +31,7 @@ sealed abstract trait ListLine extends Line {
   def glyph: String
   def raw_text: String
   override val payload: String = raw_text.trim
-  override def text = glyph + payload
+  override def text = glyph + " " + payload
   override def toString = getClass.getName + "(" + text + ")"
 }
 

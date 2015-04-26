@@ -1,6 +1,5 @@
 package com.haaksmash.saxophone.parsers
 
-import com.haaksmash.saxophone.StringLineParsers
 import org.scalatest._
 
 

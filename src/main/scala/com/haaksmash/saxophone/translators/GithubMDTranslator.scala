@@ -1,6 +1,6 @@
 package com.haaksmash.saxophone.translators
 
-import com.haaksmash.saxophone._
+import com.haaksmash.saxophone.primitives._
 
 class GithubMDTranslator extends BaseTranslator {
   override def heading(node: Heading): String = s"${"#" * node.level} ${translate(node)}\n"

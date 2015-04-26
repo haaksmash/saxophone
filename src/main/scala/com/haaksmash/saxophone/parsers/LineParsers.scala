@@ -1,16 +1,19 @@
-package com.haaksmash.saxophone
+package com.haaksmash.saxophone.parsers
+
+import com.haaksmash.saxophone.primitives.{TextLine, EmptyLine, Line}
+import com.haaksmash.saxophone.readers.StringLineReader
 
 import scala.util.parsing.combinator._
 
 /**
- * Provides parsers that translate [[String]] -> [[com.haaksmash.saxophone.Line]]
+ * Provides parsers that translate [[String]] -> [[com.haaksmash.saxophone.primitives.Line]]
  */
 class LineParsers extends Parsers {
   type Elem = String
   object line_parsers extends StringLineParsers
 
   /**
-   * Stupid hack so this tokenizer can use [[com.haaksmash.saxophone.StringLineParsers]]
+   * Stupid hack so this tokenizer can use [[com.haaksmash.saxophone.parsers.StringLineParsers]]
    * parsers as if they were its own.
    */
   private def delegateParsing[T](parser:line_parsers.Parser[T]):Parser[T] = Parser {in =>
@@ -35,7 +38,7 @@ class LineParsers extends Parsers {
         case '#' => delegateParsing(line_parsers.headingParser)(in)
         case '*' => delegateParsing(line_parsers.unorderedListParser)(in)
         case '\n' => Success(EmptyLine(), in.rest)
-        case n if ('0' <= n && n <= '9') => delegateParsing(line_parsers.orderedListParser)(in)
+        case n if '0' <= n && n <= '9' => delegateParsing(line_parsers.orderedListParser)(in)
         case '>' => delegateParsing(line_parsers.quoteParser)(in)
         case '{' => delegateParsing(line_parsers.codeStart)(in)
         case '}' => delegateParsing(line_parsers.codeEnd)(in)
@@ -49,14 +52,12 @@ class LineParsers extends Parsers {
   def eval(input:String) = {
     lines(new StringLineReader(input)) match {
       case Success(result, _) => Some(result)
-      case Failure(msg, _) => {
+      case Failure(msg, _) =>
         println("Failure: " + msg)
         None
-      }
-      case Error(msg, _) => {
+      case Error(msg, _) =>
         println("Error: " + msg)
         None
-      }
     }
   }
 }

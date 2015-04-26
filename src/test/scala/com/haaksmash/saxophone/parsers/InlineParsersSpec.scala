@@ -1,6 +1,6 @@
 package com.haaksmash.saxophone.parsers
 
-import com.haaksmash.saxophone._
+import com.haaksmash.saxophone.primitives.StandardText
 import org.scalatest._
 
 class InlineParsersSpec extends FlatSpec {

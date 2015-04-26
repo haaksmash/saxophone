@@ -2,7 +2,7 @@ package com.haaksmash.saxophone
 
 import com.haaksmash.saxophone.emitters.{ConsoleEmitter, FileEmitter}
 import com.haaksmash.saxophone.intakes.FileIntake
-import com.haaksmash.saxophone.translators.{SaxophoneTreeStringTranslator, BaseTranslator, GithubMDTranslator, HTMLTranslator}
+import com.haaksmash.saxophone.translators.{SaxophoneTreeStringTranslator, GithubMDTranslator, HTMLTranslator}
 
 
 object Application {
