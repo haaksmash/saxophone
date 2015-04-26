@@ -46,7 +46,7 @@ class BlockParsers extends Parsers {
 
   val paragraph: Parser[Paragraph] = line(classOf[TextLine]).+ ^^ {
     case text_lines =>
-      val text = text_lines.foldLeft("")((s, l) => s + " " + l.payload).trim
+      val text = text_lines.map(_.payload).mkString(" ").trim
       val parsed_text = InlineParsers.parseAll(InlineParsers.elements(Set.empty), text).get
       Paragraph(parsed_text)
   }

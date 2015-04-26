@@ -117,4 +117,43 @@ class BlockParsersSpec extends FlatSpec{
 
     assert(result.items == Seq(StandardText("list item 1"), StandardText("list item 2")))
   }
+
+  "paragraph" should "eat as many TextLines as it wants" in {
+    val text = Seq(
+      TextLine("line one"),
+      TextLine("line two"),
+      TextLine("line three"),
+      TextLine("line four")
+    )
+
+    val result = parsers.paragraph(new LineReader(text)).get
+
+    assert(result.children == Seq(StandardText("line one line two line three line four")))
+  }
+
+  it should "require at least one TextLine" in {
+    val text = Seq()
+
+    val result = parsers.paragraph(new LineReader(text))
+
+    assert(result.isEmpty)
+  }
+
+  it should "recursively parse its contents" in {
+    val text = Seq(
+      TextLine("`mono`"),
+      TextLine("*weight*"),
+      TextLine("/emph/"),
+      TextLine("_mark_")
+    )
+
+    val result = parsers.paragraph(new LineReader(text)).get
+
+    assert(result.children == Seq(
+      MonospaceText("mono"), StandardText(" "),
+      WeightedText(1, "weight"), StandardText(" "),
+      EmphasizedText("emph"), StandardText(" "),
+      UnderlinedText("mark")
+    ))
+  }
 }
