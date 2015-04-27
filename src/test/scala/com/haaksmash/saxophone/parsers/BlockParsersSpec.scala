@@ -4,7 +4,7 @@ import com.haaksmash.saxophone.primitives._
 import com.haaksmash.saxophone.readers.LineReader
 import org.scalatest._
 
-class BlockParsersSpec extends FlatSpec with PrivateMethodTester {
+class BlockParsersSpec extends FlatSpec {
   object parsers extends BlockParsers
 
   "quote_node" must "recognize a QuoteLine" in {
