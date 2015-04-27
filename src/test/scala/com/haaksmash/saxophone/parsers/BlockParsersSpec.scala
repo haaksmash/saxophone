@@ -4,10 +4,10 @@ import com.haaksmash.saxophone.primitives._
 import com.haaksmash.saxophone.readers.LineReader
 import org.scalatest._
 
-class BlockParsersSpec extends FlatSpec{
+class BlockParsersSpec extends FlatSpec with PrivateMethodTester {
   object parsers extends BlockParsers
 
-  "quote_node" should "recognize a QuoteLine" in {
+  "quote_node" must "recognize a QuoteLine" in {
     val quote_line = QuoteLine("this is a quote")
 
     val result = parsers.quote_node(new LineReader(Seq(quote_line))).get
@@ -37,7 +37,7 @@ class BlockParsersSpec extends FlatSpec{
     assert(result.source.get == Seq(StandardText("a source")))
   }
 
-  "quote_source" should "recognize inline text within []" in {
+  "quote_source" must "recognize inline text within []" in {
     val source = TextLine("[this is a source]")
 
     val result = parsers.quote_source(new LineReader(Seq(source))).get
@@ -45,7 +45,7 @@ class BlockParsersSpec extends FlatSpec{
     assert(result == Seq(StandardText("this is a source")))
   }
 
-  "code_node" should "grab stuff between CodeStart/CodeEndLine, join them by newlines" in {
+  "code_node" must "grab stuff between CodeStart/CodeEndLine, join them by newlines" in {
     val codez = Seq(CodeStartLine(Map()), TextLine("line one"), TextLine("/line two/"), UnorderedLine("*", "a line a line"), CodeEndLine())
 
     val result = parsers.code_node(new LineReader(codez)).get
@@ -70,7 +70,7 @@ class BlockParsersSpec extends FlatSpec{
     assert(result.directives.getOrElse("language", "not scala") == "scala")
   }
 
-  "uordered_list_node" should "recognize UnorderedLines" in {
+  "uordered_list_node" must "recognize UnorderedLines" in {
     val list = Seq(UnorderedLine("*", "list item A"), UnorderedLine("*", "list item B"))
 
     val result = parsers.unordered_list_node(new LineReader(list)).get
@@ -94,7 +94,7 @@ class BlockParsersSpec extends FlatSpec{
     assert(result.items == Set(StandardText("list item A"), StandardText("list item B")))
   }
 
-  "ordered_list_node" should "recognize OrderedLines" in {
+  "ordered_list_node" must "recognize OrderedLines" in {
     val list = Seq(OrderedLine("1.", "list item 1"), OrderedLine("2.", "list item 2"))
 
     val result = parsers.ordered_list_node(new LineReader(list)).get
@@ -118,7 +118,7 @@ class BlockParsersSpec extends FlatSpec{
     assert(result.items == Seq(StandardText("list item 1"), StandardText("list item 2")))
   }
 
-  "paragraph" should "eat as many TextLines as it wants" in {
+  "paragraph" must "eat as many TextLines as it wants" in {
     val text = Seq(
       TextLine("line one"),
       TextLine("line two"),
@@ -131,7 +131,7 @@ class BlockParsersSpec extends FlatSpec{
     assert(result.children == Seq(StandardText("line one line two line three line four")))
   }
 
-  it should "require at least one TextLine" in {
+  it must "require at least one TextLine" in {
     val text = Seq()
 
     val result = parsers.paragraph(new LineReader(text))
@@ -155,5 +155,76 @@ class BlockParsersSpec extends FlatSpec{
       EmphasizedText("emph"), StandardText(" "),
       UnderlinedText("mark")
     ))
+  }
+
+  "header_node" must "recognize HeaderLines" in {
+    val text = HeadingLine("#", "a header!")
+
+    val result = parsers.header_node(new LineReader(Seq(text))).get
+
+    assert(result.level == 1)
+    assert(result.children == Seq(StandardText("a header!")))
+  }
+
+  it should "propagate level information" in {
+    val text = HeadingLine("###", "header!")
+    val result = parsers.header_node(new LineReader(Seq(text))).get
+    assert(result.level == 3)
+  }
+
+  it should "not parse its inline children" in {
+    val text = HeadingLine("#", "*strong header*!")
+    val result = parsers.header_node(new LineReader(Seq(text))).get
+    assert(result.children == Seq(StandardText("*strong header*!")))
+  }
+
+  "line" must "match the provided Line class" in {
+    for (c <- Seq(
+      HeadingLine("#", "text"),
+      TextLine("text"),
+      UnorderedLine("*", "text"),
+      CodeStartLine(Map())
+    )) {
+      val result = parsers.line(c.getClass)(new LineReader(Seq(c)))
+      assert(!result.isEmpty)
+    }
+  }
+
+  it should "not match a not-provided Line class" in {
+    val lines = Set(
+      HeadingLine("#", "text"),
+      TextLine("text"),
+      UnorderedLine("*", "text"),
+      CodeStartLine(Map())
+    )
+    for (c <- lines; o <- lines - c) {
+      val result = parsers.line(c.getClass)(new LineReader(Seq(o)))
+      assert(result.isEmpty)
+    }
+  }
+
+  "notLine" must "not match the provided Line class" in {
+    for (c <- Seq(
+      HeadingLine("#", "text"),
+      TextLine("text"),
+      UnorderedLine("*", "text"),
+      CodeStartLine(Map())
+    )) {
+      val result = parsers.notLine(c.getClass)(new LineReader(Seq(c)))
+      assert(result.isEmpty)
+    }
+  }
+
+  it should "match a not-provided Line class" in {
+    val lines = Set(
+      HeadingLine("#", "text"),
+      TextLine("text"),
+      UnorderedLine("*", "text"),
+      CodeStartLine(Map())
+    )
+    for (c <- lines; o <- lines - c) {
+      val result = parsers.notLine(c.getClass)(new LineReader(Seq(o)))
+      assert(!result.isEmpty)
+    }
   }
 }
