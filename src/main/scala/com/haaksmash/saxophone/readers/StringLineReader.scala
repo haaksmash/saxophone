@@ -1,4 +1,4 @@
-package com.haaksmash.saxophone
+package com.haaksmash.saxophone.readers
 
 import scala.util.parsing.input.{Position, Reader}
 

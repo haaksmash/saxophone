@@ -1,6 +1,5 @@
 package com.haaksmash.saxophone.parsers
 
-import com.haaksmash.saxophone.StringLineParsers
 import org.scalatest._
 
 
@@ -34,7 +33,7 @@ class StringLineParserSpec extends FlatSpec {
 
   "code_end" should "match }}}" in {
     val input = "}}}"
-    val code_end_line = parsers.parseAll(parsers.codeEnd, input).get
+    parsers.parseAll(parsers.codeEnd, input).get
   }
 
   "quote_line" should "match >>>" in {

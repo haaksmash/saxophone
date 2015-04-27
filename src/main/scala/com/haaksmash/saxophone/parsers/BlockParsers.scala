@@ -1,4 +1,6 @@
-package com.haaksmash.saxophone
+package com.haaksmash.saxophone.parsers
+
+import com.haaksmash.saxophone.primitives._
 
 import scala.util.parsing.combinator.Parsers
 
@@ -27,7 +29,7 @@ class BlockParsers extends Parsers {
    * defined here.
    *
    * @param c the specific class of Line to *not* match.
-   * @tparam T
+   * @tparam T the type of the Line not to match (usually inferred)
    */
   def notLine[T](c:Class[T]):Parser[Line] = Parser {in =>
     if (in.atEnd)
@@ -44,16 +46,15 @@ class BlockParsers extends Parsers {
 
   val paragraph: Parser[Paragraph] = line(classOf[TextLine]).+ ^^ {
     case text_lines =>
-      val text = text_lines.foldLeft("")((s, l) => s + " " + l.payload).trim
+      val text = text_lines.map(_.payload).mkString(" ").trim
       val parsed_text = InlineParsers.parseAll(InlineParsers.elements(Set.empty), text).get
       Paragraph(parsed_text)
   }
 
   private def flatten_list_lines[T <: ListLine](line_object_apply: ((String, String) => T))(in: List[Line], accumulator: List[Line]): List[Line] = in match {
-    case (x: T @unchecked) :: (y: TextLine) :: ys => {
+    case (x: T @unchecked) :: (y: TextLine) :: ys =>
       val new_line = line_object_apply(x.glyph, x.payload + " " + y.payload)
       flatten_list_lines(line_object_apply)(new_line :: ys, accumulator)
-    }
     case x :: xs =>
       flatten_list_lines(line_object_apply)(xs, x :: accumulator)
     case Nil => accumulator
@@ -77,7 +78,7 @@ class BlockParsers extends Parsers {
   val unordered_list_node: Parser[UnorderedList] = (line(classOf[UnorderedLine]) | line(classOf[TextLine])).+ <~ line(classOf[EmptyLine]).? ^^ {
     case line_items =>
       UnorderedList(
-        fold_text_lines_into_unordered_lines(line_items) map {li => StandardText(li.payload)} toSet
+        (fold_text_lines_into_unordered_lines(line_items) map {li => StandardText(li.payload)}).toSet
       )
   }
 
@@ -89,7 +90,7 @@ class BlockParsers extends Parsers {
       }
       Code(
         start.directives,
-        code_strings.foldLeft("")((acc, newline) => acc ++ "\n" + newline)
+        code_strings.mkString("\n")
       )
   }
 
@@ -108,10 +109,13 @@ class BlockParsers extends Parsers {
       )
   }
 
-  val quote_node: Parser[Quote] = (line(classOf[QuoteLine])).+ ~ quote_source.? ^^ {
+  val quote_node: Parser[Quote] = line(classOf[QuoteLine]).+ ~ quote_source.? ^^ {
     case quotes ~ source =>
       Quote(
-        InlineParsers.parseAll(InlineParsers.elements(Set.empty),(quotes.foldLeft("")((str, quote_line) => str + " " + quote_line.payload))).get,
+        InlineParsers.parseAll(
+          InlineParsers.elements(Set.empty),
+          quotes.map(_.payload).mkString(" ")
+        ).get,
         source
       )
   }
@@ -142,5 +146,5 @@ class BlockParsers extends Parsers {
   /**
    * strips out all EmptyLines after a matching nodes group of lines
    */
-  val blocks: Parser[Document] = (nodes <~ (line(classOf[EmptyLine])).*).+ ^^ { Document(_) }
+  val blocks: Parser[Document] = (nodes <~ line(classOf[EmptyLine]).*).+ ^^ { Document(_) }
 }

@@ -1,6 +1,6 @@
 package com.haaksmash.saxophone.parsers
 
-import com.haaksmash.saxophone._
+import com.haaksmash.saxophone.primitives.StandardText
 import org.scalatest._
 
 class InlineParsersSpec extends FlatSpec {
@@ -80,7 +80,7 @@ class InlineParsersSpec extends FlatSpec {
     val result = parsers.parseAll(parsers.link_text, input).get
 
     assert(result.children.length == 1)
-    assert(result.children(0).asInstanceOf[StandardText].text == "hello")
+    assert(result.children.head.asInstanceOf[StandardText].text == "hello")
   }
 
   it should "recognize a link's target, after a link, inside ()" in {
@@ -117,7 +117,7 @@ class InlineParsersSpec extends FlatSpec {
     val result = parsers.parseAll(parsers.footnote_text, input).get
 
     assert(result.children.length == 1)
-    assert(result.children(0).asInstanceOf[StandardText].text == "hello")
+    assert(result.children.head.asInstanceOf[StandardText].text == "hello")
   }
 
   it should "recursively parse inline nodes" in {
@@ -136,7 +136,7 @@ class InlineParsersSpec extends FlatSpec {
 
   "element" should "successfully parse things" in {
     for ((s,(_,e)) <- parsers.special_char_to_tracking_and_ending_char) {
-      val result = parsers.parse(parsers.element(Set.empty), s"${s}hello${e}")
+      val result = parsers.parse(parsers.element(Set.empty), s"${s}hello$e")
 
       assert(!result.isEmpty)
     }
@@ -145,7 +145,7 @@ class InlineParsersSpec extends FlatSpec {
 
   it should "prevent nesting" in {
     for ((s:Char,(f:String, e:Char)) <- parsers.special_char_to_tracking_and_ending_char) {
-      val nested_result = parsers.parseAll(parsers.element(visited = Set(f)), s"${s}hello${e}")
+      val nested_result = parsers.parseAll(parsers.element(visited = Set(f)), s"${s}hello$e")
 
       assert(nested_result.isEmpty)
     }

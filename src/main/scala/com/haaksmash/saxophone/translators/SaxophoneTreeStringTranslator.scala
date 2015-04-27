@@ -1,6 +1,7 @@
 package com.haaksmash.saxophone.translators
 
-import com.haaksmash.saxophone._
+import com.haaksmash.saxophone.primitives._
+
 
 class SaxophoneTreeStringTranslator extends BaseTranslator {
 

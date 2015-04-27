@@ -1,6 +1,6 @@
 package com.haaksmash.saxophone.translators
 
-import com.haaksmash.saxophone._
+import com.haaksmash.saxophone.primitives._
 import org.scalatest._
 
 class HTMLTranslatorSpec extends FlatSpec {
@@ -54,7 +54,7 @@ class HTMLTranslatorSpec extends FlatSpec {
   it should "optionally exclude the <pre> tag" in {
     val code = Code(Map[String,String](), "this  is code,\n yes")
 
-    val result = (new HTMLTranslator(wrap_code_with_pre = false)).code(code)
+    val result = new HTMLTranslator(wrap_code_with_pre = false).code(code)
 
     assert(result ==
       """<code>this  is code,
@@ -64,7 +64,7 @@ class HTMLTranslatorSpec extends FlatSpec {
   it should "escape characters if not using the pre tag" in {
     val code = Code(Map[String,String](), "x <= y")
 
-    val result = (new HTMLTranslator(wrap_code_with_pre = false)).code(code)
+    val result = new HTMLTranslator(wrap_code_with_pre = false).code(code)
 
     assert(result == "<code>x &lt;= y</code>")
   }
@@ -72,18 +72,18 @@ class HTMLTranslatorSpec extends FlatSpec {
   it should "not escape characters if using the pre tag" in {
     val code = Code(Map[String,String](), "x <= y")
 
-    val result = (new HTMLTranslator(wrap_code_with_pre = true)).code(code)
+    val result = new HTMLTranslator(wrap_code_with_pre = true).code(code)
 
     assert(result == "<pre><code>x <= y</code></pre>")
   }
 
   it should "handle directives like a boss" in {
-    val code = Code(Map("language" -> "magic"), "square = lambda x: x ** 2\nsquare(2)")
+    val code = Code(Map("lang" -> "magic"), "square = lambda x: x ** 2\nsquare(2)")
 
     val result = translator.code(code)
 
     assert(result ==
-      """<pre><code language="magic">square = lambda x: x ** 2
+      """<pre><code lang="magic">square = lambda x: x ** 2
         |square(2)</code></pre>""".stripMargin)
   }
 

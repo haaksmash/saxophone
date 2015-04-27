@@ -1,4 +1,4 @@
-package com.haaksmash.saxophone
+package com.haaksmash.saxophone.parsers
 
 import scala.util.parsing.combinator._
 

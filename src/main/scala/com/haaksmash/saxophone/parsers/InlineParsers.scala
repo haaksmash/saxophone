@@ -1,4 +1,6 @@
-package com.haaksmash.saxophone
+package com.haaksmash.saxophone.parsers
+
+import com.haaksmash.saxophone.primitives._
 
 import scala.util.parsing.combinator.RegexParsers
 
@@ -46,29 +48,29 @@ object InlineParsers extends RegexParsers {
     }
   }
 
-  val emphasized_text: Parser[EmphasizedText] = EMPHASIZED_START ~> (not(EMPHASIZED_END) ~> aChar+) <~ EMPHASIZED_END ^^ {
+  val emphasized_text: Parser[EmphasizedText] = EMPHASIZED_START ~> ((not(EMPHASIZED_END) ~> aChar).+) <~ EMPHASIZED_END ^^ {
     case chars => EmphasizedText(chars.mkString)
   }
 
-  val weighted_text: Parser[WeightedText] = WEIGHTED_START ~> (not(WEIGHTED_END) ~> aChar+) <~ WEIGHTED_END^^ {
+  val weighted_text: Parser[WeightedText] = WEIGHTED_START ~> ((not(WEIGHTED_END) ~> aChar).+) <~ WEIGHTED_END^^ {
     // For now, only support a single level of added-weight
     case text => WeightedText(1, text.mkString)
   }
 
-  val underlined_text: Parser[UnderlinedText] = UNDERLINE_START ~> (not(UNDERLINE_END) ~> aChar+) <~ UNDERLINE_END ^^ {
+  val underlined_text: Parser[UnderlinedText] = UNDERLINE_START ~> ((not(UNDERLINE_END) ~> aChar).+) <~ UNDERLINE_END ^^ {
     case chars => UnderlinedText(chars.mkString)
   }
 
-  val struckthrough_text: Parser[StruckthroughText] = STRUCKTHROUGH_START ~> (not(STRUCKTHROUGH_END) ~> aChar+) <~ STRUCKTHROUGH_END ^^ {
+  val struckthrough_text: Parser[StruckthroughText] = STRUCKTHROUGH_START ~> ((not(STRUCKTHROUGH_END) ~> aChar).+) <~ STRUCKTHROUGH_END ^^ {
     case chars => StruckthroughText(chars.mkString)
   }
 
-  val monospaced_text: Parser[MonospaceText] = MONOSPACE_START ~> (not(MONOSPACE_END) ~> aChar+) <~ MONOSPACE_END ^^ {
+  val monospaced_text: Parser[MonospaceText] = MONOSPACE_START ~> ((not(MONOSPACE_END) ~> aChar).+) <~ MONOSPACE_END ^^ {
     case chars => MonospaceText(chars.mkString)
   }
 
-  val link_text: Parser[Link] = (LINK_START ~> (not(LINK_END)~> aChar+) <~ LINK_END) ~
-    (LINK_TARGET_START ~> (not(LINK_TARGET_END) ~> aChar+) <~ LINK_TARGET_END).? ^^ {
+  val link_text: Parser[Link] = (LINK_START ~> ((not(LINK_END)~> aChar).+) <~ LINK_END) ~
+    (LINK_TARGET_START ~> ((not(LINK_TARGET_END) ~> aChar).+) <~ LINK_TARGET_END).? ^^ {
     case text ~ maybe_target => Link(
       parse(elements(Set("a")), text.mkString).get,
       maybe_target match {
@@ -78,7 +80,7 @@ object InlineParsers extends RegexParsers {
     )
   }
 
-  val footnote_text: Parser[Footnote] = FOOTNOTE_START ~> (not(FOOTNOTE_END) ~> aChar+) <~ FOOTNOTE_END ^^ {
+  val footnote_text: Parser[Footnote] = FOOTNOTE_START ~> ((not(FOOTNOTE_END) ~> aChar).+) <~ FOOTNOTE_END ^^ {
     case text => Footnote(parse(elements(Set("f")), text.mkString).get)
   }
 

@@ -1,6 +1,5 @@
 package com.haaksmash.saxophone.parsers
 
-import com.haaksmash.saxophone.UtilParsers
 import org.scalatest._
 
 class UtilParserSpec extends FlatSpec {

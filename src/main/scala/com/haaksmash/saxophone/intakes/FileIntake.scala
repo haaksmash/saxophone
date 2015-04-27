@@ -2,7 +2,7 @@ package com.haaksmash.saxophone.intakes
 
 import java.io.File
 
-import com.haaksmash.saxophone.Document
+import com.haaksmash.saxophone.primitives.Document
 
 class FileIntake extends BaseIntake {
   type IntakeType = File
