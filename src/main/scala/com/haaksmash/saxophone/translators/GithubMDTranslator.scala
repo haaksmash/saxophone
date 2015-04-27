@@ -12,9 +12,9 @@ class GithubMDTranslator extends BaseTranslator {
   }
 
   /*
-     * Inline nodes; i.e., nodes that don't have children, but only capture
-     * meta data about their contents.
-     */
+   * Inline nodes; i.e., nodes that don't have children, but only capture
+   * meta data about their contents.
+   */
   override def emphasizedText(node: EmphasizedText): String = s"*${node.text}*"
 
   override def standardText(node: StandardText): String = node.text
@@ -41,9 +41,9 @@ class GithubMDTranslator extends BaseTranslator {
 
   override def link(node: Link): String = s"[${translate(node)}](${node.to.target})"
 
-  override def quote(node: Quote): String = s">${translate(node)}\n"
+  override def quote(node: Quote): String = s"> ${translate(node)}\n"
 
-  override def code(node: Code): String = s"```${node.directives.getOrElse("lang", "")}${node.contents}\n```\n"
+  override def code(node: Code): String = s"```${node.directives.getOrElse("lang", "")}\n${node.contents}\n```\n"
 }
 
 object GithubMDTranslator {

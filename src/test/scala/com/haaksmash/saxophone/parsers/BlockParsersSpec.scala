@@ -63,11 +63,11 @@ class BlockParsersSpec extends FlatSpec with PrivateMethodTester {
   }
 
   it should "propagate directives" in {
-    val codez = Seq(CodeStartLine(Map("language" -> "scala")), EmptyLine(), CodeEndLine())
+    val codez = Seq(CodeStartLine(Map("lang" -> "scala")), EmptyLine(), CodeEndLine())
 
     val result = parsers.code_node(new LineReader(codez)).get
 
-    assert(result.directives.getOrElse("language", "not scala") == "scala")
+    assert(result.directives.getOrElse("lang", "not scala") == "scala")
   }
 
   "uordered_list_node" must "recognize UnorderedLines" in {

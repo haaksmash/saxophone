@@ -78,12 +78,12 @@ class HTMLTranslatorSpec extends FlatSpec {
   }
 
   it should "handle directives like a boss" in {
-    val code = Code(Map("language" -> "magic"), "square = lambda x: x ** 2\nsquare(2)")
+    val code = Code(Map("lang" -> "magic"), "square = lambda x: x ** 2\nsquare(2)")
 
     val result = translator.code(code)
 
     assert(result ==
-      """<pre><code language="magic">square = lambda x: x ** 2
+      """<pre><code lang="magic">square = lambda x: x ** 2
         |square(2)</code></pre>""".stripMargin)
   }
 
