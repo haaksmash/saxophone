@@ -43,15 +43,22 @@ case class Quote(children: Seq[Node], source: Option[Seq[InlineNode]]) extends N
 }
 
 
-sealed abstract class ListNode(items: Traversable[Node]) extends Node {
-  def children = items
+sealed abstract class ListNode(items: Traversable[Seq[Node]]) extends Node {
+  /**
+   * `children` is not a very useful method to use on ListNodes; because
+   * they, by nature, have their "natural" children (the bulleted/numbered blocks)
+   * and the blocks themselves have children, operating on all of the children
+   * loses some of that information.
+   * @return all the children of this List node
+   */
+  def children = items.flatten
 }
 
-case class OrderedList(items: Seq[Node]) extends ListNode(items) {
+case class OrderedList(items: Seq[Seq[Node]]) extends ListNode(items) {
   override val label = "ol"
 }
 
-case class UnorderedList(items: Set[Node]) extends ListNode(items){
+case class UnorderedList(items: Set[Seq[Node]]) extends ListNode(items){
   override val label = "ul"
 }
 

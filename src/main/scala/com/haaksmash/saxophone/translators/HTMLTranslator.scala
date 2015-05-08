@@ -33,11 +33,11 @@ class HTMLTranslator(wrap_code_with_pre: Boolean = true) extends BaseTranslator 
       s"""<blockquote>${translate(node)}</blockquote>"""
   }
   def orderedList(node:OrderedList) = {
-    val list_items = node.items.map(li => s"<li>${translate(li)}</li>") mkString ""
+    val list_items = node.items.map(li => s"<li>${li.map(translate(_)).mkString}</li>") mkString ""
     s"""<ol>$list_items</ol>"""
   }
   def unorderedList(node:UnorderedList) = {
-    val list_items = node.items.map(li => s"""<li>${translate(li)}</li>""") mkString ""
+    val list_items = node.items.map(li => s"""<li>${li.map(translate(_)).mkString}</li>""") mkString ""
     s"""<ul>$list_items</ul>"""
   }
 

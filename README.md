@@ -35,7 +35,8 @@ Here's how!
 add
 
 ```scala
-lazy val saxophone_project = RootProject(uri("git://github.com/haaksmash/saxophone.git"))
+lazy val root = Project("root", file(".")) dependsOn(saxophone)
+lazy val saxophone = RootProject(uri("git://github.com/haaksmash/saxophone.git"))
 ```
 to your build definition.
 
@@ -46,9 +47,8 @@ Within a block of text:
 
 * `/words/` becomes `<em>words</em>`
 * `*words*` becomes `<strong>words</strong>`
-* `_words_` becomes `<mark>words</mark>`
-* ``words`` becomes `<code>words</code>`
 * `~words~` becomes `<s>words</s>`
+* `_words_` becomes `<mark>words</mark>`
 
 Whereas blocks look like:
 
@@ -59,6 +59,6 @@ Whereas blocks look like:
 >>> multiple lines
 [saxophone docs]
 ```
-will become `<blockquote>a quote!<footer>saxophone docs</footer></blockquote>`:
+will become `<blockquote>a quote! multiple lines<footer>saxophone docs</footer></blockquote>`:
 
 > a quote! multiple lines
