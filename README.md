@@ -46,9 +46,8 @@ Within a block of text:
 
 * `/words/` becomes `<em>words</em>`
 * `*words*` becomes `<strong>words</strong>`
-* `_words_` becomes `<mark>words</mark>`
-* ``words`` becomes `<code>words</code>`
 * `~words~` becomes `<s>words</s>`
+* `_words_` becomes `<mark>words</mark>`
 
 Whereas blocks look like:
 

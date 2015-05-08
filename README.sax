@@ -70,13 +70,13 @@ Within a block of text:
 * `*words*` becomes `<strong>words</strong>`
 * `~words~` becomes `<s>words</s>`
 * `_words_` becomes `<mark>words</mark>`
-* ``words`` becomes `<code>words</code>`
 
 Whereas blocks look like:
 
 * `>>>` denotes a quote, which can span multiple lines --- each of which should
 begin with `>>>`, and can optionally have a source, denoted afterwards inside `[`
 and `]`:
+
 {{{
 >>> a quote!
 >>> multiple lines
