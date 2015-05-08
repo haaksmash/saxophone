@@ -70,12 +70,22 @@ class BlockParsersSpec extends FlatSpec {
     assert(result.directives.getOrElse("lang", "not scala") == "scala")
   }
 
-  "uordered_list_node" must "recognize UnorderedLines" in {
+  "unordered_list_node" must "recognize UnorderedLines" in {
     val list = Seq(UnorderedLine("*", "list item A"), UnorderedLine("*", "list item B"))
 
     val result = parsers.unordered_list_node(new LineReader(list)).get
 
-    assert(result.items == Set(StandardText("list item A"), StandardText("list item B")))
+    assert(result.items == Set(Seq(Paragraph(Seq(StandardText("list item A")))), Seq(Paragraph(Seq(StandardText("list item B"))))))
+  }
+
+  it should "recursively parse its leading line" in {
+    val list = Seq(UnorderedLine("*", "list /item/ A"))
+
+    val result = parsers.unordered_list_node(new LineReader(list)).get
+
+    assert(result.items == Set(
+      Seq(Paragraph(Seq(StandardText("list "), EmphasizedText("item"), StandardText(" A"))))
+    ))
   }
 
   it should "scoop TextLines into the previous UnorderedLine" in {
@@ -83,7 +93,7 @@ class BlockParsersSpec extends FlatSpec {
 
     val result = parsers.unordered_list_node(new LineReader(list)).get
 
-    assert(result.items == Set(StandardText("list item A item A continued"), StandardText("list item B")))
+    assert(result.items == Set(Seq(Paragraph(Seq(StandardText("list item A item A continued")))), Seq(Paragraph(Seq(StandardText("list item B"))))))
   }
 
   it should "not scoop nonTextLines into the previous UnorderedLine" in {
@@ -91,7 +101,7 @@ class BlockParsersSpec extends FlatSpec {
 
     val result = parsers.unordered_list_node(new LineReader(list)).get
 
-    assert(result.items == Set(StandardText("list item A"), StandardText("list item B")))
+    assert(result.items == Set(Seq(Paragraph(Seq(StandardText("list item A")))), Seq(Paragraph(Seq(StandardText("list item B"))))))
   }
 
   "ordered_list_node" must "recognize OrderedLines" in {
@@ -99,23 +109,33 @@ class BlockParsersSpec extends FlatSpec {
 
     val result = parsers.ordered_list_node(new LineReader(list)).get
 
-    assert(result.items == Seq(StandardText("list item 1"), StandardText("list item 2")))
+    assert(result.items == Seq(Seq(Paragraph(Seq(StandardText("list item 1")))), Seq(Paragraph(Seq(StandardText("list item 2"))))))
   }
 
-  it should "scoop TextLines into the previous UnorderedLine" in {
+  it should "recursively parse its leading line" in {
+    val list = Seq(OrderedLine("1.", "list /item/ A"))
+
+    val result = parsers.ordered_list_node(new LineReader(list)).get
+
+    assert(result.items == Seq(
+      Seq(Paragraph(Seq(StandardText("list "), EmphasizedText("item"), StandardText(" A"))))
+    ))
+  }
+
+  it should "scoop TextLines into the previous OrderedLine" in {
     val list = Seq(OrderedLine("1.", "list item 1"), TextLine("item 1 continued"), OrderedLine("2.", "list item 2"))
 
     val result = parsers.ordered_list_node(new LineReader(list)).get
 
-    assert(result.items == Seq(StandardText("list item 1 item 1 continued"), StandardText("list item 2")))
+    assert(result.items == Seq(Seq(Paragraph(Seq(StandardText("list item 1 item 1 continued")))), Seq(Paragraph(Seq(StandardText("list item 2"))))))
   }
 
-  it should "not scoop nonTextLines into the previous UnorderedLine" in {
+  it should "not scoop nonTextLines into the previous OrderedLine" in {
     val list = Seq(OrderedLine("1.", "list item 1"), OrderedLine("2.", "list item 2"), QuoteLine("item 2 NOT continued"))
 
     val result = parsers.ordered_list_node(new LineReader(list)).get
 
-    assert(result.items == Seq(StandardText("list item 1"), StandardText("list item 2")))
+    assert(result.items == Seq(Seq(Paragraph(Seq(StandardText("list item 1")))), Seq(Paragraph(Seq(StandardText("list item 2"))))))
   }
 
   "paragraph" must "eat as many TextLines as it wants" in {
