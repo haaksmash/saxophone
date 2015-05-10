@@ -4,7 +4,7 @@ sealed abstract class Node {
   def children: Traversable[Node]
   val label = "node"
   def label_display = s"$label"
-  override def toString = s"<$label_display>${children.foldLeft("")((prev, current) => prev + current.toString)}</$label>"
+  override def toString = s"<$label_display>${children.mkString("")}</$label>"
 }
 
 case class Document(children: Seq[Node]) extends Node {
@@ -28,7 +28,7 @@ case class ForcedNewline() extends Node {
 case class Code(directives: Map[String, String], contents:String) extends Node {
   val children = Seq.empty
   override val label = "code"
-  override def toString = s"""<$label ${(directives map {case (k, v) => s"""$k="$v""""}).foldLeft("")((prev, current) => s"$prev $current")}>$contents</$label>"""
+  override def toString = s"""<$label ${(directives map {case (k, v) => s"""$k="$v""""}).mkString(" ")}>$contents</$label>"""
 }
 
 case class Quote(children: Seq[Node], source: Option[Seq[InlineNode]]) extends Node {
