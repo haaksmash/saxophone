@@ -36,15 +36,35 @@ object InlineParsers extends RegexParsers {
     }
   }
 
-  val standard_text: Parser[StandardText] = Parser{ in =>
+  def standardText(special: Set[Char]): Parser[StandardText] = Parser{ in =>
     if (in.atEnd)
       Failure("End of input reached.", in)
-    else if (special_char_to_tracking_and_ending_char.contains(in.first))
-      Failure("not standard text", in)
     else {
-      val subsource = in.source.subSequence(in.offset, in.source.length)
-      val regular_text = subsource.toString.toList.takeWhile(!special_char_to_tracking_and_ending_char.contains(_)).mkString
-      Success(StandardText(regular_text), in.drop(regular_text.length))
+      val source = in.source
+      var pos = in.offset
+      val end = source.length()
+      val result = new StringBuilder()
+
+      while (pos<end && !special.contains(source.charAt(pos))) {
+        val c = source.charAt(pos)
+        if (
+          c == '\\' &&
+          pos + 1 < end &&
+          special_char_to_tracking_and_ending_char.contains(source.charAt(pos + 1))
+        ) {
+          result.append(source.charAt(pos + 1))
+          pos += 2
+        } else {
+          result.append(source.charAt(pos))
+          pos += 1
+        }
+      }
+
+      val text = result.toString()
+      if (text.length == 0)
+        Failure("no text consumed", in)
+      else
+        Success(StandardText(text), in.drop(pos - in.offset))
     }
   }
 
@@ -65,8 +85,8 @@ object InlineParsers extends RegexParsers {
     case chars => StruckthroughText(chars.mkString)
   }
 
-  val monospaced_text: Parser[MonospaceText] = MONOSPACE_START ~> ((not(MONOSPACE_END) ~> aChar).+) <~ MONOSPACE_END ^^ {
-    case chars => MonospaceText(chars.mkString)
+  val monospaced_text: Parser[MonospaceText] = MONOSPACE_START ~> standardText(Set(MONOSPACE_END)) <~ MONOSPACE_END ^^ {
+    case text => MonospaceText(text.text)
   }
 
   val link_text: Parser[Link] = (LINK_START ~> ((not(LINK_END)~> aChar).+) <~ LINK_END) ~
@@ -130,5 +150,8 @@ object InlineParsers extends RegexParsers {
     }
   }
 
-  def elements(visited: Set[String] = Set.empty[String]): Parser[Seq[InlineNode]] = (element(visited) | standard_text).*
+  def elements(visited: Set[String] = Set.empty[String]): Parser[Seq[InlineNode]] = (
+    element(visited) |
+    standardText(special_char_to_tracking_and_ending_char.keys.toSet)
+  ).*
 }
