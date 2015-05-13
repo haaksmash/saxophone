@@ -37,6 +37,8 @@ class SaxophoneTreeStringTranslator extends BaseTranslator {
 
   override def code(node: Code): String = ???
 
+  override def rawText(node: RawText): String = ???
+
   override def monospacedText(node: MonospaceText): String = ???
 
   override def translate(document: Node) = {

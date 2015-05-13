@@ -208,6 +208,13 @@ class HTMLTranslatorSpec extends FlatSpec {
     assert(result == "<mark>defective link</mark>")
   }
 
+  "rawText" should "translate a RawText" in {
+    val text = RawText("<hohoho>")
+    val result = translator.rawText(text)
+
+    assert(result == "<hohoho>")
+  }
+
   it should "escape its text" in {
 
     val text = UnderlinedText("<look> &<a tag>")

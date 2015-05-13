@@ -55,6 +55,8 @@ class HTMLTranslator(wrap_code_with_pre: Boolean = true) extends BaseTranslator 
   def underlinedText(node:UnderlinedText) = s"""<mark>${escapeTextForHTML(node.text)}</mark>"""
   def weightedText(node:WeightedText) = s"<strong>${escapeTextForHTML(node.text)}</strong>"
   def monospacedText(node:MonospaceText) = s"<code>${escapeTextForHTML(node.text)}</code>"
+  def rawText(node: RawText) = node.text
+
 
   /**
    * Escapes a string so that it's safe for HTML; e.g., replacing {@code <} with {@code &amp;lt;}.

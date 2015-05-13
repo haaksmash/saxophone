@@ -34,6 +34,7 @@ trait BaseTranslator {
   def underlinedText(node:UnderlinedText): String
   def weightedText(node:WeightedText): String
   def monospacedText(node:MonospaceText): String
+  def rawText(node:RawText): String
 
   def node_to_translator(n:Node) = n match {
     case n: StandardText => standardText(n)
@@ -48,6 +49,7 @@ trait BaseTranslator {
     case n: StruckthroughText => struckthroughText(n)
     case n: UnderlinedText => underlinedText(n)
     case n: MonospaceText => monospacedText(n)
+    case n: RawText => rawText(n)
     case n: Quote => quote(n)
     case n => this.node(n)
   }

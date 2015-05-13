@@ -1,6 +1,6 @@
 package com.haaksmash.saxophone.parsers
 
-import com.haaksmash.saxophone.primitives.StandardText
+import com.haaksmash.saxophone.primitives.{RawText, StandardText}
 import org.scalatest._
 
 class InlineParsersSpec extends FlatSpec {
@@ -53,6 +53,13 @@ class InlineParsersSpec extends FlatSpec {
     val result = parsers.parseAll(parsers.standardText(Set()), input).get
 
     assert(result.text == "`hello`")
+  }
+
+  "raw_text" should "match characters between =" in {
+    val input = "=`*RAW*`="
+    val result = parsers.parseAll(parsers.raw_text, input).get
+
+    assert(result.text == "`*RAW*`")
   }
 
   "emphasized_text" should "match characters between /" in {
@@ -167,10 +174,17 @@ class InlineParsersSpec extends FlatSpec {
   }
 
   it should "prevent nesting" in {
-    for ((s:Char,(f:String, e:Char)) <- parsers.special_char_to_tracking_and_ending_char) {
+    for ((s, (f:String, e)) <- parsers.special_char_to_tracking_and_ending_char) {
       val nested_result = parsers.parseAll(parsers.element(visited = Set(f)), s"${s}hello$e")
 
       assert(nested_result.isEmpty)
     }
   }
+
+  "elements" should "recognize raw marker strings" in {
+    val raw_result = parsers.parseAll(parsers.elements(), "and =this is **RAW**=")
+    assert(!raw_result.isEmpty)
+    assert(raw_result.get == Seq(StandardText("and "), RawText("this is **RAW**")))
+  }
+
 }
