@@ -90,9 +90,9 @@ class HTMLTranslatorSpec extends FlatSpec {
  "orderedList" should "translate an OrderedList" in {
     val list = OrderedList(
       Seq(
-        Paragraph(Seq(StandardText("Line One"))),
-        Paragraph(Seq(StandardText("Line Two"))),
-        Paragraph(Seq(StandardText("Line Three")))
+        Seq(Paragraph(Seq(StandardText("Line One")))),
+        Seq(Paragraph(Seq(StandardText("Line Two")))),
+        Seq(Paragraph(Seq(StandardText("Line Three"))))
       )
     )
 
@@ -104,10 +104,10 @@ class HTMLTranslatorSpec extends FlatSpec {
   "unorderedList" should "translate an UnorderedList" in {
     val list = UnorderedList(
       Set(
-        Paragraph(Seq(StandardText("Line One"))),
+        Seq(Paragraph(Seq(StandardText("Line One")))),
         // ensures recursive translation
-        Paragraph(Seq(EmphasizedText("Line Two"))),
-        Paragraph(Seq(StandardText("Line Three")))
+        Seq(Paragraph(Seq(EmphasizedText("Line Two")))),
+        Seq(Paragraph(Seq(StandardText("Line Three"))))
       )
     )
 
@@ -206,6 +206,20 @@ class HTMLTranslatorSpec extends FlatSpec {
     val result = translator.underlinedText(text)
 
     assert(result == "<mark>defective link</mark>")
+  }
+
+  "rawText" should "translate a RawText" in {
+    val text = RawText("<hohoho>")
+    val result = translator.rawText(text)
+
+    assert(result == "<hohoho>")
+  }
+
+  it should "escape the RawText if told to do so" in {
+    val text = RawText("<hohoho>")
+    val result = new HTMLTranslator(allow_raw_strings = false).rawText(text)
+
+    assert(result == "&lt;hohoho&gt;")
   }
 
   it should "escape its text" in {

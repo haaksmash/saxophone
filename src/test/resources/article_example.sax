@@ -19,6 +19,7 @@ and an unordered list:
 ## subheading here.
 
 _this text is underlined_, whereas ~this text is struck-through~. *this text is bolded*, whereas /this text is italicized/.
+and =this text is <raw/>= unlike <here>!
 
 In this paragraph, at long last, we come to the important part: `the code` (this last should appear monospaced).
 

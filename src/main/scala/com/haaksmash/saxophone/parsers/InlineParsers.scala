@@ -17,6 +17,7 @@ object InlineParsers extends RegexParsers {
   val STRUCKTHROUGH_START, STRUCKTHROUGH_END = '~'
   val UNDERLINE_START, UNDERLINE_END = '_'
   val MONOSPACE_START, MONOSPACE_END = '`'
+  val RAW_START, RAW_END = '='
 
   val special_char_to_tracking_and_ending_char = Map(
     FOOTNOTE_START -> ("f", FOOTNOTE_END),
@@ -25,7 +26,8 @@ object InlineParsers extends RegexParsers {
     EMPHASIZED_START -> ("i", EMPHASIZED_END),
     STRUCKTHROUGH_START -> ("s", STRUCKTHROUGH_END),
     UNDERLINE_START -> ("u", UNDERLINE_END),
-    MONOSPACE_START -> ("m", MONOSPACE_END)
+    MONOSPACE_START -> ("m", MONOSPACE_END),
+    RAW_START -> ("r", RAW_END)
   )
 
   def aChar = Parser{ in =>
@@ -36,16 +38,40 @@ object InlineParsers extends RegexParsers {
     }
   }
 
-  val standard_text: Parser[StandardText] = Parser{ in =>
+  def standardText(special: Set[Char]): Parser[StandardText] = Parser{ in =>
     if (in.atEnd)
       Failure("End of input reached.", in)
-    else if (special_char_to_tracking_and_ending_char.contains(in.first))
-      Failure("not standard text", in)
     else {
-      val subsource = in.source.subSequence(in.offset, in.source.length)
-      val regular_text = subsource.toString.toList.takeWhile(!special_char_to_tracking_and_ending_char.contains(_)).mkString
-      Success(StandardText(regular_text), in.drop(regular_text.length))
+      val source = in.source
+      var pos = in.offset
+      val end = source.length()
+      val result = new StringBuilder()
+
+      while (pos<end && !special.contains(source.charAt(pos))) {
+        val c = source.charAt(pos)
+        if (
+          c == '\\' &&
+          pos + 1 < end &&
+          special_char_to_tracking_and_ending_char.contains(source.charAt(pos + 1))
+        ) {
+          result.append(source.charAt(pos + 1))
+          pos += 2
+        } else {
+          result.append(source.charAt(pos))
+          pos += 1
+        }
+      }
+
+      val text = result.toString()
+      if (text.length == 0)
+        Failure("no text consumed", in)
+      else
+        Success(StandardText(text), in.drop(pos - in.offset))
     }
+  }
+
+  val raw_text: Parser[RawText] = RAW_START ~> ((not(RAW_END) ~> aChar).+) <~ RAW_END ^^ {
+    case chars => RawText(chars.mkString)
   }
 
   val emphasized_text: Parser[EmphasizedText] = EMPHASIZED_START ~> ((not(EMPHASIZED_END) ~> aChar).+) <~ EMPHASIZED_END ^^ {
@@ -65,8 +91,8 @@ object InlineParsers extends RegexParsers {
     case chars => StruckthroughText(chars.mkString)
   }
 
-  val monospaced_text: Parser[MonospaceText] = MONOSPACE_START ~> ((not(MONOSPACE_END) ~> aChar).+) <~ MONOSPACE_END ^^ {
-    case chars => MonospaceText(chars.mkString)
+  val monospaced_text: Parser[MonospaceText] = MONOSPACE_START ~> standardText(Set(MONOSPACE_END)) <~ MONOSPACE_END ^^ {
+    case text => MonospaceText(text.text)
   }
 
   val link_text: Parser[Link] = (LINK_START ~> ((not(LINK_END)~> aChar).+) <~ LINK_END) ~
@@ -124,11 +150,19 @@ object InlineParsers extends RegexParsers {
             Failure("can't nest monospace", in)
           else
             monospaced_text(in)
+        case RAW_START =>
+          if (visited contains special_char_to_tracking_and_ending_char(RAW_START)._1)
+            Failure("can't nest raw", in)
+          else
+            raw_text(in)
 
         case _ => Failure(s"didn't recognize symbol ${in.first}", in)
       }
     }
   }
 
-  def elements(visited: Set[String] = Set.empty[String]): Parser[Seq[InlineNode]] = (element(visited) | standard_text).*
+  def elements(visited: Set[String] = Set.empty[String]): Parser[Seq[InlineNode]] = (
+    element(visited) |
+    standardText(special_char_to_tracking_and_ending_char.keys.toSet)
+  ).*
 }

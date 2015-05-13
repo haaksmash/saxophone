@@ -1,20 +1,20 @@
 package com.haaksmash.saxophone.parsers
 
-import com.haaksmash.saxophone.primitives.StandardText
+import com.haaksmash.saxophone.primitives.{RawText, StandardText}
 import org.scalatest._
 
 class InlineParsersSpec extends FlatSpec {
   val parsers = InlineParsers
 
-  "standard_text" should "match a regular sentence" in {
+  "standardText" should "match a regular sentence" in {
     val input = "some regular old input"
-    val result = parsers.parseAll(parsers.standard_text, input).get
+    val result = parsers.parseAll(parsers.standardText(Set()), input).get
 
     assert(result.text == input)
   }
 
   it should "not match an empty string" in {
-    val result = parsers.parseAll(parsers.standard_text, "")
+    val result = parsers.parseAll(parsers.standardText(Set()), "")
 
     assert(result.isEmpty)
   }
@@ -22,7 +22,7 @@ class InlineParsersSpec extends FlatSpec {
   it should "not match a string with a special char at the front" in {
     val base_input = "something something something"
     for (c <- parsers.special_char_to_tracking_and_ending_char) {
-      val result = parsers.parseAll(parsers.standard_text, c + base_input)
+      val result = parsers.parseAll(parsers.standardText(Set(c._1)), c + base_input)
 
       assert(result.isEmpty)
     }
@@ -33,11 +33,33 @@ class InlineParsersSpec extends FlatSpec {
     val right_input = "the right side"
 
     for (c <- parsers.special_char_to_tracking_and_ending_char.keys) {
-      val result = parsers.parse(parsers.standard_text, left_input + c + right_input)
+      val result = parsers.parse(parsers.standardText(Set(c)), left_input + c + right_input)
 
       assert(!result.isEmpty)
       assert(result.get.text == left_input)
     }
+  }
+
+  it should "allow us to escape special chars" in {
+    val input = "i want to be a \\*"
+
+    val result = parsers.parse(parsers.standardText(Set()), input).get
+
+    assert(result == StandardText("i want to be a *"))
+  }
+
+  it should "allow escaped `" in {
+    val input = "\\`hello\\`"
+    val result = parsers.parseAll(parsers.standardText(Set()), input).get
+
+    assert(result.text == "`hello`")
+  }
+
+  "raw_text" should "match characters between =" in {
+    val input = "=`*RAW*`="
+    val result = parsers.parseAll(parsers.raw_text, input).get
+
+    assert(result.text == "`*RAW*`")
   }
 
   "emphasized_text" should "match characters between /" in {
@@ -74,6 +96,14 @@ class InlineParsersSpec extends FlatSpec {
 
     assert(result.text == "hello")
   }
+
+  it should "not care about other special chars inside it" in {
+    val input = "`**hello**`"
+    val result = parsers.parseAll(parsers.monospaced_text, input).get
+
+    assert(result.text == "**hello**")
+  }
+
 
   "link_text" should "match text inside []" in {
     val input = "[hello]"
@@ -144,10 +174,17 @@ class InlineParsersSpec extends FlatSpec {
   }
 
   it should "prevent nesting" in {
-    for ((s:Char,(f:String, e:Char)) <- parsers.special_char_to_tracking_and_ending_char) {
+    for ((s, (f:String, e)) <- parsers.special_char_to_tracking_and_ending_char) {
       val nested_result = parsers.parseAll(parsers.element(visited = Set(f)), s"${s}hello$e")
 
       assert(nested_result.isEmpty)
     }
   }
+
+  "elements" should "recognize raw marker strings" in {
+    val raw_result = parsers.parseAll(parsers.elements(), "and =this is **RAW**=")
+    assert(!raw_result.isEmpty)
+    assert(raw_result.get == Seq(StandardText("and "), RawText("this is **RAW**")))
+  }
+
 }

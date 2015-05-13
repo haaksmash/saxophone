@@ -1,8 +1,10 @@
 package com.haaksmash.saxophone.parsers
 
 import com.haaksmash.saxophone.primitives._
+import com.haaksmash.saxophone.readers.LineReader
 
 import scala.util.parsing.combinator.Parsers
+import scala.util.parsing.input.{Position, Reader}
 
 /**
   * The block parsers translate com.haaksmash.saxophone.Line -> com.haaksmash.saxophone.Node
@@ -14,7 +16,8 @@ class BlockParsers extends Parsers {
    * Matches & consumes a line of type T. Notably, it will __not__ match lines that
    * are subtypes of T.
    *
-   * @param c the specific class of Line @tparam T
+   * @param c the specific class of Line to match
+   * @tparam T the type of the Line to match (usually inferred)
    */
   def line[T](c:Class[T]): Parser[T] = Parser { in =>
     if (in.first.getClass == c) Success(in.first.asInstanceOf[T], in.rest)
@@ -51,35 +54,84 @@ class BlockParsers extends Parsers {
       Paragraph(parsed_text)
   }
 
-  private def flatten_list_lines[T <: ListLine](line_object_apply: ((String, String) => T))(in: List[Line], accumulator: List[Line]): List[Line] = in match {
-    case (x: T @unchecked) :: (y: TextLine) :: ys =>
-      val new_line = line_object_apply(x.glyph, x.payload + " " + y.payload)
-      flatten_list_lines(line_object_apply)(new_line :: ys, accumulator)
-    case x :: xs =>
-      flatten_list_lines(line_object_apply)(xs, x :: accumulator)
-    case Nil => accumulator
+  val ordered_list_node: Parser[OrderedList] = Parser { in =>
+    if (in.atEnd)
+      Failure("End of input", in)
+    else if (!in.first.isInstanceOf[OrderedLine])
+      Failure("not an ordered line", in)
+    else {
+        var input = in
+        var items = Seq[Seq[Node]]()
+        while (input.first.isInstanceOf[OrderedLine]) {
+          val leading_line = input.first.asInstanceOf[OrderedLine]
+          // This is unfortunate; I'd like to use the `source` method on Reader[T], but that
+          // has to return a CharSequence, which this Reader[Line] obviously cannot.
+          val line_in = input.rest.asInstanceOf[LineReader].lines
+
+          val sublines = line_in.takeWhile {
+            // never scoop another OrderedLine into this item; it denotes the start of the NEXT item
+            case next: OrderedLine => false
+            // scoop TextLines into this item no matter what
+            case next: TextLine => true
+            // don't scoop anything else
+            case next => false
+          }
+
+          items = items ++ Seq({
+            if (sublines.length > 0)
+              Seq(
+                nodes(new LineReader(TextLine(leading_line.payload) +: sublines)).get
+              )
+            else
+              Seq(nodes(new LineReader(Seq(TextLine(leading_line.payload)))).get)
+          })
+
+          input = input.rest.drop(sublines.length)
+        }
+
+        val o = OrderedList(items)
+        Success(o, input.rest)
+    }
   }
 
-  private def fold_text_lines_into_ordered_lines(in:List[Line]) = {
-    flatten_list_lines[OrderedLine](OrderedLine.apply)(in, Nil:List[Line]).reverse
-  }
+  val unordered_list_node: Parser[UnorderedList] = Parser { in =>
+    if (in.atEnd)
+      Failure("End of input", in)
+    else if (!in.first.isInstanceOf[UnorderedLine])
+      Failure("not an ordered line", in)
+    else {
+        var input = in
+        var items = Set[Seq[Node]]()
+        while (input.first.isInstanceOf[UnorderedLine]) {
+          val leading_line = input.first.asInstanceOf[UnorderedLine]
+          // This is unfortunate; I'd like to use the `source` method on Reader[T], but that
+          // has to return a CharSequence, which this Reader[Line] obviously cannot.
+          val line_in = input.rest.asInstanceOf[LineReader].lines
 
-  private def fold_text_lines_into_unordered_lines(in:List[Line]) = {
-    flatten_list_lines[UnorderedLine](UnorderedLine.apply)(in, Nil:List[Line]).reverse
-  }
+          val sublines = line_in.takeWhile {
+            // never scoop another OrderedLine into this item; it denotes the start of the NEXT item
+            case next: OrderedLine => false
+            // scoop TextLines into this item no matter what
+            case next: TextLine => true
+            // don't scoop anything else
+            case next => false
+          }
 
-  val ordered_list_node: Parser[OrderedList] = (line(classOf[OrderedLine]) | line(classOf[TextLine]) ).+ <~ line(classOf[EmptyLine]).? ^^ {
-    case line_items =>
-      OrderedList(
-        fold_text_lines_into_ordered_lines(line_items) map {li => StandardText(li.payload)}
-      )
-  }
+          items = items ++ Set({
+            if (sublines.length > 0)
+              Seq(
+                nodes(new LineReader(TextLine(leading_line.payload) +: sublines)).get
+              )
+            else
+              Seq(nodes(new LineReader(Seq(TextLine(leading_line.payload)))).get)
+          })
 
-  val unordered_list_node: Parser[UnorderedList] = (line(classOf[UnorderedLine]) | line(classOf[TextLine])).+ <~ line(classOf[EmptyLine]).? ^^ {
-    case line_items =>
-      UnorderedList(
-        (fold_text_lines_into_unordered_lines(line_items) map {li => StandardText(li.payload)}).toSet
-      )
+          input = input.rest.drop(sublines.length)
+        }
+
+        val o = UnorderedList(items)
+        Success(o, input.rest)
+    }
   }
 
   val code_node: Parser[Code] = (line(classOf[CodeStartLine]) ~ notLine(classOf[CodeEndLine]).+ <~ line(classOf[CodeEndLine])) ^^ {

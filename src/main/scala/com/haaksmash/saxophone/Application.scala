@@ -7,10 +7,19 @@ import com.haaksmash.saxophone.translators.{SaxophoneTreeStringTranslator, Githu
 
 object Application {
 
-  val help_string = """usage: saxophone [-d] [-o filename] input_filename"""
+  val help_string =
+    """usage: saxophone [-d] [-l lanugage] [-o filename] input_filename
+      |
+      |Args:
+      | -d              Print out debugging information
+      | -l LANG         Specifies that the output should be in LANG;
+      |                 can be one of [html, github, debug]; default is html.
+      | -o OUT          Write the result to a file specified by OUT. If no
+      |                 output file is specified, prints result to stdout.
+    """.stripMargin
 
   /**
-   * @param args [-d] [-o filename] input_filename
+   * @param args [-d] [-l language] [-o filename] input_filename
    */
   def main(args: Array[String]): Unit = {
     if (args.contains("--help")) {

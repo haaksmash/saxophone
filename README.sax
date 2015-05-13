@@ -54,7 +54,8 @@ Here's how!
 add
 
 {{{lang:scala
-lazy val saxophone_project = RootProject(uri("git://github.com/haaksmash/saxophone.git"))
+lazy val root = Project("root", file(".")) dependsOn(saxophone)
+lazy val saxophone = RootProject(uri("git://github.com/haaksmash/saxophone.git"))
 }}}
 
 to your build definition.
@@ -70,20 +71,21 @@ Within a block of text:
 * `*words*` becomes `<strong>words</strong>`
 * `~words~` becomes `<s>words</s>`
 * `_words_` becomes `<mark>words</mark>`
-* ``words`` becomes `<code>words</code>`
+* `\`words\`` becomes `<code>words</code>`
 
 Whereas blocks look like:
 
 * `>>>` denotes a quote, which can span multiple lines --- each of which should
 begin with `>>>`, and can optionally have a source, denoted afterwards inside `[`
 and `]`:
+
 {{{
 >>> a quote!
 >>> multiple lines
 [saxophone docs]
 }}}
 
-will become `<blockquote>a quote!<footer>saxophone docs</footer></blockquote>`:
+will become `<blockquote>a quote! multiple lines<footer>saxophone docs</footer></blockquote>`:
 
 >>> a quote!
 >>> multiple lines
