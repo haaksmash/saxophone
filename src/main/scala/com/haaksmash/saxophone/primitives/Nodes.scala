@@ -70,6 +70,10 @@ case class Footnote(children: Seq[Node]) extends InlineNode {
   override val label = "foot"
 }
 
+case class RawText(text:String) extends InlineNode {
+  val children = Seq.empty[Node]
+  override def toString = "<raw>" + text + "</raw>"
+}
 
 trait TransformedText extends InlineNode {
   val children = Seq.empty[Node]

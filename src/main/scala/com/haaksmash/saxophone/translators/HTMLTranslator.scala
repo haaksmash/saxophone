@@ -5,7 +5,10 @@ import com.haaksmash.saxophone.primitives._
 import scala.collection.immutable.ListMap
 
 
-class HTMLTranslator(wrap_code_with_pre: Boolean = true) extends BaseTranslator {
+class HTMLTranslator(
+  wrap_code_with_pre:Boolean=true,
+  allow_raw_strings:Boolean=true
+) extends BaseTranslator {
 
   /*
    * These are block-level nodes; i.e., nodes that should have their
@@ -55,6 +58,8 @@ class HTMLTranslator(wrap_code_with_pre: Boolean = true) extends BaseTranslator 
   def underlinedText(node:UnderlinedText) = s"""<mark>${escapeTextForHTML(node.text)}</mark>"""
   def weightedText(node:WeightedText) = s"<strong>${escapeTextForHTML(node.text)}</strong>"
   def monospacedText(node:MonospaceText) = s"<code>${escapeTextForHTML(node.text)}</code>"
+  def rawText(node: RawText) = if (allow_raw_strings) node.text else escapeTextForHTML(node.text)
+
 
   /**
    * Escapes a string so that it's safe for HTML; e.g., replacing {@code <} with {@code &amp;lt;}.

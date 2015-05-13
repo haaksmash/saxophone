@@ -21,6 +21,8 @@ class GithubMDTranslator extends BaseTranslator {
 
   override def forcedNewLine(node: ForcedNewline): String = "\n\n"
 
+  override def rawText(node: RawText): String = node.text
+
   override def unorderedList(node: UnorderedList): String = {
     ((for (line <- node.items) yield s"* ${line.map(translate(_)).mkString}") mkString "\n") + "\n\n"
   }

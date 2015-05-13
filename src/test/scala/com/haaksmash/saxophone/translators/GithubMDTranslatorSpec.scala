@@ -153,6 +153,13 @@ class GithubMDTranslatorSpec extends FlatSpec {
     assert(result == "defective link")
   }
 
+  "rawText" should "translate a RawText" in {
+    val text = RawText("<`ha`/>")
+    val result = translator.rawText(text)
+
+    assert(result == "<`ha`/>")
+  }
+
   "forcedNewline" should "translate a ForcedNewLine" in {
     val text = ForcedNewline()
 
