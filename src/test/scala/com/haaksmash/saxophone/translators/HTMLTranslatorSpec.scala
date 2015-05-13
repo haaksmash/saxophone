@@ -215,6 +215,13 @@ class HTMLTranslatorSpec extends FlatSpec {
     assert(result == "<hohoho>")
   }
 
+  it should "escape the RawText if told to do so" in {
+    val text = RawText("<hohoho>")
+    val result = new HTMLTranslator(allow_raw_strings = false).rawText(text)
+
+    assert(result == "&lt;hohoho&gt;")
+  }
+
   it should "escape its text" in {
 
     val text = UnderlinedText("<look> &<a tag>")
