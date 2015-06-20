@@ -28,6 +28,8 @@ class HTMLTranslator(
   allow_raw_strings:Boolean=true
 ) extends BaseTranslator {
 
+  var footnotes = Seq[String]()
+
   /*
    * These are block-level nodes; i.e., nodes that should have their
    * children translated recursively.
@@ -62,7 +64,11 @@ class HTMLTranslator(
     s"""<ul>$list_items</ul>"""
   }
 
-  def footnote(node:Footnote) = "" // footnote isn't supported yet, sorry!
+  def footnote(node:Footnote) = {
+    val footnote_number = footnotes.size + 1
+    footnotes = footnotes :+ translate(node)
+    s"""<sup><a href="#fn$footnote_number" name="rn$footnote_number">$footnote_number</a></sup>"""
+  }
 
   /*
    * Inline nodes; i.e., nodes that don't have children, but only capture
@@ -78,6 +84,18 @@ class HTMLTranslator(
   def monospacedText(node:MonospaceText) = s"<code>${escapeTextForHTML(node.text)}</code>"
   def rawText(node: RawText) = if (allow_raw_strings) node.text else escapeTextForHTML(node.text)
 
+
+  override def translate(node: Node): String = {
+    val s = super.translate(node)
+
+    val footer_string = node match {
+      case n:Document if !footnotes.isEmpty =>
+        "<footer>" + footnotes.zipWithIndex.map { case (note, num) => s"""<p><a class="fnote" href="#rn${num + 1}" name="fn${num + 1}">${num + 1}</a> $note</p>"""}.mkString + "</footer>"
+      case _ => ""
+    }
+
+    s + footer_string
+  }
 
   /**
    * Escapes a string so that it's safe for HTML; e.g., replacing {@code <} with {@code &amp;lt;}.
