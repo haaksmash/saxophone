@@ -25,8 +25,7 @@ import scala.collection.immutable.ListMap
 
 class HTMLTranslator(
   allow_raw_strings:Boolean=true,
-  footnote_as_title_text:Boolean=false,
-  footnote_inline:Boolean=false
+  footnote_as_title_text:Boolean=false
 ) extends BaseTranslator {
 
   var footnotes = Seq[String]()
@@ -66,12 +65,9 @@ class HTMLTranslator(
       footnotes = footnotes :+ ""
       val title_text = translate(node).replaceAll("\"", "\\\\\"")
       s"""<a title="${title_text}" rel="footnote">$footnote_number</a>"""
-    } else if (footnote_inline) {
-      footnotes = footnotes :+ ""
-      s"""<aside num=$footnote_number>${translate(node)}</aside>"""
     } else {
       footnotes = footnotes :+ translate(node)
-      s"""<a href="#fn$footnote_number" name="rn$footnote_number" rel="footnote">$footnote_number</a>"""
+      s"""<a href="#note:$footnote_number" name="rn:$footnote_number" rel="footnote">$footnote_number</a>"""
     }
   }
 
@@ -94,8 +90,8 @@ class HTMLTranslator(
     val s = super.translate(node)
 
     val footer_string = node match {
-      case n:Document if !footnotes.isEmpty && !(footnote_as_title_text || footnote_inline) =>
-        "<footer>" + footnotes.zipWithIndex.map { case (note, num) => s"""<p><a class="fnote" href="#rn${num + 1}" name="fn${num + 1}">${num + 1}</a> $note</p>"""}.mkString + "</footer>"
+      case n:Document if !footnotes.isEmpty && !(footnote_as_title_text) =>
+        "<footer>" + footnotes.zipWithIndex.map { case (note, num) => s"""<p><a class="fnote" href="#rn:${num + 1}" name="note:${num + 1}">${num + 1}</a> $note</p>"""}.mkString + "</footer>"
       case _ => ""
     }
 

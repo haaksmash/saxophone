@@ -263,7 +263,7 @@ class HTMLTranslatorSpec extends FlatSpec {
 
     val result = translator.footnote(text)
 
-    assert(result == "<a href=\"#fn1\" name=\"rn1\" rel=\"footnote\">1</a>")
+    assert(result == "<a href=\"#note:1\" name=\"rn:1\" rel=\"footnote\">1</a>")
   }
 
   it should "be emitted at the end of the document" in {
@@ -275,7 +275,7 @@ class HTMLTranslatorSpec extends FlatSpec {
 
     val result = translator.translate(text)
 
-    assert(result == "<p>Greetings, humans<a href=\"#fn1\" name=\"rn1\" rel=\"footnote\">1</a>!</p><footer><p><a class=\"fnote\" href=\"#rn1\" name=\"fn1\">1</a> humans is here used to refer to any sapient creature</p></footer>")
+    assert(result == "<p>Greetings, humans<a href=\"#note:1\" name=\"rn:1\" rel=\"footnote\">1</a>!</p><footer><p><a class=\"fnote\" href=\"#rn:1\" name=\"note:1\">1</a> humans is here used to refer to any sapient creature</p></footer>")
   }
 
   it should "increment its footer numbers, etc" in {
@@ -287,7 +287,7 @@ class HTMLTranslatorSpec extends FlatSpec {
 
     val result = translator.translate(text)
 
-    assert(result == "<p>Greetings,<a href=\"#fn1\" name=\"rn1\" rel=\"footnote\">1</a> humans<a href=\"#fn2\" name=\"rn2\" rel=\"footnote\">2</a>!</p><footer><p><a class=\"fnote\" href=\"#rn1\" name=\"fn1\">1</a> hohoho</p><p><a class=\"fnote\" href=\"#rn2\" name=\"fn2\">2</a> humans is here used to refer to any sapient creature</p></footer>")
+    assert(result == "<p>Greetings,<a href=\"#note:1\" name=\"rn:1\" rel=\"footnote\">1</a> humans<a href=\"#note:2\" name=\"rn:2\" rel=\"footnote\">2</a>!</p><footer><p><a class=\"fnote\" href=\"#rn:1\" name=\"note:1\">1</a> hohoho</p><p><a class=\"fnote\" href=\"#rn:2\" name=\"note:2\">2</a> humans is here used to refer to any sapient creature</p></footer>")
 
   }
 
@@ -300,7 +300,7 @@ class HTMLTranslatorSpec extends FlatSpec {
 
     val result = translator.translate(text)
 
-    assert(result == "Greetings, humans<a href=\"#fn1\" name=\"rn1\" rel=\"footnote\">1</a>!")
+    assert(result == "Greetings, humans<a href=\"#note:1\" name=\"rn:1\" rel=\"footnote\">1</a>!")
   }
 
   it should "put alt text instead of footer if told to do so" in {
@@ -313,17 +313,5 @@ class HTMLTranslatorSpec extends FlatSpec {
     val result = new HTMLTranslator(footnote_as_title_text=true).translate(text)
 
     assert(result == "<p>Greetings, humans<a title=\"humans is here used to refer to any \\\"sapient\\\" creature\" rel=\"footnote\">1</a>!</p>")
-  }
-
-  it should "use <aside> if footnote_inline specified" in {
-    val text = Document(Seq(Paragraph(Seq(
-      StandardText("Greetings, humans"),
-      Footnote(Seq(StandardText("humans is here used to refer to any \"sapient\" creature"))),
-      StandardText("!")
-    ))))
-
-    val result = new HTMLTranslator(footnote_inline=true).translate(text)
-
-    assert(result == "<p>Greetings, humans<aside num=1>humans is here used to refer to any \"sapient\" creature</aside>!</p>")
   }
 }
