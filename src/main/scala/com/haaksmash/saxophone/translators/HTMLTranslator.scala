@@ -24,7 +24,6 @@ import scala.collection.immutable.ListMap
 
 
 class HTMLTranslator(
-  wrap_code_with_pre:Boolean=true,
   allow_raw_strings:Boolean=true,
   footnote_as_title_text:Boolean=false,
   footnote_inline:Boolean=false
@@ -39,28 +38,23 @@ class HTMLTranslator(
   def heading(node:Heading) = s"""<h${node.level}>${translate(node)}</h${node.level}>"""
   def paragraph(node:Paragraph) = s"""<p>${translate(node)}</p>"""
   def code(node:Code) = {
-    val code_contents = {
-      if (wrap_code_with_pre)
-        node.contents
-      else
-        escapeTextForHTML(node.contents)
-    }
-    val code_block = s"""<code${node.directives.foldLeft(""){case (s, (k, v)) => s"""$s $k="$v""""}}>$code_contents</code>"""
-    if (wrap_code_with_pre)
-      s"""<pre>$code_block</pre>"""
-    else
-      code_block
+    val code_contents = escapeTextForHTML(node.contents)
+
+    s"""<figure class="code"><code${node.directives.foldLeft(""){case (s, (k, v)) => s"""$s $k="$v""""}}>$code_contents</code></figure>"""
   }
+
   def quote(node:Quote) = {
     if (node.source.isDefined)
       s"""<blockquote>${translate(node)}<footer>${node.source.get.map(translate(_)).mkString}</footer></blockquote>"""
     else
       s"""<blockquote>${translate(node)}</blockquote>"""
   }
+
   def orderedList(node:OrderedList) = {
     val list_items = node.items.map(li => s"<li>${li.map(translate(_)).mkString}</li>") mkString ""
     s"""<ol>$list_items</ol>"""
   }
+
   def unorderedList(node:UnorderedList) = {
     val list_items = node.items.map(li => s"""<li>${li.map(translate(_)).mkString}</li>""") mkString ""
     s"""<ul>$list_items</ul>"""
@@ -134,6 +128,6 @@ class HTMLTranslator(
 
 object HTMLTranslator {
   def translate(node:Node): String = {
-    new HTMLTranslator(true).translate(node)
+    new HTMLTranslator().translate(node)
   }
 }

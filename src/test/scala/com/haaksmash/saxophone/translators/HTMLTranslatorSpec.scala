@@ -65,34 +65,16 @@ class HTMLTranslatorSpec extends FlatSpec {
     val result = translator.code(code)
 
     assert(result ==
-      """<pre><code>this  is code,
-        | yes</code></pre>""".stripMargin)
+      """<figure class="code"><code>this  is code,
+        | yes</code></figure>""".stripMargin)
   }
 
-  it should "optionally exclude the <pre> tag" in {
-    val code = Code(Map[String,String](), "this  is code,\n yes")
-
-    val result = new HTMLTranslator(wrap_code_with_pre=false).code(code)
-
-    assert(result ==
-      """<code>this  is code,
-        | yes</code>""".stripMargin)
-  }
-
-  it should "escape characters if not using the pre tag" in {
+  it should "escape characters" in {
     val code = Code(Map[String,String](), "x <= y")
 
-    val result = new HTMLTranslator(wrap_code_with_pre=false).code(code)
+    val result = translator.code(code)
 
-    assert(result == "<code>x &lt;= y</code>")
-  }
-
-  it should "not escape characters if using the pre tag" in {
-    val code = Code(Map[String,String](), "x <= y")
-
-    val result = new HTMLTranslator(wrap_code_with_pre=true).code(code)
-
-    assert(result == "<pre><code>x <= y</code></pre>")
+    assert(result == "<figure class=\"code\"><code>x &lt;= y</code></figure>")
   }
 
   it should "handle directives like a boss" in {
@@ -101,8 +83,8 @@ class HTMLTranslatorSpec extends FlatSpec {
     val result = translator.code(code)
 
     assert(result ==
-      """<pre><code lang="magic">square = lambda x: x ** 2
-        |square(2)</code></pre>""".stripMargin)
+      """<figure class="code"><code lang="magic">square = lambda x: x ** 2
+        |square(2)</code></figure>""".stripMargin)
   }
 
  "orderedList" should "translate an OrderedList" in {
