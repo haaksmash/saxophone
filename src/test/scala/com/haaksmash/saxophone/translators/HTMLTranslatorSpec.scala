@@ -23,7 +23,7 @@ import org.scalatest._
 
 class HTMLTranslatorSpec extends FlatSpec {
 
-  val translator = new HTMLTranslator
+  def translator = new HTMLTranslator
 
   "quote" should "translate a Quote" in {
     val quote = Quote(Seq(StandardText("Hello, Clarice.")), None)
@@ -65,34 +65,16 @@ class HTMLTranslatorSpec extends FlatSpec {
     val result = translator.code(code)
 
     assert(result ==
-      """<pre><code>this  is code,
-        | yes</code></pre>""".stripMargin)
+      """<figure class="code"><code>this  is code,
+        | yes</code></figure>""".stripMargin)
   }
 
-  it should "optionally exclude the <pre> tag" in {
-    val code = Code(Map[String,String](), "this  is code,\n yes")
-
-    val result = new HTMLTranslator(wrap_code_with_pre = false).code(code)
-
-    assert(result ==
-      """<code>this  is code,
-        | yes</code>""".stripMargin)
-  }
-
-  it should "escape characters if not using the pre tag" in {
+  it should "escape characters" in {
     val code = Code(Map[String,String](), "x <= y")
 
-    val result = new HTMLTranslator(wrap_code_with_pre = false).code(code)
+    val result = translator.code(code)
 
-    assert(result == "<code>x &lt;= y</code>")
-  }
-
-  it should "not escape characters if using the pre tag" in {
-    val code = Code(Map[String,String](), "x <= y")
-
-    val result = new HTMLTranslator(wrap_code_with_pre = true).code(code)
-
-    assert(result == "<pre><code>x <= y</code></pre>")
+    assert(result == "<figure class=\"code\"><code>x &lt;= y</code></figure>")
   }
 
   it should "handle directives like a boss" in {
@@ -101,8 +83,8 @@ class HTMLTranslatorSpec extends FlatSpec {
     val result = translator.code(code)
 
     assert(result ==
-      """<pre><code lang="magic">square = lambda x: x ** 2
-        |square(2)</code></pre>""".stripMargin)
+      """<figure class="code"><code lang="magic">square = lambda x: x ** 2
+        |square(2)</code></figure>""".stripMargin)
   }
 
  "orderedList" should "translate an OrderedList" in {
@@ -235,7 +217,7 @@ class HTMLTranslatorSpec extends FlatSpec {
 
   it should "escape the RawText if told to do so" in {
     val text = RawText("<hohoho>")
-    val result = new HTMLTranslator(allow_raw_strings = false).rawText(text)
+    val result = new HTMLTranslator(allow_raw_strings=false).rawText(text)
 
     assert(result == "&lt;hohoho&gt;")
   }
@@ -274,5 +256,62 @@ class HTMLTranslatorSpec extends FlatSpec {
     assert(result.contains("&gt;"))
     assert(result.contains("&lt;"))
     assert(result.contains("&amp;"))
+  }
+
+  "footnote" should "translate footnotes" in {
+    val text = Footnote(Seq(StandardText("this is a footnote!")))
+
+    val result = translator.footnote(text)
+
+    assert(result == "<a href=\"#note:1\" name=\"rn:1\" rel=\"footnote\">1</a>")
+  }
+
+  it should "be emitted at the end of the document" in {
+    val text = Document(Seq(Paragraph(Seq(
+      StandardText("Greetings, humans"),
+      Footnote(Seq(StandardText("humans is here used to refer to any sapient creature"))),
+      StandardText("!")
+    ))))
+
+    val result = translator.translate(text)
+
+    assert(result == "<p>Greetings, humans<a href=\"#note:1\" name=\"rn:1\" rel=\"footnote\">1</a>!</p><footer><p><a class=\"fnote\" href=\"#rn:1\" name=\"note:1\">1</a> humans is here used to refer to any sapient creature</p></footer>")
+  }
+
+  it should "increment its footer numbers, etc" in {
+    val text = Document(Seq(Paragraph(Seq(
+      StandardText("Greetings,"), Footnote(Seq(StandardText("hohoho"))), StandardText(" humans"),
+      Footnote(Seq(StandardText("humans is here used to refer to any sapient creature"))),
+      StandardText("!")
+    ))))
+
+    val result = translator.translate(text)
+
+    assert(result == "<p>Greetings,<a href=\"#note:1\" name=\"rn:1\" rel=\"footnote\">1</a> humans<a href=\"#note:2\" name=\"rn:2\" rel=\"footnote\">2</a>!</p><footer><p><a class=\"fnote\" href=\"#rn:1\" name=\"note:1\">1</a> hohoho</p><p><a class=\"fnote\" href=\"#rn:2\" name=\"note:2\">2</a> humans is here used to refer to any sapient creature</p></footer>")
+
+  }
+
+  it should "not be emitted at the end of a not-document" in {
+    val text = Paragraph(Seq(
+      StandardText("Greetings, humans"),
+      Footnote(Seq(StandardText("humans is here used to refer to any sapient creature"))),
+      StandardText("!")
+    ))
+
+    val result = translator.translate(text)
+
+    assert(result == "Greetings, humans<a href=\"#note:1\" name=\"rn:1\" rel=\"footnote\">1</a>!")
+  }
+
+  it should "put alt text instead of footer if told to do so" in {
+    val text = Document(Seq(Paragraph(Seq(
+      StandardText("Greetings, humans"),
+      Footnote(Seq(StandardText("humans is here used to refer to any \"sapient\" creature"))),
+      StandardText("!")
+    ))))
+
+    val result = new HTMLTranslator(footnote_as_title_text=true).translate(text)
+
+    assert(result == "<p>Greetings, humans<a title=\"humans is here used to refer to any \\\"sapient\\\" creature\" rel=\"footnote\">1</a>!</p>")
   }
 }

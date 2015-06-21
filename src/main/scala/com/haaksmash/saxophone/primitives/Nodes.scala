@@ -84,7 +84,7 @@ case class UnorderedList(items: Set[Seq[Node]]) extends ListNode(items){
 trait InlineNode extends Node
 
 
-case class Footnote(children: Seq[Node]) extends InlineNode {
+case class Footnote(children: Seq[InlineNode]) extends InlineNode {
   override val label = "foot"
 }
 

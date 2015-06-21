@@ -24,9 +24,11 @@ import scala.collection.immutable.ListMap
 
 
 class HTMLTranslator(
-  wrap_code_with_pre:Boolean=true,
-  allow_raw_strings:Boolean=true
+  allow_raw_strings:Boolean=true,
+  footnote_as_title_text:Boolean=false
 ) extends BaseTranslator {
+
+  var footnotes = Seq[String]()
 
   /*
    * These are block-level nodes; i.e., nodes that should have their
@@ -35,34 +37,39 @@ class HTMLTranslator(
   def heading(node:Heading) = s"""<h${node.level}>${translate(node)}</h${node.level}>"""
   def paragraph(node:Paragraph) = s"""<p>${translate(node)}</p>"""
   def code(node:Code) = {
-    val code_contents = {
-      if (wrap_code_with_pre)
-        node.contents
-      else
-        escapeTextForHTML(node.contents)
-    }
-    val code_block = s"""<code${node.directives.foldLeft(""){case (s, (k, v)) => s"""$s $k="$v""""}}>$code_contents</code>"""
-    if (wrap_code_with_pre)
-      s"""<pre>$code_block</pre>"""
-    else
-      code_block
+    val code_contents = escapeTextForHTML(node.contents)
+
+    s"""<figure class="code"><code${node.directives.foldLeft(""){case (s, (k, v)) => s"""$s $k="$v""""}}>$code_contents</code></figure>"""
   }
+
   def quote(node:Quote) = {
     if (node.source.isDefined)
       s"""<blockquote>${translate(node)}<footer>${node.source.get.map(translate(_)).mkString}</footer></blockquote>"""
     else
       s"""<blockquote>${translate(node)}</blockquote>"""
   }
+
   def orderedList(node:OrderedList) = {
     val list_items = node.items.map(li => s"<li>${li.map(translate(_)).mkString}</li>") mkString ""
     s"""<ol>$list_items</ol>"""
   }
+
   def unorderedList(node:UnorderedList) = {
     val list_items = node.items.map(li => s"""<li>${li.map(translate(_)).mkString}</li>""") mkString ""
     s"""<ul>$list_items</ul>"""
   }
 
-  def footnote(node:Footnote) = "" // footnote isn't supported yet, sorry!
+  def footnote(node:Footnote) = {
+    val footnote_number = footnotes.size + 1
+    if (footnote_as_title_text) {
+      footnotes = footnotes :+ ""
+      val title_text = translate(node).replaceAll("\"", "\\\\\"")
+      s"""<a title="${title_text}" rel="footnote">$footnote_number</a>"""
+    } else {
+      footnotes = footnotes :+ translate(node)
+      s"""<a href="#note:$footnote_number" name="rn:$footnote_number" rel="footnote">$footnote_number</a>"""
+    }
+  }
 
   /*
    * Inline nodes; i.e., nodes that don't have children, but only capture
@@ -78,6 +85,18 @@ class HTMLTranslator(
   def monospacedText(node:MonospaceText) = s"<code>${escapeTextForHTML(node.text)}</code>"
   def rawText(node: RawText) = if (allow_raw_strings) node.text else escapeTextForHTML(node.text)
 
+
+  override def translate(node: Node): String = {
+    val s = super.translate(node)
+
+    val footer_string = node match {
+      case n:Document if !footnotes.isEmpty && !(footnote_as_title_text) =>
+        "<footer>" + footnotes.zipWithIndex.map { case (note, num) => s"""<p><a class="fnote" href="#rn:${num + 1}" name="note:${num + 1}">${num + 1}</a> $note</p>"""}.mkString + "</footer>"
+      case _ => ""
+    }
+
+    s + footer_string
+  }
 
   /**
    * Escapes a string so that it's safe for HTML; e.g., replacing {@code <} with {@code &amp;lt;}.
@@ -105,6 +124,6 @@ class HTMLTranslator(
 
 object HTMLTranslator {
   def translate(node:Node): String = {
-    new HTMLTranslator(true).translate(node)
+    new HTMLTranslator().translate(node)
   }
 }
