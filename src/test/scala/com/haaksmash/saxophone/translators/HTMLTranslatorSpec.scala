@@ -320,4 +320,16 @@ class HTMLTranslatorSpec extends FlatSpec {
 
     assert(result == "Greetings, humans<sup><a href=\"#fn1\" name=\"rn1\">1</a></sup>!")
   }
+
+  it should "put alt text instead of footer if told to do so" in {
+    val text = Document(Seq(Paragraph(Seq(
+      StandardText("Greetings, humans"),
+      Footnote(Seq(StandardText("humans is here used to refer to any \"sapient\" creature"))),
+      StandardText("!")
+    ))))
+
+    val result = new HTMLTranslator(footnotes_as_title_text=true).translate(text)
+
+    assert(result == "<p>Greetings, humans<sup><a title=\"humans is here used to refer to any \\\"sapient\\\" creature\">1</a></sup>!</p>")
+  }
 }
