@@ -85,7 +85,7 @@ and `]`:
 [saxophone docs]
 }}}
 
-will become `<blockquote>a quote! multiple lines<footer>saxophone docs</footer></blockquote>`:
+will become `<figure class="quote"><blockquote>a quote! multiple lines</blockquote><figcaption>saxophone docs</figcaption></figure>`:
 
 >>> a quote!
 >>> multiple lines

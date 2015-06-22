@@ -69,6 +69,7 @@ trait BaseTranslator {
     case n: MonospaceText => monospacedText(n)
     case n: RawText => rawText(n)
     case n: Quote => quote(n)
+    case n: Footnote => footnote(n)
     case n => this.node(n)
   }
 
