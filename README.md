@@ -1,3 +1,5 @@
+![Travis build status](https://img.shields.io/travis/haaksmash/saxophone.svg)
+
 # `saxophone`
 Ugh, what? ANOTHER preprocessor language? YES.
 
