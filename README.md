@@ -37,10 +37,9 @@ Here's how!
 add
 
 ```scala
-lazy val root = Project("root", file(".")) dependsOn(saxophone)
-lazy val saxophone = RootProject(uri("git://github.com/haaksmash/saxophone.git"))
+libraryDependencies += "com.haaksmash" %% "saxophone" % "1.3.0"
 ```
-to your build definition.
+to one of your project's sbt files.
 
 ### Usage
 `saxophone` is a lot like Markdown, structurally; the syntax is what's different. All these examples use the HTML output, because that's pretty easy to understand.
