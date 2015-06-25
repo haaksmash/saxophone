@@ -35,7 +35,7 @@ object InlineParsers extends RegexParsers {
   val STRUCKTHROUGH_START, STRUCKTHROUGH_END = '~'
   val UNDERLINE_START, UNDERLINE_END = '_'
   val MONOSPACE_START, MONOSPACE_END = '`'
-  val RAW_START, RAW_END = '='
+  val RAW_START, RAW_END = '|'
 
   val special_char_to_tracking_and_ending_char = Map(
     FOOTNOTE_START -> ("f", FOOTNOTE_END),
