@@ -73,8 +73,8 @@ class InlineParsersSpec extends FlatSpec {
     assert(result.text == "`hello`")
   }
 
-  "raw_text" should "match characters between =" in {
-    val input = "=`*RAW*`="
+  "raw_text" should "match characters between |" in {
+    val input = "|`*RAW*`|"
     val result = parsers.parseAll(parsers.raw_text, input).get
 
     assert(result.text == "`*RAW*`")
@@ -200,7 +200,7 @@ class InlineParsersSpec extends FlatSpec {
   }
 
   "elements" should "recognize raw marker strings" in {
-    val raw_result = parsers.parseAll(parsers.elements(), "and =this is **RAW**=")
+    val raw_result = parsers.parseAll(parsers.elements(), "and |this is **RAW**|")
     assert(!raw_result.isEmpty)
     assert(raw_result.get == Seq(StandardText("and "), RawText("this is **RAW**")))
   }
