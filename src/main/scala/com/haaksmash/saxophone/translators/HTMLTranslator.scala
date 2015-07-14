@@ -51,7 +51,10 @@ class HTMLTranslator(
 
   def orderedList(node:OrderedList) = {
     val list_items = node.items.map(li => s"<li>${li.map(translate(_)).mkString}</li>") mkString ""
-    s"""<ol>$list_items</ol>"""
+    if (node.present_unordered)
+      s"""<ul>$list_items</ul>"""
+    else
+      s"""<ol>$list_items</ol>"""
   }
 
   def unorderedList(node:UnorderedList) = {

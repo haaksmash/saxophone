@@ -57,6 +57,7 @@ class LineParsers extends Parsers {
         case '*' => delegateParsing(line_parsers.unorderedListParser)(in)
         case '\n' => Success(EmptyLine(), in.rest)
         case n if '0' <= n && n <= '9' => delegateParsing(line_parsers.orderedListParser)(in)
+        case '-' => delegateParsing(line_parsers.orderedListParser)(in)
         case '>' => delegateParsing(line_parsers.quoteParser)(in)
         case '{' => delegateParsing(line_parsers.codeStart)(in)
         case '}' => delegateParsing(line_parsers.codeEnd)(in)

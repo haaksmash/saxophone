@@ -101,6 +101,21 @@ class HTMLTranslatorSpec extends FlatSpec {
     assert(result == "<ol><li>Line One</li><li>Line Two</li><li>Line Three</li></ol>")
   }
 
+  it should "emit an 'unordered list' if commanded to do so" in {
+    val list = OrderedList(
+      Seq(
+        Seq(Paragraph(Seq(StandardText("Line One")))),
+        Seq(Paragraph(Seq(StandardText("Line Two")))),
+        Seq(Paragraph(Seq(StandardText("Line Three"))))
+      ),
+      present_unordered=true
+    )
+
+    val result = translator.orderedList(list)
+
+    assert(result == "<ul><li>Line One</li><li>Line Two</li><li>Line Three</li></ul>")
+  }
+
   "unorderedList" should "translate an UnorderedList" in {
     val list = UnorderedList(
       Set(
