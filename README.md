@@ -37,7 +37,7 @@ Here's how!
 add
 
 ```scala
-  libraryDependencies += "com.haaksmash" %% "saxophone" % "1.3.0"
+libraryDependencies += "com.haaksmash" %% "saxophone" % "1.3.0"
 ```
 to one of your project's sbt files.
 
@@ -45,10 +45,10 @@ to one of your project's sbt files.
 Pretty straightforward, choose the appropriate implementation of `BaseIntake` and send its output to the appropriate implementation of `BaseTranslator`, which will give you a String. Then, do what you want!
 
 ```scala
-  val input: Option[Document] = FileIntake(someFilename)
-  val output: Option[String] = input map {
-    HTMLTranslator.translate(_)
-  }
+val input: Option[Document] = FileIntake(someFilename)
+val output: Option[String] = input map {
+  HTMLTranslator.translate(_)
+}
 ```
 ### Syntax
 `saxophone` is a lot like Markdown, structurally; the syntax is what's different. All these examples use the HTML output, because that's pretty easy to understand.
