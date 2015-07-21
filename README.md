@@ -44,23 +44,22 @@ to one of your project's sbt files.
 ### Usage
 `saxophone` is a lot like Markdown, structurally; the syntax is what's different. All these examples use the HTML output, because that's pretty easy to understand.
 
-Within a block of text:
+#### Blocks
+* headers are any line preceded by a number of `#`s, up to 6 of them.
+* code listings are started with `{{{` and ended with `}}}`. The initial `{{{` can optionally include some directives that may have meaning to the translators: `{{{lang:saxophone`
+* lists are either unordered (preceded by `*`) or ordered (preceded by a number+period, e.g. `1.`). You may also have an (un)ordered list by leading with a `-`.
+* blockquotes are introduced with `>>>`, and may optionally have a source after them, which should be in brackets.
+
+Everything else is a paragraph; separate paragraphs with a newline and you'll come out just fine.
+
+#### Inline styles
+Within a block:
 
 * `/words/` becomes `<em>words</em>`
+* `{words}` will create a footnote
+* `[link text](link source)` will create a hyperlink
 * `*words*` becomes `<strong>words</strong>`
 * `_words_` becomes `<mark>words</mark>`
 * ``words`` becomes `<code>words</code>`
 * `~words~` becomes `<s>words</s>`
 
-Whereas blocks look like:
-
-* `>>>` denotes a quote, which can span multiple lines --- each of which should begin with `>>>`, and can optionally have a source, denoted afterwards inside `[` and `]`:
-
-```
->>> a quote!
->>> multiple lines
-[saxophone docs]
-```
-will become `<figure class="quote"><blockquote>a quote! multiple lines</blockquote><figcaption>saxophone docs</figcaption></figure>`:
-
-> a quote! multiple lines
