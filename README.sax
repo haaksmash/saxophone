@@ -55,12 +55,24 @@ Here's how!
 add
 
 {{{lang:scala
-libraryDependencies += "com.haaksmash" %% "saxophone" % "1.3.0"
+  libraryDependencies += "com.haaksmash" %% "saxophone" % "1.3.0"
 }}}
 
 to one of your project's sbt files.
 
 ### Usage
+Pretty straightforward, choose the appropriate implementation of `BaseIntake`
+and send its output to the appropriate implementation of `BaseTranslator`,
+which will give you a String. Then, do what you want!
+
+{{{lang:scala
+  val input: Option[Document] = FileIntake(someFilename)
+  val output: Option[String] = input map {
+    HTMLTranslator.translate(_)
+  }
+}}}
+
+### Syntax
 `saxophone` is a lot like Markdown, structurally; the syntax is what's
 different. All these examples use the HTML output, because that's pretty easy
 to understand.
@@ -68,11 +80,17 @@ to understand.
 #### Blocks
 
 * headers are any line preceded by a number of `#`s, up to 6 of them.
-* code listings are started with `{{{` and ended with `}}}`. The initial `{{{` can optionally include some directives that may have meaning to the translators: `{{{lang:saxophone`
-* lists are either unordered (preceded by `*`) or ordered (preceded by a number+period, e.g. `1.`). You may also have an (un)ordered list by leading with a `-`.
-* blockquotes are introduced with `>>>`, and may optionally have a source after them, which should be in brackets.
+* code listings are started with `{{{` and ended with `}}}`. The initial `{{{`
+can optionally include some directives that may have meaning to the
+translators: `{{{lang:saxophone`
+* lists are either unordered (preceded by `*`) or ordered (preceded by a
+number+period, e.g. `1.`). You may also have an (un)ordered list by leading
+with a `-`.
+* blockquotes are introduced with `>>>`, and may optionally have a source after
+them, which should be in brackets.
 
-Everything else is a paragraph; separate paragraphs with a newline and you'll come out just fine.
+Everything else is a paragraph; separate paragraphs with a newline and you'll
+come out just fine.
 
 #### Inline styles
 
