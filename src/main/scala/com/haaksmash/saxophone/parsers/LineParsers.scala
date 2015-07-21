@@ -52,7 +52,7 @@ class LineParsers extends Parsers {
       val line = in.first
       val char = if (line.isEmpty) '\n' else line.charAt(0)
 
-      char match {
+      val maybe_result = char match {
         case '#' => delegateParsing(line_parsers.headingParser)(in)
         case '*' => delegateParsing(line_parsers.unorderedListParser)(in)
         case '\n' => Success(EmptyLine(), in.rest)
@@ -61,7 +61,15 @@ class LineParsers extends Parsers {
         case '>' => delegateParsing(line_parsers.quoteParser)(in)
         case '{' => delegateParsing(line_parsers.codeStart)(in)
         case '}' => delegateParsing(line_parsers.codeEnd)(in)
-        case _ => Success(TextLine(line), in.rest)
+        case _ => Failure("no matching start char", in)
+      }
+
+      // A line of text is *always* going to be a TextLine, if nothing else.
+      // Even if it starts with a suspcicious character and that doesn't pan
+      // out.
+      maybe_result match {
+        case Failure(_, _) => Success(TextLine(line), in.rest)
+        case x => x
       }
     }
   }

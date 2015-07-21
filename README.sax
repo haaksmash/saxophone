@@ -55,7 +55,7 @@ Here's how!
 add
 
 {{{lang:scala
-  libraryDependencies += "com.haaksmash" %% "saxophone" % "1.3.0"
+libraryDependencies += "com.haaksmash" %% "saxophone" % "1.3.0"
 }}}
 
 to one of your project's sbt files.
@@ -66,10 +66,10 @@ and send its output to the appropriate implementation of `BaseTranslator`,
 which will give you a String. Then, do what you want!
 
 {{{lang:scala
-  val input: Option[Document] = FileIntake(someFilename)
-  val output: Option[String] = input map {
-    HTMLTranslator.translate(_)
-  }
+val input: Option[Document] = FileIntake(someFilename)
+val output: Option[String] = input map {
+  HTMLTranslator.translate(_)
+}
 }}}
 
 ### Syntax
