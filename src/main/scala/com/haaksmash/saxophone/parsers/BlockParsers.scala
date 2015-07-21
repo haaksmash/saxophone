@@ -30,6 +30,8 @@ import scala.util.parsing.input.{Position, Reader}
 class BlockParsers extends Parsers {
   type Elem = Line
 
+  val ORDERED_AS_UNORDERED_GLYPH = "-"
+
   /**
    * Matches & consumes a line of type T. Notably, it will __not__ match lines that
    * are subtypes of T.
@@ -80,6 +82,10 @@ class BlockParsers extends Parsers {
     else {
         var input = in
         var items = Seq[Seq[Node]]()
+        val present_unordered = if (input.first.isInstanceOf[OrderedLine]) {
+          val line = input.first.asInstanceOf[OrderedLine]
+          line.glyph == ORDERED_AS_UNORDERED_GLYPH
+        } else false
         while (input.first.isInstanceOf[OrderedLine]) {
           val leading_line = input.first.asInstanceOf[OrderedLine]
           // This is unfortunate; I'd like to use the `source` method on Reader[T], but that
@@ -107,7 +113,10 @@ class BlockParsers extends Parsers {
           input = input.rest.drop(sublines.length)
         }
 
-        val o = OrderedList(items)
+        val o = OrderedList(
+          items,
+          present_unordered
+        )
         Success(o, input.rest)
     }
   }

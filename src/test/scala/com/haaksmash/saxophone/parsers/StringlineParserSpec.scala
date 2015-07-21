@@ -77,4 +77,11 @@ class StringLineParserSpec extends FlatSpec {
     }
   }
 
+  it should "match a '-' followed by a space" in {
+    val input = "- derptastic"
+    val ordered_line = parsers.parseAll(parsers.orderedListParser, input).get
+
+    assert(ordered_line.payload == "derptastic")
+    assert(ordered_line.glyph == "-")
+  }
 }

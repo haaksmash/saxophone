@@ -1,4 +1,4 @@
-=[![Build Status](https://img.shields.io/travis/haaksmash/saxophone/master.svg)](https://travis-ci.org/haaksmash/saxophone)=
+|[![Build Status](https://travis-ci.org/haaksmash/saxophone.svg?branch=master)](https://travis-ci.org/haaksmash/saxophone)|
 # `saxophone`
 Ugh, what? ANOTHER preprocessor language? YES.
 
@@ -55,40 +55,51 @@ Here's how!
 add
 
 {{{lang:scala
-lazy val root = Project("root", file(".")) dependsOn(saxophone)
-lazy val saxophone = RootProject(uri("git://github.com/haaksmash/saxophone.git"))
+libraryDependencies += "com.haaksmash" %% "saxophone" % "1.4.0"
 }}}
 
-to your build definition.
+to one of your project's sbt files.
 
 ### Usage
+Pretty straightforward, choose the appropriate implementation of `BaseIntake`
+and send its output to the appropriate implementation of `BaseTranslator`,
+which will give you a String. Then, do what you want!
+
+{{{lang:scala
+val input: Option[Document] = FileIntake(someFilename)
+val output: Option[String] = input map {
+  HTMLTranslator.translate(_)
+}
+}}}
+
+### Syntax
 `saxophone` is a lot like Markdown, structurally; the syntax is what's
 different. All these examples use the HTML output, because that's pretty easy
 to understand.
 
-Within a block of text:
+#### Blocks
+
+* headers are any line preceded by a number of `#`s, up to 6 of them.
+* code listings are started with `{{{` and ended with `}}}`. The initial `{{{`
+can optionally include some directives that may have meaning to the
+translators: `{{{lang:saxophone`
+* lists are either unordered (preceded by `*`) or ordered (preceded by a
+number+period, e.g. `1.`). You may also have an (un)ordered list by leading
+with a `-`.
+* blockquotes are introduced with `>>>`, and may optionally have a source after
+them, which should be in brackets.
+
+Everything else is a paragraph; separate paragraphs with a newline and you'll
+come out just fine.
+
+#### Inline styles
+
+Within a block:
 
 * `/words/` becomes `<em>words</em>`
 * `*words*` becomes `<strong>words</strong>`
 * `~words~` becomes `<s>words</s>`
 * `_words_` becomes `<mark>words</mark>`
 * `\`words\`` becomes `<code>words</code>`
-
-Whereas blocks look like:
-
-* `>>>` denotes a quote, which can span multiple lines --- each of which should
-begin with `>>>`, and can optionally have a source, denoted afterwards inside `[`
-and `]`:
-
-{{{
->>> a quote!
->>> multiple lines
-[saxophone docs]
-}}}
-
-will become `<figure class="quote"><blockquote>a quote! multiple lines</blockquote><figcaption>saxophone docs</figcaption></figure>`:
-
->>> a quote!
->>> multiple lines
-[saxophone docs]
-
+* `{words}` will create a footnote
+* `[link text](link source)` will create a hyperlink

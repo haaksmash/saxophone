@@ -34,7 +34,7 @@ trait StringLineParsers extends UtilParsers {
   val headingParser: Parser[HeadingLine] = s"${HEADING_GLYPH}+ ".r ~ rest ^^ {
     case glyphs ~ text =>
       // glyphs will end with a space that we want to throw away
-      HeadingLine(glyphs.slice(0, glyphs.length - 1), text)
+      HeadingLine(glyphs.trim, text)
   }
 
   val codeStart: Parser[CodeStartLine] = CODE_START ~> rest ^^ {
@@ -58,7 +58,8 @@ trait StringLineParsers extends UtilParsers {
   val quoteParser: Parser[QuoteLine] = s"$QUOTE_LINE\\s?".r ~ rest ^^ {case leader ~ text => QuoteLine(leader + text)}
 
   val unorderedListParser: Parser[UnorderedLine] = "\\*\\s?".r ~ rest ^^ {case leader ~ text => UnorderedLine(leader, text)}
-  val orderedListParser: Parser[OrderedLine] = "\\d+\\.\\s?".r ~ rest ^^ {case leader ~ text => OrderedLine(leader, text)}
+
+  val orderedListParser: Parser[OrderedLine] = ("\\d+\\.\\s?".r | "- ") ~ rest ^^ {case leader ~ text => OrderedLine(leader.trim, text)}
 
 }
 
