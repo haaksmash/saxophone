@@ -1,12 +1,12 @@
 name := """saxophone"""
 
-version := "1.3.0"
+version := "1.4.0"
 
 organization := "com.haaksmash"
 
 lazy val root = (project in file("."))
 
-scalaVersion := "2.11.4"
+scalaVersion := "2.11.6"
 
 libraryDependencies += "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.4"
 
