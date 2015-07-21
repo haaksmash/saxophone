@@ -84,5 +84,4 @@ class StringLineParserSpec extends FlatSpec {
     assert(ordered_line.payload == "derptastic")
     assert(ordered_line.glyph == "-")
   }
-
 }
