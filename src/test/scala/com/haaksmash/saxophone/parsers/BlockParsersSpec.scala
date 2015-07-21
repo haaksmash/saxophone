@@ -130,6 +130,14 @@ class BlockParsersSpec extends FlatSpec {
     assert(result.items == Seq(Seq(Paragraph(Seq(StandardText("list item 1")))), Seq(Paragraph(Seq(StandardText("list item 2"))))))
   }
 
+  it should "realize that it is meant to appear unordered" in {
+    val list = Seq(OrderedLine("-", "list item 1"), OrderedLine("-", "list item 2"))
+
+    val result = parsers.ordered_list_node(new LineReader(list)).get
+
+    assert(result.present_unordered == true)
+  }
+
   it should "recursively parse its leading line" in {
     val list = Seq(OrderedLine("1.", "list /item/ A"))
 

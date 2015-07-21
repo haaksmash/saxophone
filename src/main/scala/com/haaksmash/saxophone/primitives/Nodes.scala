@@ -72,7 +72,7 @@ sealed abstract class ListNode(items: Traversable[Seq[Node]]) extends Node {
   def children = items.flatten
 }
 
-case class OrderedList(items: Seq[Seq[Node]]) extends ListNode(items) {
+case class OrderedList(items: Seq[Seq[Node]], present_unordered: Boolean = false) extends ListNode(items) {
   override val label = "ol"
 }
 
