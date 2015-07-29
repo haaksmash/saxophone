@@ -36,6 +36,8 @@ case class HeadingLine(prefix: String, text: String) extends Line {
 
 case class TextLine(text: String) extends Line
 
+case class EmbedLine(arguments: Seq[String], text:String, meta:Map[String,String]) extends Line
+
 case class EmptyLine(text: String = "") extends Line
 
 case class CodeStartLine(directives: Map[String, String], text: String = "") extends Line

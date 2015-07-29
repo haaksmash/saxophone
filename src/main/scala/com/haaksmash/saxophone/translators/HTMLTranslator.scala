@@ -76,7 +76,7 @@ class HTMLTranslator(
 
   /*
    * Inline nodes; i.e., nodes that don't have children, but only capture
-   * metadata about their contents.
+   * meta about their contents.
    */
   def link(node:Link) = s"""<a href="${node.to}">${translate(node)}</a>"""
   def emphasizedText(node:EmphasizedText) = s"<em${convertMetaToHTMLAttrs(node.meta)}>${escapeTextForHTML(node.text)}</em>"

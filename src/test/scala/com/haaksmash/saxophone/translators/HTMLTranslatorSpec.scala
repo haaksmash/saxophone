@@ -161,7 +161,7 @@ class HTMLTranslatorSpec extends FlatSpec {
     assert(result == "<em>IMPORTANT!</em>")
   }
 
-  it should "honor metadata" in {
+  it should "honor meta" in {
     val text = EmphasizedText("IMPORTANT!", Map("class" -> "red"))
 
     val result = translator.emphasizedText(text)
@@ -197,7 +197,7 @@ class HTMLTranslatorSpec extends FlatSpec {
     assert(result.contains("&amp;"))
   }
 
-  it should "honor metadata" in {
+  it should "honor meta" in {
     val text = WeightedText(1, "HEAVY!", Map("class" -> "red"))
 
     val result = translator.weightedText(text)
@@ -239,7 +239,7 @@ class HTMLTranslatorSpec extends FlatSpec {
     assert(result == "<mark>defective link</mark>")
   }
 
-  it should "honor metadata" in {
+  it should "honor meta" in {
     val text = MarkedText("defective link", Map("class" -> "red"))
 
     val result = translator.markedText(text)
@@ -297,7 +297,7 @@ class HTMLTranslatorSpec extends FlatSpec {
     assert(result.contains("&amp;"))
   }
 
-  it should "honor metadata" in {
+  it should "honor meta" in {
     val text = MonospaceText("defective link", Map("class" -> "red"))
 
     val result = translator.monospacedText(text)
