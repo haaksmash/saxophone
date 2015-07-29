@@ -37,11 +37,18 @@ class UtilParserSpec extends FlatSpec {
 
   }
 
-  "meta" should "match things between '[]'" in {
+  "metadata" should "match things between '[]'" in {
     val input = "[some:stuff|that:makes|meta:data]"
     val result = parsers.parseAll(parsers.metadata, input).get
 
     assert(result == Map("some" -> "stuff", "that" -> "makes", "meta" -> "data"))
+  }
+
+  it should "only take the first of a : pair" in {
+    val input = "[style:color:red;font-weight:bold;]"
+    val result = parsers.parseAll(parsers.metadata, input).get
+
+    assert(result == Map("style" -> "color:red;font-weight:bold;"))
   }
 
 

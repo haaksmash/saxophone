@@ -64,7 +64,7 @@ trait UtilParsers extends RegexParsers {
     case metas =>
       metas.mkString.split('|')
         .map(metapair => metapair.split(':'))
-        .map(l => l(0) -> l(1))
+        .map(l => l(0) -> l.slice(1,l.length).mkString(":"))
         .toMap
   }
 
