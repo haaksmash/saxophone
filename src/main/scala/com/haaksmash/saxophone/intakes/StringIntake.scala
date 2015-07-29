@@ -18,10 +18,6 @@
 
 package com.haaksmash.saxophone.intakes
 
-import com.haaksmash.saxophone.parsers.{LineParsers, BlockParsers}
-import com.haaksmash.saxophone.primitives.Document
-import com.haaksmash.saxophone.readers.{LineReader, StringLineReader}
-
 import scala.util.Try
 
 class StringIntake extends BaseIntake {
@@ -29,7 +25,7 @@ class StringIntake extends BaseIntake {
 }
 
 object StringIntake {
-  def apply(input:String): Try[String] = {
+  def apply(input: String): Try[String] = {
     new StringIntake().intake(input)
   }
 }

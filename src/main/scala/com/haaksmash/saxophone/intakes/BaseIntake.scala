@@ -18,10 +18,8 @@
 
 package com.haaksmash.saxophone.intakes
 
-import com.haaksmash.saxophone.primitives.Document
-
 import scala.util.Try
 
 trait BaseIntake {
-  def intake(input:String): Try[String]
+  def intake(input: String): Try[String]
 }

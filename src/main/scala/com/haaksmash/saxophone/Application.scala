@@ -20,7 +20,7 @@ package com.haaksmash.saxophone
 
 import com.haaksmash.saxophone.emitters.{ConsoleEmitter, FileEmitter}
 import com.haaksmash.saxophone.intakes.FileIntake
-import com.haaksmash.saxophone.translators.{SaxophoneTreeStringTranslator, GithubMDTranslator, HTMLTranslator}
+import com.haaksmash.saxophone.translators.{GithubMDTranslator, HTMLTranslator, SaxophoneTreeStringTranslator}
 
 import scala.util.{Failure, Success}
 
@@ -65,8 +65,8 @@ object Application {
       }
     }
 
-   val emitter = if (args.contains ("-o")) {
-      val output_filename = args (args.indexOf ("-o") + 1)
+    val emitter = if (args.contains("-o")) {
+      val output_filename = args(args.indexOf("-o") + 1)
       FileEmitter(output_filename)
     } else {
       ConsoleEmitter
@@ -74,11 +74,15 @@ object Application {
 
     val saxophone_filename = args(args.length - 1)
 
-    val pipe = Pipeline.via(translator).from(new FileIntake).on(saxophone_filename).to(emitter)
+    val pipe = Pipeline
+      .on(saxophone_filename)
+      .from(new FileIntake)
+      .via(translator)
+      .to(emitter)
 
     pipe.process() match {
       case Success(s) =>
-        if (args.contains ("-d"))
+        if (args.contains("-d"))
           ConsoleEmitter.emit(s)
       case Failure(ex) =>
         System.err.println(ex.getMessage)

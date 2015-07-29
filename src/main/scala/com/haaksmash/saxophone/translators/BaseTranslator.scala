@@ -34,31 +34,45 @@ trait NodeTranslator extends BaseTranslator {
    * @param node
    * @return String
    */
-  def node(node:Node): String = node.toString
+  def node(node: Node): String = node.toString
 
-  def heading(node:Heading): String
-  def paragraph(node:Paragraph): String
-  def code(node:Code): String
-  def quote(node:Quote): String
-  def orderedList(node:OrderedList) : String
-  def unorderedList(node:UnorderedList): String
-  def footnote(node:Footnote): String
-  def link(node:Link): String
+  def heading(node: Heading): String
+
+  def paragraph(node: Paragraph): String
+
+  def code(node: Code): String
+
+  def quote(node: Quote): String
+
+  def orderedList(node: OrderedList): String
+
+  def unorderedList(node: UnorderedList): String
+
+  def footnote(node: Footnote): String
+
+  def link(node: Link): String
 
   /*
    * Inline nodes; i.e., nodes that don't have children, but only capture
    * meta data about their contents.
    */
-  def emphasizedText(node:EmphasizedText): String
-  def forcedNewLine(node:ForcedNewline): String
-  def standardText(node:StandardText): String
-  def struckthroughText(node:StruckthroughText): String
-  def underlinedText(node:UnderlinedText): String
-  def weightedText(node:WeightedText): String
-  def monospacedText(node:MonospaceText): String
-  def rawText(node:RawText): String
+  def emphasizedText(node: EmphasizedText): String
 
-  def node_to_translator(n:Node) = n match {
+  def forcedNewLine(node: ForcedNewline): String
+
+  def standardText(node: StandardText): String
+
+  def struckthroughText(node: StruckthroughText): String
+
+  def underlinedText(node: UnderlinedText): String
+
+  def weightedText(node: WeightedText): String
+
+  def monospacedText(node: MonospaceText): String
+
+  def rawText(node: RawText): String
+
+  def node_to_translator(n: Node) = n match {
     case n: StandardText => standardText(n)
     case n: Link => link(n)
     case n: EmphasizedText => emphasizedText(n)
@@ -81,12 +95,14 @@ trait NodeTranslator extends BaseTranslator {
 
     val output = node.children match {
       case Seq() => Traversable(translateSingle(node))
-      case children => children map {node_to_translator(_)}
+      case children => children map {
+        node_to_translator(_)
+      }
     }
     output.mkString
   }
 
-  private def translateSingle(node:Node): String = {
+  private def translateSingle(node: Node): String = {
     node_to_translator(node)
   }
 }

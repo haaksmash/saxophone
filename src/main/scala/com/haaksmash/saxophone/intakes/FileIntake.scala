@@ -23,9 +23,9 @@ import java.io.File
 import scala.util.Try
 
 class FileIntake extends BaseIntake {
-  def intake(filename:String): Try[String] = intake(new File(filename))
+  def intake(filename: String): Try[String] = intake(new File(filename))
 
-  def intake(file:File): Try[String] = {
+  def intake(file: File): Try[String] = {
 
     val article_source = scala.io.Source.fromFile(file)
     val the_article = article_source.mkString
@@ -40,7 +40,7 @@ object FileIntake {
     (new FileIntake).intake(filename)
   }
 
-  def apply(file:File): Try[String] = {
+  def apply(file: File): Try[String] = {
     (new FileIntake).intake(file)
   }
 }

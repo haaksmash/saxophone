@@ -19,31 +19,37 @@
 package com.haaksmash.saxophone
 
 import com.haaksmash.saxophone.emitters.BaseEmitter
-import com.haaksmash.saxophone.intakes.{StringIntake, BaseIntake}
+import com.haaksmash.saxophone.intakes.{BaseIntake, StringIntake}
 import com.haaksmash.saxophone.parsers.{BlockParsers, LineParsers}
 import com.haaksmash.saxophone.readers.{LineReader, StringLineReader}
-import com.haaksmash.saxophone.translators.{HTMLTranslator, BaseTranslator}
+import com.haaksmash.saxophone.translators.{BaseTranslator, HTMLTranslator}
 
-import scala.util.{Try, Success, Failure}
+import scala.util.{Failure, Success, Try}
 
 
 trait PipelineDefinition {
   def intake: Option[BaseIntake] = None
+
   def translator: Option[BaseTranslator] = None
+
   def emitter: Option[BaseEmitter] = None
+
   def input: Option[String] = None
 
   def from[T <: BaseIntake](intake: T): PipelineDefinition
+
   def via[T <: BaseTranslator](translator: T): PipelineDefinition
+
   def to[T <: BaseEmitter](emitter: T): PipelineDefinition
-  def on(input:String): PipelineDefinition
+
+  def on(input: String): PipelineDefinition
 }
 
 
 class Pipeline(
-  intake:Option[BaseIntake],
-  translator:Option[BaseTranslator],
-  emitter:Option[BaseEmitter],
+  intake: Option[BaseIntake],
+  translator: Option[BaseTranslator],
+  emitter: Option[BaseEmitter],
   input: Option[String]
 ) extends PipelineDefinition {
 
@@ -80,35 +86,41 @@ class Pipeline(
       return Failure(new RuntimeException("can't process without input"))
 
     val intake_result = intake match {
-        case Some(i) => i.intake(input.get)
-        case None => StringIntake(input.get)
-      }
+      case Some(i) => i.intake(input.get)
+      case None => StringIntake(input.get)
+    }
 
     if (intake_result.isFailure)
       return intake_result
 
     val translate_result = intake_result
-      .map (in =>
-        (new LineParsers).lines(new StringLineReader(in)))
-      .map(lines =>
-        (new BlockParsers).blocks(new LineReader(lines.get)))
-      .map ( doc =>
-        translator match {
-          case Some(t) => t.translate(doc.get)
-          case None => HTMLTranslator.translate(doc.get)
-        }
+      .map(
+        in =>
+          (new LineParsers).lines(new StringLineReader(in))
+      )
+      .map(
+        lines =>
+          (new BlockParsers).blocks(new LineReader(lines.get))
+      )
+      .map(
+        doc =>
+          translator match {
+            case Some(t) => t.translate(doc.get)
+            case None => HTMLTranslator.translate(doc.get)
+          }
       )
 
     if (translate_result.isFailure)
       return translate_result
 
-    val emit_result = translate_result.map( in =>
-      emitter match {
-        case Some(e) =>
-          e.emit(in)
-          in
-        case None => in
-      }
+    val emit_result = translate_result.map(
+      in =>
+        emitter match {
+          case Some(e) =>
+            e.emit(in)
+            in
+          case None => in
+        }
     )
 
     return emit_result match {

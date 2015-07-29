@@ -24,8 +24,8 @@ import scala.collection.immutable.ListMap
 
 
 class HTMLTranslator(
-  allow_raw_strings:Boolean=true,
-  footnote_as_title_text:Boolean=false
+  allow_raw_strings: Boolean=true,
+  footnote_as_title_text: Boolean=false
 ) extends NodeTranslator {
 
   var footnotes = Seq[String]()
