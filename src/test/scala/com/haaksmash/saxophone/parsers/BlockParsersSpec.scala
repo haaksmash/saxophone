@@ -102,7 +102,7 @@ class BlockParsersSpec extends FlatSpec {
     val result = parsers.unordered_list_node(new LineReader(list)).get
 
     assert(result.items == Set(
-      Seq(Paragraph(Seq(StandardText("list "), EmphasizedText("item"), StandardText(" A"))))
+      Seq(Paragraph(Seq(StandardText("list "), EmphasizedText("item", Map()), StandardText(" A"))))
     ))
   }
 
@@ -144,7 +144,7 @@ class BlockParsersSpec extends FlatSpec {
     val result = parsers.ordered_list_node(new LineReader(list)).get
 
     assert(result.items == Seq(
-      Seq(Paragraph(Seq(StandardText("list "), EmphasizedText("item"), StandardText(" A"))))
+      Seq(Paragraph(Seq(StandardText("list "), EmphasizedText("item", Map()), StandardText(" A"))))
     ))
   }
 
@@ -196,10 +196,10 @@ class BlockParsersSpec extends FlatSpec {
     val result = parsers.paragraph(new LineReader(text)).get
 
     assert(result.children == Seq(
-      MonospaceText("mono"), StandardText(" "),
-      WeightedText(1, "weight"), StandardText(" "),
-      EmphasizedText("emph"), StandardText(" "),
-      UnderlinedText("mark")
+      MonospaceText("mono", Map()), StandardText(" "),
+      WeightedText(1, "weight", Map()), StandardText(" "),
+      EmphasizedText("emph", Map()), StandardText(" "),
+      MarkedText("mark", Map())
     ))
   }
 

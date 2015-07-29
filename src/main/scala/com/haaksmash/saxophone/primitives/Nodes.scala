@@ -90,8 +90,9 @@ case class UnorderedList(items: Set[Seq[Node]]) extends ListNode(items) {
 }
 
 
-trait InlineNode extends Node
-
+trait InlineNode extends Node {
+  def meta = Map[String, String]()
+}
 
 case class Footnote(children: Seq[InlineNode]) extends InlineNode {
   override val label = "foot"
@@ -115,23 +116,23 @@ case class StandardText(text: String) extends TransformedText {
   override def toString = "<text>" + text + "</text>"
 }
 
-case class EmphasizedText(text: String) extends TransformedText {
+case class EmphasizedText(text: String, override val meta: Map[String, String]) extends TransformedText {
   override val label = "em"
 }
 
-case class WeightedText(weight: Int, text: String) extends TransformedText {
+case class WeightedText(weight: Int, text: String, override val meta: Map[String, String]) extends TransformedText {
   override val label = "strong"
 }
 
-case class UnderlinedText(text: String) extends TransformedText {
+case class MarkedText(text: String, override val meta: Map[String, String]) extends TransformedText {
   override val label = "u"
 }
 
-case class MonospaceText(text: String) extends TransformedText {
+case class MonospaceText(text: String, override val meta: Map[String, String]) extends TransformedText {
   override val label = "mono"
 }
 
-case class StruckthroughText(text: String) extends TransformedText {
+case class StruckthroughText(text: String, override val meta: Map[String, String]) extends TransformedText {
   override val label = "strike"
 }
 

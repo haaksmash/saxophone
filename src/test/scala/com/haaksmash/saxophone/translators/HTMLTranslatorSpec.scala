@@ -121,7 +121,7 @@ class HTMLTranslatorSpec extends FlatSpec {
       Set(
         Seq(Paragraph(Seq(StandardText("Line One")))),
         // ensures recursive translation
-        Seq(Paragraph(Seq(EmphasizedText("Line Two")))),
+        Seq(Paragraph(Seq(EmphasizedText("Line Two", Map())))),
         Seq(Paragraph(Seq(StandardText("Line Three"))))
       )
     )
@@ -146,7 +146,7 @@ class HTMLTranslatorSpec extends FlatSpec {
   }
 
   it should "recursively translate" in {
-    val link = Link(Seq(EmphasizedText("the link!")), LinkTarget("the target"))
+    val link = Link(Seq(EmphasizedText("the link!", Map())), LinkTarget("the target"))
 
     val result = translator.link(link)
 
@@ -154,16 +154,24 @@ class HTMLTranslatorSpec extends FlatSpec {
  }
 
   "emphasizedText" should "translate an EmphasizedText" in {
-    val text = EmphasizedText("IMPORTANT!")
+    val text = EmphasizedText("IMPORTANT!", Map())
 
     val result = translator.emphasizedText(text)
 
     assert(result == "<em>IMPORTANT!</em>")
   }
 
+  it should "honor metadata" in {
+    val text = EmphasizedText("IMPORTANT!", Map("class" -> "red"))
+
+    val result = translator.emphasizedText(text)
+
+    assert(result == "<em class=\"red\">IMPORTANT!</em>")
+  }
+
   it should "escape its text" in {
 
-    val text = EmphasizedText("<look> &<a tag>")
+    val text = EmphasizedText("<look> &<a tag>", Map())
     val result = translator.translate(text)
 
     assert(result.contains("&gt;"))
@@ -172,7 +180,7 @@ class HTMLTranslatorSpec extends FlatSpec {
   }
 
   "weightedText" should "translate a WeightedText" in {
-    val text = WeightedText(1, "HEAVY!")
+    val text = WeightedText(1, "HEAVY!", Map())
 
     val result = translator.weightedText(text)
 
@@ -181,12 +189,20 @@ class HTMLTranslatorSpec extends FlatSpec {
 
   it should "escape its text" in {
 
-    val text = WeightedText(1, "<look> &<a tag>")
+    val text = WeightedText(1, "<look> &<a tag>", Map())
     val result = translator.translate(text)
 
     assert(result.contains("&gt;"))
     assert(result.contains("&lt;"))
     assert(result.contains("&amp;"))
+  }
+
+  it should "honor metadata" in {
+    val text = WeightedText(1, "HEAVY!", Map("class" -> "red"))
+
+    val result = translator.weightedText(text)
+
+    assert(result == "<strong class=\"red\">HEAVY!</strong>")
   }
 
   "standardText" should "translate a StandardText" in {
@@ -208,19 +224,27 @@ class HTMLTranslatorSpec extends FlatSpec {
   }
 
   "struckthroughText" should "translate a StruckthroughText" in {
-    val text = StruckthroughText("mah texticles!")
+    val text = StruckthroughText("mah texticles!", Map())
 
     val result = translator.struckthroughText(text)
 
     assert(result == "<s>mah texticles!</s>")
   }
 
-  "underlinedText" should "translate an UnderlinedText" in {
-    val text = UnderlinedText("defective link")
+  "markedText" should "translate an MarkedText" in {
+    val text = MarkedText("defective link", Map())
 
-    val result = translator.underlinedText(text)
+    val result = translator.markedText(text)
 
     assert(result == "<mark>defective link</mark>")
+  }
+
+  it should "honor metadata" in {
+    val text = MarkedText("defective link", Map("class" -> "red"))
+
+    val result = translator.markedText(text)
+
+    assert(result == "<mark class=\"red\">defective link</mark>")
   }
 
   "rawText" should "translate a RawText" in {
@@ -239,7 +263,7 @@ class HTMLTranslatorSpec extends FlatSpec {
 
   it should "escape its text" in {
 
-    val text = UnderlinedText("<look> &<a tag>")
+    val text = MarkedText("<look> &<a tag>", Map())
     val result = translator.translate(text)
 
     assert(result.contains("&gt;"))
@@ -256,7 +280,7 @@ class HTMLTranslatorSpec extends FlatSpec {
   }
 
   "monospacedText" should "translate a MonospaceText" in {
-    val text = MonospaceText("some_codeling")
+    val text = MonospaceText("some_codeling", Map())
 
     val result = translator.monospacedText(text)
 
@@ -265,12 +289,20 @@ class HTMLTranslatorSpec extends FlatSpec {
 
   it should "escape its text" in {
 
-    val text = MonospaceText("<look> &<a tag>")
+    val text = MonospaceText("<look> &<a tag>", Map())
     val result = translator.translate(text)
 
     assert(result.contains("&gt;"))
     assert(result.contains("&lt;"))
     assert(result.contains("&amp;"))
+  }
+
+  it should "honor metadata" in {
+    val text = MonospaceText("defective link", Map("class" -> "red"))
+
+    val result = translator.monospacedText(text)
+
+    assert(result == "<code class=\"red\">defective link</code>")
   }
 
   "footnote" should "translate footnotes" in {

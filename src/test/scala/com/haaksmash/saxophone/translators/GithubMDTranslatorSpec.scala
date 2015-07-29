@@ -101,7 +101,7 @@ class GithubMDTranslatorSpec extends FlatSpec {
       Set(
         Seq(Paragraph(Seq(StandardText("Line One")))),
         // ensures recursive translation
-        Seq(Paragraph(Seq(EmphasizedText("Line Two")))),
+        Seq(Paragraph(Seq(EmphasizedText("Line Two", Map())))),
         Seq(Paragraph(Seq(StandardText("Line Three"))))
       )
     )
@@ -124,7 +124,7 @@ class GithubMDTranslatorSpec extends FlatSpec {
   }
 
   it should "recursively translate" in {
-    val link = Link(Seq(EmphasizedText("the link!")), LinkTarget("the target"))
+    val link = Link(Seq(EmphasizedText("the link!", Map())), LinkTarget("the target"))
 
     val result = translator.link(link)
 
@@ -132,7 +132,7 @@ class GithubMDTranslatorSpec extends FlatSpec {
   }
 
   "emphasizedText" should "translate an EmphasizedText" in {
-    val text = EmphasizedText("IMPORTANT!")
+    val text = EmphasizedText("IMPORTANT!", Map())
 
     val result = translator.emphasizedText(text)
 
@@ -140,7 +140,7 @@ class GithubMDTranslatorSpec extends FlatSpec {
   }
 
   "weightedText" should "translate a WeightedText" in {
-    val text = WeightedText(1, "HEAVY!")
+    val text = WeightedText(1, "HEAVY!", Map())
 
     val result = translator.weightedText(text)
 
@@ -156,17 +156,17 @@ class GithubMDTranslatorSpec extends FlatSpec {
   }
 
   "struckthroughText" should "translate a StruckthroughText" in {
-    val text = StruckthroughText("mah texticles!")
+    val text = StruckthroughText("mah texticles!", Map())
 
     val result = translator.struckthroughText(text)
 
     assert(result == "~~mah texticles!~~")
   }
 
-  "underlinedText" should "transparently fail" in {
-    val text = UnderlinedText("defective link")
+  "markedText" should "transparently fail" in {
+    val text = MarkedText("defective link", Map())
 
-    val result = translator.underlinedText(text)
+    val result = translator.markedText(text)
 
     assert(result == "defective link")
   }
@@ -187,7 +187,7 @@ class GithubMDTranslatorSpec extends FlatSpec {
   }
 
   "monospacedText" should "translate a MonospaceText" in {
-    val text = MonospaceText("some_codeling")
+    val text = MonospaceText("some_codeling", Map())
 
     val result = translator.monospacedText(text)
 

@@ -79,13 +79,15 @@ class HTMLTranslator(
    * metadata about their contents.
    */
   def link(node:Link) = s"""<a href="${node.to}">${translate(node)}</a>"""
-  def emphasizedText(node:EmphasizedText) = s"<em>${escapeTextForHTML(node.text)}</em>"
+  def emphasizedText(node:EmphasizedText) = s"<em${convertMetaToHTMLAttrs(node.meta)}>${escapeTextForHTML(node.text)}</em>"
   def forcedNewLine(node:ForcedNewline) = "<br/>"
   def standardText(node:StandardText) = escapeTextForHTML(node.text)
-  def struckthroughText(node:StruckthroughText) = s"<s>${escapeTextForHTML(node.text)}</s>"
-  def underlinedText(node:UnderlinedText) = s"""<mark>${escapeTextForHTML(node.text)}</mark>"""
-  def weightedText(node:WeightedText) = s"<strong>${escapeTextForHTML(node.text)}</strong>"
-  def monospacedText(node:MonospaceText) = s"<code>${escapeTextForHTML(node.text)}</code>"
+  def struckthroughText(node:StruckthroughText) = s"<s${convertMetaToHTMLAttrs(node.meta)}>${escapeTextForHTML(node.text)}</s>"
+  def markedText(node:MarkedText) = s"""<mark${convertMetaToHTMLAttrs(node.meta)}>${escapeTextForHTML(node.text)}</mark>"""
+  def weightedText(node:WeightedText) = s"<strong${convertMetaToHTMLAttrs(node.meta)}>${escapeTextForHTML(node.text)}</strong>"
+  def monospacedText(node:MonospaceText) = {
+    s"""<code${convertMetaToHTMLAttrs(node.meta)}>${escapeTextForHTML(node.text)}</code>"""
+  }
   def rawText(node: RawText) = if (allow_raw_strings) node.text else escapeTextForHTML(node.text)
 
 
@@ -121,6 +123,14 @@ class HTMLTranslator(
       new_text = new_text.replaceAll(char, chars_to_escape_sequence(char))
     }
     new_text
+  }
+
+  private def convertMetaToHTMLAttrs(meta:Map[String, String]): String = {
+    val meta_string = meta.map{case (k,v) => s"""$k="$v""""}.mkString(" ")
+    if (!meta_string.isEmpty)
+      " " + meta_string
+    else
+      ""
   }
 
 }
