@@ -21,7 +21,7 @@ package com.haaksmash.saxophone.translators
 import com.haaksmash.saxophone.primitives._
 
 
-class SaxophoneTreeStringTranslator extends BaseTranslator {
+class SaxophoneTreeStringTranslator extends NodeTranslator {
 
   override def heading(node: Heading): String = ???
 

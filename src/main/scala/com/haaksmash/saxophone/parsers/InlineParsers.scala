@@ -48,7 +48,7 @@ object InlineParsers extends RegexParsers {
     RAW_START -> ("r", RAW_END)
   )
 
-  def aChar = Parser{ in =>
+  def aChar = Parser { in =>
     if (in.atEnd) {
       Failure("End of input reached.", in)
     } else {
@@ -56,7 +56,7 @@ object InlineParsers extends RegexParsers {
     }
   }
 
-  def standardText(special: Set[Char]): Parser[StandardText] = Parser{ in =>
+  def standardText(special: Set[Char]): Parser[StandardText] = Parser { in =>
     if (in.atEnd)
       Failure("End of input reached.", in)
     else {
@@ -65,12 +65,12 @@ object InlineParsers extends RegexParsers {
       val end = source.length()
       val result = new StringBuilder()
 
-      while (pos<end && !special.contains(source.charAt(pos))) {
+      while (pos < end && !special.contains(source.charAt(pos))) {
         val c = source.charAt(pos)
         if (
-          c == '\\' &&
-          pos + 1 < end &&
-          special_char_to_tracking_and_ending_char.contains(source.charAt(pos + 1))
+          c == '\\'
+          && pos + 1 < end
+          && special_char_to_tracking_and_ending_char.contains(source.charAt(pos + 1))
         ) {
           result.append(source.charAt(pos + 1))
           pos += 2
