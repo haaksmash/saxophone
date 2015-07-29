@@ -54,6 +54,22 @@ val output:Try[String] = saxophone.Pipeline
   .to(new FileEmitter("output file")) // optional!
   .process()
 ```
+It doesn't matter what order you call `on`/`via`/`to`/`from`; they each return a brand-new `Pipeline`. `Pipeline` even tries to choose sensible defaults for you if you process a bit more eagerly:
+
+```scala
+saxophone.Pipeline
+  // on() is the only required builder method
+  .on("source")
+  .process()
+
+
+// equivalent to the more-verbose
+saxophone.Pipeline
+  .on("source").
+  .from(new StringIntake)
+  .via(new HTMLTranslator)
+  .process()
+```
 ### Syntax
 `saxophone` is a lot like Markdown, structurally; the syntax is what's different. All these examples use the HTML output, because that's pretty easy to understand.
 
