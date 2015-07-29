@@ -22,6 +22,10 @@ import com.haaksmash.saxophone.primitives._
 
 
 trait BaseTranslator {
+  def translate(node: Node): String
+}
+
+trait NodeTranslator extends BaseTranslator {
 
 
   /**

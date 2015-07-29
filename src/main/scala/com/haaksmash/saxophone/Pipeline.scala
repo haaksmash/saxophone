@@ -46,6 +46,7 @@ class Pipeline(
   emitter:Option[BaseEmitter],
   input: Option[String]
 ) extends PipelineDefinition {
+
   override def from[T <: BaseIntake](intake: T): Pipeline = new Pipeline(
     Some(intake),
     translator,

@@ -20,7 +20,7 @@ package com.haaksmash.saxophone.translators
 
 import com.haaksmash.saxophone.primitives._
 
-class GithubMDTranslator extends BaseTranslator {
+class GithubMDTranslator extends NodeTranslator {
   override def heading(node: Heading): String = s"${"#" * node.level} ${translate(node)}\n"
 
   override def footnote(node: Footnote): String = ""
