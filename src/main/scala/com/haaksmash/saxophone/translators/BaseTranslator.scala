@@ -64,7 +64,7 @@ trait NodeTranslator extends BaseTranslator {
 
   def struckthroughText(node: StruckthroughText): String
 
-  def underlinedText(node: UnderlinedText): String
+  def markedText(node: MarkedText): String
 
   def weightedText(node: WeightedText): String
 
@@ -83,7 +83,7 @@ trait NodeTranslator extends BaseTranslator {
     case n: OrderedList => orderedList(n)
     case n: Code => code(n)
     case n: StruckthroughText => struckthroughText(n)
-    case n: UnderlinedText => underlinedText(n)
+    case n: MarkedText => markedText(n)
     case n: MonospaceText => monospacedText(n)
     case n: RawText => rawText(n)
     case n: Quote => quote(n)

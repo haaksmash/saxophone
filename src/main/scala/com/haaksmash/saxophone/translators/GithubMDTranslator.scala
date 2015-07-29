@@ -51,7 +51,7 @@ class GithubMDTranslator extends NodeTranslator {
 
   override def weightedText(node: WeightedText): String = s"**${node.text}**"
 
-  override def underlinedText(node: UnderlinedText): String = s"${node.text}"
+  override def markedText(node: MarkedText): String = s"${node.text}"
 
   override def struckthroughText(node: StruckthroughText): String = s"~~${node.text}~~"
 

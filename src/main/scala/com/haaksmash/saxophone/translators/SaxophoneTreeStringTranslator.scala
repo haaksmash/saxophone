@@ -45,7 +45,7 @@ class SaxophoneTreeStringTranslator extends NodeTranslator {
 
   override def weightedText(node: WeightedText): String = ???
 
-  override def underlinedText(node: UnderlinedText): String = ???
+  override def markedText(node: MarkedText): String = ???
 
   override def struckthroughText(node: StruckthroughText): String = ???
 
