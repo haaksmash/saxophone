@@ -61,11 +61,25 @@ class StringLineParserSpec extends FlatSpec {
     assert(quote_line.payload == "a quote goes here")
   }
 
+  it should "require a following space" in {
+    val input = ">>>not quote"
+    val the_line = parsers.parseAll(parsers.quoteParser, input)
+
+    assert(the_line.isEmpty)
+  }
+
   "unordered_line" should "match *" in {
     val input = "* unordered line!"
     val unordered_line = parsers.parseAll(parsers.unorderedListParser, input).get
 
     assert(unordered_line.payload == "unordered line!")
+  }
+
+  it should "require a following space" in {
+    val input = "*not unordered*"
+    val the_line = parsers.parseAll(parsers.unorderedListParser, input)
+
+    assert(the_line.isEmpty)
   }
 
   "ordered_line" should "match any number followed by a period" in {
@@ -83,5 +97,12 @@ class StringLineParserSpec extends FlatSpec {
 
     assert(ordered_line.payload == "derptastic")
     assert(ordered_line.glyph == "-")
+  }
+
+  it should "require a following space" in {
+    val input = "1.not ordered*"
+    val the_line = parsers.parseAll(parsers.orderedListParser, input)
+
+    assert(the_line.isEmpty)
   }
 }

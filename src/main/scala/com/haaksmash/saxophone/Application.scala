@@ -81,7 +81,7 @@ object Application {
         if (args.contains ("-d"))
           ConsoleEmitter.emit(s)
       case Failure(ex) =>
-        System.err.println("Could not process input as a saxophone document")
+        System.err.println(ex.getMessage)
         System.exit(1)
     }
 
