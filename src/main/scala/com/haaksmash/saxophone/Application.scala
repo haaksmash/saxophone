@@ -22,6 +22,8 @@ import com.haaksmash.saxophone.emitters.{ConsoleEmitter, FileEmitter}
 import com.haaksmash.saxophone.intakes.FileIntake
 import com.haaksmash.saxophone.translators.{SaxophoneTreeStringTranslator, GithubMDTranslator, HTMLTranslator}
 
+import scala.util.{Failure, Success}
+
 
 object Application {
 
@@ -63,24 +65,25 @@ object Application {
       }
     }
 
+   val emitter = if (args.contains ("-o")) {
+      val output_filename = args (args.indexOf ("-o") + 1)
+      FileEmitter(output_filename)
+    } else {
+      ConsoleEmitter
+    }
+
     val saxophone_filename = args(args.length - 1)
 
-    val document_result = FileIntake(saxophone_filename)
+    val pipe = Pipeline.via(translator).from(new FileIntake).on(saxophone_filename).to(emitter)
 
-    document_result match {
-      case Some(document) =>
-        if (args.contains ("-o")) {
-          val output_filename = args (args.indexOf ("-o") + 1)
-          FileEmitter(output_filename).emit(translator.translate(document))
-        } else {
-          ConsoleEmitter.emit(translator.translate(document))
-        }
-
+    pipe.process() match {
+      case Success(s) =>
         if (args.contains ("-d"))
-          ConsoleEmitter.emit(translator.translate(document))
-      case _ =>
+          ConsoleEmitter.emit(s)
+      case Failure(ex) =>
         System.err.println("Could not process input as a saxophone document")
         System.exit(1)
     }
+
   }
 }

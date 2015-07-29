@@ -18,11 +18,11 @@
 
 package com.haaksmash.saxophone.intakes
 
-import com.haaksmash.saxophone.primitives.Document
+import scala.util.Try
 
 
 object ConsoleIntake {
-  def apply(): Option[Document] = {
+  def apply(): Try[String] = {
     val lines = io.Source.stdin.getLines().mkString("\n")
     StringIntake(lines)
   }

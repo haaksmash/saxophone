@@ -20,14 +20,14 @@ package com.haaksmash.saxophone.intakes
 
 import java.io.File
 
-import com.haaksmash.saxophone.primitives.Document
+import scala.util.Try
 
 class FileIntake extends BaseIntake {
-  type IntakeType = File
+  def intake(filename:String): Try[String] = intake(new File(filename))
 
-  def intake(filename:IntakeType): Option[Document] = {
+  def intake(file:File): Try[String] = {
 
-    val article_source = scala.io.Source.fromFile(filename)
+    val article_source = scala.io.Source.fromFile(file)
     val the_article = article_source.mkString
     article_source.close()
 
@@ -36,11 +36,11 @@ class FileIntake extends BaseIntake {
 }
 
 object FileIntake {
-  def apply(filename: String) = {
-    (new FileIntake).intake(new File(filename))
+  def apply(filename: String): Try[String] = {
+    (new FileIntake).intake(filename)
   }
 
-  def apply(file:File) = {
+  def apply(file:File): Try[String] = {
     (new FileIntake).intake(file)
   }
 }
