@@ -109,7 +109,7 @@ object InlineParsers extends RegexParsers {
     case text ~ meta => WeightedText(1, text.mkString, meta.getOrElse(Map()))
   }
 
-  val underlined_text: Parser[MarkedText] = (UNDERLINE_START ~> ((not(UNDERLINE_END) ~> aChar).+) <~ UNDERLINE_END) ~ metadata.? ^^ {
+  val marked_text: Parser[MarkedText] = (UNDERLINE_START ~> ((not(UNDERLINE_END) ~> aChar).+) <~ UNDERLINE_END) ~ metadata.? ^^ {
     case chars ~ meta => MarkedText(chars.mkString, meta.getOrElse(Map()))
   }
 
@@ -170,7 +170,7 @@ object InlineParsers extends RegexParsers {
           if (visited contains special_char_to_tracking_and_ending_char(UNDERLINE_START)._1)
             Failure("can't nest underline", in)
           else
-            underlined_text(in)
+            marked_text(in)
         case MONOSPACE_START =>
           if (visited contains special_char_to_tracking_and_ending_char(MONOSPACE_START)._1)
             Failure("can't nest monospace", in)
