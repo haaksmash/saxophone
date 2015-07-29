@@ -61,15 +61,19 @@ libraryDependencies += "com.haaksmash" %% "saxophone" % "1.4.0"
 to one of your project's sbt files.
 
 ### Usage
-Pretty straightforward, choose the appropriate implementation of `BaseIntake`
-and send its output to the appropriate implementation of `BaseTranslator`,
-which will give you a String. Then, do what you want!
+Pretty straightforward; choose the appropriate implementation of `BaseIntake`
+and `BaseTranslator`, specify a source string, and let the `Pipeline` `process`
+everything for you!
 
 {{{lang:scala
-val input: Option[Document] = FileIntake(someFilename)
-val output: Option[String] = input map {
-  HTMLTranslator.translate(_)
-}
+val output:Try[String] = saxophone.Pipeline
+  .from(new FileIntake)
+  // this string will have different meanings depending on your chosen intake;
+  // in this case, it will be interpreted as a file path.
+  .on("filename")
+  .via(new HTMLTranslator)
+  .to(new FileEmitter("output file")) // optional!
+  .process()
 }}}
 
 ### Syntax
