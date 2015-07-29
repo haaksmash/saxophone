@@ -139,6 +139,14 @@ class InlineParsersSpec extends FlatSpec {
     assert(result.text == "hello")
   }
 
+  it should "support metadata" in {
+    val input = "~hello~[class:red]"
+    val result = parsers.parseAll(parsers.struckthrough_text, input).get
+
+    assert(result.text == "hello")
+    assert(result.meta == Map("class" -> "red"))
+  }
+
   "monospaced_text" should "match characters between `" in {
     val input = "`hello`"
     val result = parsers.parseAll(parsers.monospaced_text, input).get
