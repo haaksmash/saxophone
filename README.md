@@ -1,5 +1,4 @@
 [![Build Status](https://travis-ci.org/haaksmash/saxophone.svg?branch=master)](https://travis-ci.org/haaksmash/saxophone)
-
 # `saxophone`
 Ugh, what? ANOTHER preprocessor language? YES.
 
@@ -37,27 +36,48 @@ Here's how!
 add
 
 ```scala
-libraryDependencies += "com.haaksmash" %% "saxophone" % "1.4.0"
+libraryDependencies += "com.haaksmash" %% "saxophone" % "2.0.0"
 ```
 to one of your project's sbt files.
 
 ### Usage
-Pretty straightforward, choose the appropriate implementation of `BaseIntake` and send its output to the appropriate implementation of `BaseTranslator`, which will give you a String. Then, do what you want!
+Pretty straightforward; choose the appropriate implementation of `BaseIntake` and `BaseTranslator`, specify a source string, and let the `Pipeline` `process` everything for you!
 
 ```scala
-val input: Option[Document] = FileIntake(someFilename)
-val output: Option[String] = input map {
-  HTMLTranslator.translate(_)
-}
+val output:Try[String] = saxophone.Pipeline
+  .from(new FileIntake)
+  // this string will have different meanings depending on your chosen intake;
+  // in this case, it will be interpreted as a file path.
+  .on("filename")
+  .via(new HTMLTranslator)
+  .to(new FileEmitter("output file")) // optional!
+  .process()
+```
+It doesn't matter what order you call `on`/`via`/`to`/`from`; they each return a brand-new `Pipeline`. `Pipeline` even tries to choose sensible defaults for you if you process a bit more eagerly:
+
+```scala
+saxophone.Pipeline
+  // on() is the only required builder method
+  .on("source")
+  .process()
+
+
+// equivalent to the more-verbose
+saxophone.Pipeline
+  .on("source")
+  .from(new StringIntake)
+  .via(new HTMLTranslator)
+  .process()
 ```
 ### Syntax
 `saxophone` is a lot like Markdown, structurally; the syntax is what's different. All these examples use the HTML output, because that's pretty easy to understand.
 
 #### Blocks
-* headers are any line preceded by a number of `#`s, up to 6 of them.
 * code listings are started with `{{{` and ended with `}}}`. The initial `{{{` can optionally include some directives that may have meaning to the translators: `{{{lang:saxophone`
 * lists are either unordered (preceded by `*`) or ordered (preceded by a number+period, e.g. `1.`). You may also have an (un)ordered list by leading with a `-`.
-* blockquotes are introduced with `>>>`, and may optionally have a source after them, which should be in brackets.
+* embedded elements (images, videos) have a slightly different syntax from the other blocks; their format is `::<type> <arguments for the type>::`. For an image, this looks like `::image /a/source/image.jpg`. For a video, it's `::video <arguments> <for> <video>::`, which will intelligently render if the first argument is `youtube` or `vimeo`, otherwise it will emit a `<video>` element, treating the rest of the arguments as different `<source>` elements.
+* blockquotes are introduced with `> ` and may optionally have a source after them, which should be in brackets.
+* headers are any line preceded by a number of `#`s, up to 6 of them.
 
 Everything else is a paragraph; separate paragraphs with a newline and you'll come out just fine.
 

@@ -22,16 +22,17 @@ import com.haaksmash.saxophone.primitives._
 
 
 /**
- * Translates [[String]] to specific instances of [[com.haaksmash.saxophone.Line]]
+ * Translates [[String]] to specific instances of [[com.haaksmash.saxophone.primitives.Line]]
  */
 trait StringLineParsers extends UtilParsers {
 
   val HEADING_GLYPH = "#"
   val CODE_START = "{{{"
   val CODE_END = "}}}"
-  val QUOTE_LINE = ">>>"
+  val QUOTE_LINE = ">"
+  val EMBED_LINE = "::"
 
-  val headingParser: Parser[HeadingLine] = s"${HEADING_GLYPH}+ ".r ~ rest ^^ {
+  val headingParser: Parser[HeadingLine] = s"$HEADING_GLYPH+ ".r ~ rest ^^ {
     case glyphs ~ text =>
       // glyphs will end with a space that we want to throw away
       HeadingLine(glyphs.trim, text)
@@ -40,10 +41,7 @@ trait StringLineParsers extends UtilParsers {
   val codeStart: Parser[CodeStartLine] = CODE_START ~> rest ^^ {
     case directives =>
       val directive_map = if (!directives.isEmpty) {
-        directives.split('|') map {pair =>
-          val keyval = pair.split(':')
-          keyval(0) -> keyval(1)
-        } toMap
+        extractMap(directives)
       } else {
         Map[String,String]()
       }
@@ -55,11 +53,15 @@ trait StringLineParsers extends UtilParsers {
 
   val codeEnd: Parser[CodeEndLine] = CODE_END ^^^ {CodeEndLine()}
 
-  val quoteParser: Parser[QuoteLine] = s"$QUOTE_LINE\\s?".r ~ rest ^^ {case leader ~ text => QuoteLine(leader + text)}
+  val quoteParser: Parser[QuoteLine] = s"$QUOTE_LINE\\s".r ~ rest ^^ {case leader ~ text => QuoteLine(leader + text)}
 
-  val unorderedListParser: Parser[UnorderedLine] = "\\*\\s?".r ~ rest ^^ {case leader ~ text => UnorderedLine(leader, text)}
+  val unorderedListParser: Parser[UnorderedLine] = "\\*\\s".r ~ rest ^^ {case leader ~ text => UnorderedLine(leader, text)}
 
-  val orderedListParser: Parser[OrderedLine] = ("\\d+\\.\\s?".r | "- ") ~ rest ^^ {case leader ~ text => OrderedLine(leader.trim, text)}
+  val orderedListParser: Parser[OrderedLine] = ("\\d+\\.\\s".r | "- ") ~ rest ^^ {case leader ~ text => OrderedLine(leader.trim, text)}
+
+  val embedParser: Parser[EmbedLine] = (EMBED_LINE ~> ((not(EMBED_LINE) ~> aChar).+ ^^ (_.mkString)) <~ EMBED_LINE) ~ metadata.? ^^ {
+    case text ~ meta =>
+      EmbedLine(text.split(" "), text, meta.getOrElse(Map()))}
 
 }
 

@@ -21,7 +21,7 @@ package com.haaksmash.saxophone.translators
 import com.haaksmash.saxophone.primitives._
 
 
-class SaxophoneTreeStringTranslator extends BaseTranslator {
+class SaxophoneTreeStringTranslator extends NodeTranslator {
 
   override def heading(node: Heading): String = ???
 
@@ -45,7 +45,7 @@ class SaxophoneTreeStringTranslator extends BaseTranslator {
 
   override def weightedText(node: WeightedText): String = ???
 
-  override def underlinedText(node: UnderlinedText): String = ???
+  override def markedText(node: MarkedText): String = ???
 
   override def struckthroughText(node: StruckthroughText): String = ???
 
@@ -58,6 +58,8 @@ class SaxophoneTreeStringTranslator extends BaseTranslator {
   override def rawText(node: RawText): String = ???
 
   override def monospacedText(node: MonospaceText): String = ???
+
+  override def embed(node: EmbedNode): String = ???
 
   override def translate(document: Node) = {
     document.toString

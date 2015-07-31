@@ -22,10 +22,10 @@ import com.haaksmash.saxophone.primitives.{EOF, Line}
 
 import scala.util.parsing.input.{Position, Reader}
 
-class LineReader private (val lines: Seq[Line], val lookup: Option[Boolean], val linecount: Int)
+class LineReader private(val lines: Seq[Line], val lookup: Option[Boolean], val linecount: Int)
   extends Reader[Line] {
 
-  def this(ls:Seq[Line]) = this(ls, None, 1)
+  def this(ls: Seq[Line]) = this(ls, None, 1)
 
   override def first: Line = if (lines.isEmpty) EOF else lines.head
 
@@ -33,7 +33,9 @@ class LineReader private (val lines: Seq[Line], val lookup: Option[Boolean], val
 
   override def pos: Position = new Position {
     def line = linecount
+
     override def column: Int = 1
+
     protected def lineContents = first.text
   }
 

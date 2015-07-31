@@ -25,7 +25,7 @@ trait UtilParsers extends RegexParsers {
    * Matches everything in the input string up to the end, including the empty string.
    * Returns the matched string.
    */
-  val rest:Parser[String] = Parser {in =>
+  val rest: Parser[String] = Parser { in =>
     if (in.atEnd)
       Success("", in)
     else {
@@ -35,4 +35,40 @@ trait UtilParsers extends RegexParsers {
       )
     }
   }
+
+  def restUntil(until: Char): Parser[String] = Parser { in =>
+    if (in.atEnd)
+      Success("", in)
+    else {
+      var input = in
+      while (!input.atEnd && !(input.first == until))
+        input = input.rest
+
+      Success(
+        in.source.subSequence(in.offset, input.offset).toString,
+        input
+      )
+    }
+  }
+
+  val aChar = Parser { in =>
+    if (in.atEnd) {
+      Failure("End of input reached.", in)
+    } else {
+      Success(in.first, in.rest)
+    }
+  }
+
+
+  val metadata: Parser[Map[String, String]] = "[" ~> ((not("]") ~> aChar).+) <~ "]" ^^ {
+    case metas => extractMap(metas.mkString)
+  }
+
+  protected def extractMap(string:String): Map[String, String] = {
+    string.split('|')
+      .map(metapair => metapair.split(':'))
+      .map(l => l(0) -> l.slice(1,l.length).mkString(":"))
+      .toMap
+  }
+
 }

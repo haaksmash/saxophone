@@ -22,7 +22,7 @@ import com.haaksmash.saxophone.primitives._
 
 import scala.util.parsing.combinator.RegexParsers
 
-object InlineParsers extends RegexParsers {
+object InlineParsers extends UtilParsers {
 
   val FOOTNOTE_START = '{'
   val FOOTNOTE_END = '}'
@@ -48,15 +48,7 @@ object InlineParsers extends RegexParsers {
     RAW_START -> ("r", RAW_END)
   )
 
-  def aChar = Parser{ in =>
-    if (in.atEnd) {
-      Failure("End of input reached.", in)
-    } else {
-      Success(in.first, in.rest)
-    }
-  }
-
-  def standardText(special: Set[Char]): Parser[StandardText] = Parser{ in =>
+  def standardText(special: Set[Char]): Parser[StandardText] = Parser { in =>
     if (in.atEnd)
       Failure("End of input reached.", in)
     else {
@@ -65,12 +57,12 @@ object InlineParsers extends RegexParsers {
       val end = source.length()
       val result = new StringBuilder()
 
-      while (pos<end && !special.contains(source.charAt(pos))) {
+      while (pos < end && !special.contains(source.charAt(pos))) {
         val c = source.charAt(pos)
         if (
-          c == '\\' &&
-          pos + 1 < end &&
-          special_char_to_tracking_and_ending_char.contains(source.charAt(pos + 1))
+          c == '\\'
+          && pos + 1 < end
+          && special_char_to_tracking_and_ending_char.contains(source.charAt(pos + 1))
         ) {
           result.append(source.charAt(pos + 1))
           pos += 2
@@ -87,30 +79,29 @@ object InlineParsers extends RegexParsers {
         Success(StandardText(text), in.drop(pos - in.offset))
     }
   }
-
   val raw_text: Parser[RawText] = RAW_START ~> ((not(RAW_END) ~> aChar).+) <~ RAW_END ^^ {
     case chars => RawText(chars.mkString)
   }
 
-  val emphasized_text: Parser[EmphasizedText] = EMPHASIZED_START ~> ((not(EMPHASIZED_END) ~> aChar).+) <~ EMPHASIZED_END ^^ {
-    case chars => EmphasizedText(chars.mkString)
+  val emphasized_text: Parser[EmphasizedText] = (EMPHASIZED_START ~> ((not(EMPHASIZED_END) ~> aChar).+) <~ EMPHASIZED_END) ~ metadata.? ^^ {
+    case chars ~ meta => EmphasizedText(chars.mkString, meta.getOrElse(Map()))
   }
 
-  val weighted_text: Parser[WeightedText] = WEIGHTED_START ~> ((not(WEIGHTED_END) ~> aChar).+) <~ WEIGHTED_END^^ {
+  val weighted_text: Parser[WeightedText] = (WEIGHTED_START ~> ((not(WEIGHTED_END) ~> aChar).+) <~ WEIGHTED_END) ~ metadata.? ^^ {
     // For now, only support a single level of added-weight
-    case text => WeightedText(1, text.mkString)
+    case text ~ meta => WeightedText(1, text.mkString, meta.getOrElse(Map()))
   }
 
-  val underlined_text: Parser[UnderlinedText] = UNDERLINE_START ~> ((not(UNDERLINE_END) ~> aChar).+) <~ UNDERLINE_END ^^ {
-    case chars => UnderlinedText(chars.mkString)
+  val marked_text: Parser[MarkedText] = (UNDERLINE_START ~> ((not(UNDERLINE_END) ~> aChar).+) <~ UNDERLINE_END) ~ metadata.? ^^ {
+    case chars ~ meta => MarkedText(chars.mkString, meta.getOrElse(Map()))
   }
 
-  val struckthrough_text: Parser[StruckthroughText] = STRUCKTHROUGH_START ~> ((not(STRUCKTHROUGH_END) ~> aChar).+) <~ STRUCKTHROUGH_END ^^ {
-    case chars => StruckthroughText(chars.mkString)
+  val struckthrough_text: Parser[StruckthroughText] = (STRUCKTHROUGH_START ~> ((not(STRUCKTHROUGH_END) ~> aChar).+) <~ STRUCKTHROUGH_END) ~ metadata.? ^^ {
+    case chars ~ meta => StruckthroughText(chars.mkString, meta.getOrElse(Map()))
   }
 
-  val monospaced_text: Parser[MonospaceText] = MONOSPACE_START ~> standardText(Set(MONOSPACE_END)) <~ MONOSPACE_END ^^ {
-    case text => MonospaceText(text.text)
+  val monospaced_text: Parser[MonospaceText] = (MONOSPACE_START ~> standardText(Set(MONOSPACE_END)) <~ MONOSPACE_END) ~ metadata.? ^^ {
+    case text ~ meta => MonospaceText(text.text, meta.getOrElse(Map()))
   }
 
   val link_text: Parser[Link] = (LINK_START ~> ((not(LINK_END)~> aChar).+) <~ LINK_END) ~
@@ -162,7 +153,7 @@ object InlineParsers extends RegexParsers {
           if (visited contains special_char_to_tracking_and_ending_char(UNDERLINE_START)._1)
             Failure("can't nest underline", in)
           else
-            underlined_text(in)
+            marked_text(in)
         case MONOSPACE_START =>
           if (visited contains special_char_to_tracking_and_ending_char(MONOSPACE_START)._1)
             Failure("can't nest monospace", in)

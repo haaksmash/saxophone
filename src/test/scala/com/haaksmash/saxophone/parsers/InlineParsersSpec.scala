@@ -87,6 +87,14 @@ class InlineParsersSpec extends FlatSpec {
     assert(result.text == "hello")
   }
 
+  it should "support meta" in {
+    val input = "/hello/[class:red]"
+    val result = parsers.parseAll(parsers.emphasized_text, input).get
+
+    assert(result.text == "hello")
+    assert(result.meta == Map("class" -> "red"))
+  }
+
   "weighted_text" should "match characters between *" in {
     val input = "*hello*"
     val result = parsers.parseAll(parsers.weighted_text, input).get
@@ -94,11 +102,27 @@ class InlineParsersSpec extends FlatSpec {
     assert(result.text == "hello")
   }
 
-  "underlined_text" should "match characters between _" in {
-    val input = "_hello_"
-    val result = parsers.parseAll(parsers.underlined_text, input).get
+  it should "support meta" in {
+    val input = "*hello*[class:red]"
+    val result = parsers.parseAll(parsers.weighted_text, input).get
 
     assert(result.text == "hello")
+    assert(result.meta == Map("class" -> "red"))
+  }
+
+  "marked_text" should "match characters between _" in {
+    val input = "_hello_"
+    val result = parsers.parseAll(parsers.marked_text, input).get
+
+    assert(result.text == "hello")
+  }
+
+  it should "support meta" in {
+    val input = "_hello_[class:red]"
+    val result = parsers.parseAll(parsers.marked_text, input).get
+
+    assert(result.text == "hello")
+    assert(result.meta == Map("class" -> "red"))
   }
 
   "struckthrough_text" should "match characters between ~" in {
@@ -106,6 +130,14 @@ class InlineParsersSpec extends FlatSpec {
     val result = parsers.parseAll(parsers.struckthrough_text, input).get
 
     assert(result.text == "hello")
+  }
+
+  it should "support meta" in {
+    val input = "~hello~[class:red]"
+    val result = parsers.parseAll(parsers.struckthrough_text, input).get
+
+    assert(result.text == "hello")
+    assert(result.meta == Map("class" -> "red"))
   }
 
   "monospaced_text" should "match characters between `" in {
@@ -121,7 +153,6 @@ class InlineParsersSpec extends FlatSpec {
 
     assert(result.text == "**hello**")
   }
-
 
   "link_text" should "match text inside []" in {
     val input = "[hello]"
@@ -183,7 +214,7 @@ class InlineParsersSpec extends FlatSpec {
   }
 
   "element" should "successfully parse things" in {
-    for ((s,(_,e)) <- parsers.special_char_to_tracking_and_ending_char) {
+    for ((s, (_, e)) <- parsers.special_char_to_tracking_and_ending_char) {
       val result = parsers.parse(parsers.element(Set.empty), s"${s}hello$e")
 
       assert(!result.isEmpty)
@@ -192,7 +223,7 @@ class InlineParsersSpec extends FlatSpec {
   }
 
   it should "prevent nesting" in {
-    for ((s, (f:String, e)) <- parsers.special_char_to_tracking_and_ending_char) {
+    for ((s, (f: String, e)) <- parsers.special_char_to_tracking_and_ending_char) {
       val nested_result = parsers.parseAll(parsers.element(visited = Set(f)), s"${s}hello$e")
 
       assert(nested_result.isEmpty)

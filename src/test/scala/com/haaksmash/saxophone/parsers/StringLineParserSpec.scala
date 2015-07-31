@@ -55,10 +55,17 @@ class StringLineParserSpec extends FlatSpec {
   }
 
   "quote_line" should "match >>>" in {
-    val input = ">>> a quote goes here"
+    val input = "> a quote goes here"
     val quote_line = parsers.parseAll(parsers.quoteParser, input).get
 
     assert(quote_line.payload == "a quote goes here")
+  }
+
+  it should "require a following space" in {
+    val input = ">not quote"
+    val the_line = parsers.parseAll(parsers.quoteParser, input)
+
+    assert(the_line.isEmpty)
   }
 
   "unordered_line" should "match *" in {
@@ -66,6 +73,13 @@ class StringLineParserSpec extends FlatSpec {
     val unordered_line = parsers.parseAll(parsers.unorderedListParser, input).get
 
     assert(unordered_line.payload == "unordered line!")
+  }
+
+  it should "require a following space" in {
+    val input = "*not unordered*"
+    val the_line = parsers.parseAll(parsers.unorderedListParser, input)
+
+    assert(the_line.isEmpty)
   }
 
   "ordered_line" should "match any number followed by a period" in {
@@ -83,5 +97,29 @@ class StringLineParserSpec extends FlatSpec {
 
     assert(ordered_line.payload == "derptastic")
     assert(ordered_line.glyph == "-")
+  }
+
+  it should "require a following space" in {
+    val input = "1.not ordered*"
+    val the_line = parsers.parseAll(parsers.orderedListParser, input)
+
+    assert(the_line.isEmpty)
+  }
+
+  "embed_line" should "match a line that starts with :" in {
+    val input = "::image http://haaksmash.com/myhumbs.jpg \"nobody move\"::"
+    val embed_line = parsers.parseAll(parsers.embedParser, input).get
+
+    assert(embed_line.text == "image http://haaksmash.com/myhumbs.jpg \"nobody move\"")
+    assert(embed_line.arguments == Seq("image", "http://haaksmash.com/myhumbs.jpg", "\"nobody", "move\""))
+  }
+
+  it should "support meta" in {
+    val input = "::image myhumbs.jpg \"nobody move\"::[class:red]"
+    val embed_line = parsers.parseAll(parsers.embedParser, input).get
+
+    assert(embed_line.text == "image myhumbs.jpg \"nobody move\"")
+    assert(embed_line.arguments == Seq("image", "myhumbs.jpg", "\"nobody", "move\""))
+    assert(embed_line.meta == Map("class" -> "red"))
   }
 }
