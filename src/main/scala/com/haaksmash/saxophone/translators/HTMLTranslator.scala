@@ -175,7 +175,9 @@ class HTMLTranslator(
    * @return stringified view of meta, like alt="alternate text"
    */
   private def convertMetaToHTMLAttrs(meta:Map[String, String]): String = {
-    val meta_string = meta.map{case (k,v) => s"""$k="$v""""}.mkString(" ")
+    val meta_string = meta.map{
+      case (k,v) => s"""$k="${v.replaceAll("\"", "\\\\\"")}""""
+    }.mkString(" ")
     if (!meta_string.isEmpty)
       " " + meta_string
     else
