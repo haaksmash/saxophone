@@ -55,14 +55,14 @@ class StringLineParserSpec extends FlatSpec {
   }
 
   "quote_line" should "match >>>" in {
-    val input = ">>> a quote goes here"
+    val input = "> a quote goes here"
     val quote_line = parsers.parseAll(parsers.quoteParser, input).get
 
     assert(quote_line.payload == "a quote goes here")
   }
 
   it should "require a following space" in {
-    val input = ">>>not quote"
+    val input = ">not quote"
     val the_line = parsers.parseAll(parsers.quoteParser, input)
 
     assert(the_line.isEmpty)

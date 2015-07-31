@@ -29,7 +29,7 @@ trait StringLineParsers extends UtilParsers {
   val HEADING_GLYPH = "#"
   val CODE_START = "{{{"
   val CODE_END = "}}}"
-  val QUOTE_LINE = ">>>"
+  val QUOTE_LINE = ">"
   val EMBED_LINE = "::"
 
   val headingParser: Parser[HeadingLine] = s"$HEADING_GLYPH+ ".r ~ rest ^^ {
