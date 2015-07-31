@@ -64,7 +64,7 @@ saxophone.Pipeline
 
 // equivalent to the more-verbose
 saxophone.Pipeline
-  .on("source").
+  .on("source")
   .from(new StringIntake)
   .via(new HTMLTranslator)
   .process()
@@ -73,10 +73,11 @@ saxophone.Pipeline
 `saxophone` is a lot like Markdown, structurally; the syntax is what's different. All these examples use the HTML output, because that's pretty easy to understand.
 
 #### Blocks
-* headers are any line preceded by a number of `#`s, up to 6 of them.
 * code listings are started with `{{{` and ended with `}}}`. The initial `{{{` can optionally include some directives that may have meaning to the translators: `{{{lang:saxophone`
 * lists are either unordered (preceded by `*`) or ordered (preceded by a number+period, e.g. `1.`). You may also have an (un)ordered list by leading with a `-`.
+* embedded elements (images, videos) have a slightly different syntax from the other blocks; their format is `::<type> <arguments for the type>::`. For an image, this looks like `::image /a/source/image.jpg`. For a video, it's `::video <arguments> <for> <video>::`, which will intelligently render if the first argument is `youtube` or `vimeo`, otherwise it will emit a `<video>` element, treating the rest of the arguments as different `<source>` elements.
 * blockquotes are introduced with `> ` and may optionally have a source after them, which should be in brackets.
+* headers are any line preceded by a number of `#`s, up to 6 of them.
 
 Everything else is a paragraph; separate paragraphs with a newline and you'll come out just fine.
 

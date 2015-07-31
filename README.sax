@@ -88,7 +88,7 @@ saxophone.Pipeline
 
 // equivalent to the more-verbose
 saxophone.Pipeline
-  .on("source").
+  .on("source")
   .from(new StringIntake)
   .via(new HTMLTranslator)
   .process()
@@ -110,6 +110,12 @@ number+period, e.g. `1.`). You may also have an (un)ordered list by leading
 with a `-`.
 * blockquotes are introduced with `> ` and may optionally have a source after
 them, which should be in brackets.
+* embedded elements (images, videos) have a slightly different syntax from the
+other blocks; their format is `::<type> <arguments for the type>::`. For an
+image, this looks like `::image /a/source/image.jpg`. For a video, it's
+`::video <arguments> <for> <video>::`, which will intelligently render if the
+first argument is `youtube` or `vimeo`, otherwise it will emit a `<video>`
+element, treating the rest of the arguments as different `<source>` elements.
 
 Everything else is a paragraph; separate paragraphs with a newline and you'll
 come out just fine.
