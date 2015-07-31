@@ -158,6 +158,13 @@ class HTMLTranslatorSpec extends FlatSpec {
     assert(result == s"""<iframe class="vimeoplayer" src="https://player.vimeo.com/video/the_video_id" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>""")
   }
 
+  it should "fallback when video isn't a special type" in {
+    val embed = VideoEmbedNode(Seq("some_src.mp4", "some_src.ogg"), Map())
+    val result = translator.embed(embed)
+
+    assert(result == s"""<video><source src="some_src.mp4" type="video/mp4"><source src="some_src.ogg" type="video/ogg">Whoops, your browser doesn't support the video tag!</video>""")
+  }
+
   it should "recognize TweetEmbedNodes" in {
     val embed = TweetEmbedNode(Seq("username", "tweetid"), Map())
     val result = translator.embed(embed)

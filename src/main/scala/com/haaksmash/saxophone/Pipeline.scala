@@ -99,17 +99,15 @@ class Pipeline(
           (new LineParsers).lines(new StringLineReader(in))
       )
       .map(
-        lines => {
-          println(lines)
-          (new BlockParsers).blocks(new LineReader(lines.get))}
+        lines =>
+          (new BlockParsers).blocks(new LineReader(lines.get))
       )
       .map(
-        doc => {
-          println(doc)
+        doc =>
           translator match {
             case Some(t) => t.translate(doc.get)
             case None => HTMLTranslator.translate(doc.get)
-          }}
+          }
       )
 
     if (translate_result.isFailure)

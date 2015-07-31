@@ -96,7 +96,7 @@ class HTMLTranslator(
       case "youtube" =>
         s"""<iframe id="ytplayer" class="ytplayer" type="text/html" src="http://www.youtube.com/embed/${arguments(1)}?autoplay=0" frameborder="0"></iframe>"""
       case "vimeo" => s"""<iframe class="vimeoplayer" src="https://player.vimeo.com/video/${arguments(1)}" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>"""
-      case src => s"""<video>${arguments.map(src => "<source src=\""+src+"\" type=\"video/"+src.split('.').last+"\"")}Whoops, your browser doesn't support the video tag!</video>"""
+      case src => s"""<video>${arguments.map(src => "<source src=\""+src+"\" type=\"video/"+src.split('.').last+"\">").mkString("")}Whoops, your browser doesn't support the video tag!</video>"""
     }
     case TweetEmbedNode(arguments, meta) => s"""<blockquote class="twitter-tweet"><a href="https://twitter.com/${arguments(0)}/status/${arguments(1)}">tweet by @${arguments(0)}</a></blockquote>"""
     case _ => ""

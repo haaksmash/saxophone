@@ -22,7 +22,7 @@ import com.haaksmash.saxophone.primitives._
 
 
 /**
- * Translates [[String]] to specific instances of [[com.haaksmash.saxophone.Line]]
+ * Translates [[String]] to specific instances of [[com.haaksmash.saxophone.primitives.Line]]
  */
 trait StringLineParsers extends UtilParsers {
 
@@ -32,7 +32,7 @@ trait StringLineParsers extends UtilParsers {
   val QUOTE_LINE = ">>>"
   val EMBED_LINE = ":"
 
-  val headingParser: Parser[HeadingLine] = s"${HEADING_GLYPH}+ ".r ~ rest ^^ {
+  val headingParser: Parser[HeadingLine] = s"$HEADING_GLYPH+ ".r ~ rest ^^ {
     case glyphs ~ text =>
       // glyphs will end with a space that we want to throw away
       HeadingLine(glyphs.trim, text)
