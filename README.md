@@ -76,7 +76,7 @@ saxophone.Pipeline
 * headers are any line preceded by a number of `#`s, up to 6 of them.
 * code listings are started with `{{{` and ended with `}}}`. The initial `{{{` can optionally include some directives that may have meaning to the translators: `{{{lang:saxophone`
 * lists are either unordered (preceded by `*`) or ordered (preceded by a number+period, e.g. `1.`). You may also have an (un)ordered list by leading with a `-`.
-* blockquotes are introduced with `>>>`, and may optionally have a source after them, which should be in brackets.
+* blockquotes are introduced with `> ` and may optionally have a source after them, which should be in brackets.
 
 Everything else is a paragraph; separate paragraphs with a newline and you'll come out just fine.
 
