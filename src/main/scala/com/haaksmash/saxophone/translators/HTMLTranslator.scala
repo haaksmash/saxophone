@@ -44,9 +44,9 @@ class HTMLTranslator(
 
   def quote(node:Quote) = {
     if (node.source.isDefined)
-      s"""<figure class="quote"><blockquote>${translate(node)}</blockquote><figcaption>${node.source.get.map(translate(_)).mkString}</figcaption></figure>"""
+      s"""<blockquote>${translate(node)}<footer>${node.source.get.map(translate(_)).mkString}</footer></blockquote>"""
     else
-      s"""<figure class="quote"><blockquote>${translate(node)}</blockquote></figure>"""
+      s"""<blockquote>${translate(node)}</blockquote>"""
   }
 
   def orderedList(node:OrderedList) = {
