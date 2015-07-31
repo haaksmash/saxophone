@@ -210,7 +210,9 @@ class BlockParsers extends Parsers {
       EmbedNode.VALID_EMBED_TYPES.get(embed_line.arguments.head).map(
         f => f(embed_line.arguments.tail, embed_line.meta)
       ).get
-  }, line => s"unrecognized embed type: ${line.arguments.head}; known types: [${EmbedNode.VALID_EMBED_TYPES.keys.mkString(", ")}]")
+  }, line => {
+    s"unrecognized embed type: ${line.arguments.head}; known types: [${EmbedNode.VALID_EMBED_TYPES.keys.mkString(", ")}]"
+  })
 
   val nodes: Parser[Node] = Parser { in =>
     if (in.atEnd)
@@ -228,6 +230,8 @@ class BlockParsers extends Parsers {
           code_node(in)
         case l: QuoteLine =>
           quote_node(in)
+        case l: EmbedLine =>
+          embed_node(in)
         case _ =>
           paragraph(in)
       }

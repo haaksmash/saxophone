@@ -148,7 +148,7 @@ class HTMLTranslatorSpec extends FlatSpec {
     val embed = VideoEmbedNode(Seq("youtube", "the_video_id"), Map())
     val result = translator.embed(embed)
 
-    assert(result == s"""<iframe id="ytplayer" class="ytplayer" type="text/html" src="http://www.youtube.com/embed/the_video_id?autoplay=0" frameborder="0"/>""")
+    assert(result == s"""<iframe id="ytplayer" class="ytplayer" type="text/html" src="http://www.youtube.com/embed/the_video_id?autoplay=0" frameborder="0"></iframe>""")
   }
 
   it should "recognize (vimeo) VideoEmbedNodes" in {
