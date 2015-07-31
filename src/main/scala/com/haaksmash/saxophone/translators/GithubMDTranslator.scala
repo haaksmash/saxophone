@@ -42,11 +42,11 @@ class GithubMDTranslator extends NodeTranslator {
   def rawText(node: RawText): String = node.text
 
   def unorderedList(node: UnorderedList): String = {
-    ((for (line <- node.items) yield s"* ${line.map(translate(_)).mkString}") mkString "\n") + "\n\n"
+    ((for (line <- node.items) yield s"* ${line.map(translate).mkString}") mkString "\n") + "\n\n"
   }
 
   def orderedList(node: OrderedList): String = {
-    ((for (line <- node.items) yield s"${node.items.indexOf(line) + 1}. ${line.map(translate(_)).mkString}") mkString "\n") + "\n\n"
+    ((for (line <- node.items) yield s"${node.items.indexOf(line) + 1}. ${line.map(translate).mkString}") mkString "\n") + "\n\n"
   }
 
   def weightedText(node: WeightedText): String = s"**${node.text}**"
@@ -66,9 +66,15 @@ class GithubMDTranslator extends NodeTranslator {
   def code(node: Code): String = s"```${node.directives.getOrElse("lang", "")}\n${node.contents}\n```\n"
 
   def embed(node: EmbedNode): String = node match {
-    case ImageEmbedNode(arguments, meta) => s"![${meta.getOrElse("alt", "")}](${arguments.head})"
+    case ImageEmbedNode(arguments, meta) =>
+      val image_out = s"![${meta.getOrElse("alt", "")}](${arguments.head})"
+
+      meta.get("link") match {
+        case Some(link) => s"[$image_out]($link)\n"
+        case None => image_out + "\n"
+      }
     // only support image embeds for GHMD
-    case _ => ""
+    case _ => "\n"
   }
 }
 

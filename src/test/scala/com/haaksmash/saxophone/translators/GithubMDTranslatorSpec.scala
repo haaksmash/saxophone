@@ -119,14 +119,21 @@ class GithubMDTranslatorSpec extends FlatSpec {
     val embed = ImageEmbedNode(Seq("helloooo"), Map())
     val result = translator.embed(embed)
 
-    assert(result == "![](helloooo)")
+    assert(result == "![](helloooo)\n")
   }
 
   it should "include alt text if present" in {
     val embed = ImageEmbedNode(Seq("helloooo"), Map("alt" -> "an image"))
     val result = translator.embed(embed)
 
-    assert(result == "![an image](helloooo)")
+    assert(result == "![an image](helloooo)\n")
+  }
+
+  it should "make the shit a link if asked" in {
+    val embed = ImageEmbedNode(Seq("helloooo"), Map("link" -> "an image"))
+    val result = translator.embed(embed)
+
+    assert(result == "[![](helloooo)](an image)\n")
   }
 
   it should "ignore non-image embeds" in {
@@ -134,7 +141,7 @@ class GithubMDTranslatorSpec extends FlatSpec {
     val embed = VideoEmbedNode(Seq("helloooo"), Map("alt" -> "an image"))
     val result = translator.embed(embed)
 
-    assert(result == "")
+    assert(result == "\n")
   }
 
   "link" should "translate a Link" in {

@@ -107,15 +107,15 @@ class StringLineParserSpec extends FlatSpec {
   }
 
   "embed_line" should "match a line that starts with :" in {
-    val input = ":image myhumbs.jpg \"nobody move\":"
+    val input = "::image http://haaksmash.com/myhumbs.jpg \"nobody move\"::"
     val embed_line = parsers.parseAll(parsers.embedParser, input).get
 
-    assert(embed_line.text == "image myhumbs.jpg \"nobody move\"")
-    assert(embed_line.arguments == Seq("image", "myhumbs.jpg", "\"nobody", "move\""))
+    assert(embed_line.text == "image http://haaksmash.com/myhumbs.jpg \"nobody move\"")
+    assert(embed_line.arguments == Seq("image", "http://haaksmash.com/myhumbs.jpg", "\"nobody", "move\""))
   }
 
   it should "support meta" in {
-    val input = ":image myhumbs.jpg \"nobody move\":[class:red]"
+    val input = "::image myhumbs.jpg \"nobody move\"::[class:red]"
     val embed_line = parsers.parseAll(parsers.embedParser, input).get
 
     assert(embed_line.text == "image myhumbs.jpg \"nobody move\"")
