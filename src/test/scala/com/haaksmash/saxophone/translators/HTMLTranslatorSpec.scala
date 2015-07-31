@@ -141,7 +141,14 @@ class HTMLTranslatorSpec extends FlatSpec {
     val embed = ImageEmbedNode(Seq("some source here"), Map())
     val result = translator.embed(embed)
 
-    assert(result == s"""<img src="${embed.arguments.head}" alt=""/>""")
+    assert(result == s"""<img src="${embed.arguments.head}"/>""")
+  }
+
+  it should "put links and alts in the right place" in {
+    val embed = ImageEmbedNode(Seq("some source here"), Map("alt" -> "alt text", "link" -> "linkylinky", "link-class" -> "image"))
+    val result = translator.embed(embed)
+
+    assert(result == s"""<a href="linkylinky" class="image"><img src="${embed.arguments.head}" alt="alt text"/></a>""")
   }
 
   it should "recognize (youtube) VideoEmbedNodes" in {
