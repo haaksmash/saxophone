@@ -16,16 +16,23 @@ and an unordered list:
 * no sir!
 * well there's still the implicit order but let's leave that be, shall we?
 
+Ah and now
+- some
+- ordered
+- yet unordered in appearance
+- list items
+
 ## subheading here.
 
 _this text is underlined_, whereas ~this text is struck-through~. *this text is bolded*, whereas /this text is italicized/.
-and |this text is <raw/>| unlike <here>!
+and |this text is <raw/>| unlike <here>! Meanwhile, /this text is red/[style:color:red]
 
 In this paragraph, at long last, we come to the important part: `the code` (this last should appear monospaced).
 
 {{{lang:python|numbers:no
 # directives should appear in the {{{ line above, separated by '|' (pipe) characters.
 
+::image my_image_embedding.jpg::[link:http://yoloyoloyolo.com]
 
 # this should be treated as pre-formatted text; no eating of    whitespace or collapsing of newlines
 # end a code block in the following way: }}}
