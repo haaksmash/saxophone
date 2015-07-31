@@ -41,10 +41,7 @@ trait StringLineParsers extends UtilParsers {
   val codeStart: Parser[CodeStartLine] = CODE_START ~> rest ^^ {
     case directives =>
       val directive_map = if (!directives.isEmpty) {
-        directives.split('|') map {pair =>
-          val keyval = pair.split(':')
-          keyval(0) -> keyval(1)
-        } toMap
+        extractMap(directives)
       } else {
         Map[String,String]()
       }

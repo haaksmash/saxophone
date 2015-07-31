@@ -61,11 +61,14 @@ trait UtilParsers extends RegexParsers {
 
 
   val metadata: Parser[Map[String, String]] = "[" ~> ((not("]") ~> aChar).+) <~ "]" ^^ {
-    case metas =>
-      metas.mkString.split('|')
-        .map(metapair => metapair.split(':'))
-        .map(l => l(0) -> l.slice(1,l.length).mkString(":"))
-        .toMap
+    case metas => extractMap(metas.mkString)
+  }
+
+  protected def extractMap(string:String): Map[String, String] = {
+    string.split('|')
+      .map(metapair => metapair.split(':'))
+      .map(l => l(0) -> l.slice(1,l.length).mkString(":"))
+      .toMap
   }
 
 }
