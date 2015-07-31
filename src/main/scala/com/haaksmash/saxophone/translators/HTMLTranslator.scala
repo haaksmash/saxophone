@@ -90,24 +90,45 @@ class HTMLTranslator(
   }
   def rawText(node: RawText) = if (allow_raw_strings) node.text else escapeTextForHTML(node.text)
 
-  def embed(node:EmbedNode) = node match {
-    case ImageEmbedNode(arguments, meta) =>
-      val link_prefix = "link-"
-      val image_out = s"""<img src="${arguments.head}"${convertMetaToHTMLAttrs(meta.filterKeys(!_.startsWith("link")))}/>"""
-      meta.get("link") match {
-        case Some(link) =>
-          val link_meta = meta.filterKeys(_.startsWith(link_prefix)).map{ case (k, v) => k.drop(link_prefix.length) -> v}
-          s"""<a href="$link"${convertMetaToHTMLAttrs(link_meta)}>$image_out</a>"""
-        case None => image_out
+  def embed(node:EmbedNode) = {
+
+    val embed_string = node match {
+      case ImageEmbedNode(arguments, meta) =>
+        val link_prefix = "link-"
+        val image_out = s"""<img src="${arguments.head}"${
+          convertMetaToHTMLAttrs(
+            meta
+              .filterKeys(!_.startsWith("link"))
+          )
+        }/>"""
+        meta.get("link") match {
+          case Some(link) =>
+            val link_meta = meta
+              .filterKeys(_.startsWith(link_prefix))
+              .map { case (k, v) => k.drop(link_prefix.length) -> v }
+            s"""<a href="$link"${convertMetaToHTMLAttrs(link_meta)}>$image_out</a>"""
+          case None => image_out
+        }
+      case VideoEmbedNode(arguments, meta) => arguments.head match {
+        case "youtube" =>
+          s"""<iframe id="ytplayer" class="ytplayer" type="text/html" src="http://www.youtube.com/embed/${arguments(1)}?autoplay=0" frameborder="0"></iframe>"""
+        case "vimeo" => s"""<iframe class="vimeoplayer" src="https://player.vimeo.com/video/${arguments(1)}" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>"""
+        case src => s"""<video>${
+          arguments
+            .map(src => "<source src=\"" + src + "\" type=\"video/" + src.split('.').last + "\">")
+            .mkString("")
+        }Whoops, your browser doesn't support the video tag!</video>"""
       }
-    case VideoEmbedNode(arguments, meta) => arguments.head match {
-      case "youtube" =>
-        s"""<iframe id="ytplayer" class="ytplayer" type="text/html" src="http://www.youtube.com/embed/${arguments(1)}?autoplay=0" frameborder="0"></iframe>"""
-      case "vimeo" => s"""<iframe class="vimeoplayer" src="https://player.vimeo.com/video/${arguments(1)}" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>"""
-      case src => s"""<video>${arguments.map(src => "<source src=\""+src+"\" type=\"video/"+src.split('.').last+"\">").mkString("")}Whoops, your browser doesn't support the video tag!</video>"""
+      case TweetEmbedNode(
+      arguments,
+      meta
+      ) => s"""<blockquote class="twitter-tweet"><a href="https://twitter.com/${
+        arguments
+          .head
+      }/status/${arguments(1)}">tweet by @${arguments.head}</a></blockquote>"""
+      case _ => ""
     }
-    case TweetEmbedNode(arguments, meta) => s"""<blockquote class="twitter-tweet"><a href="https://twitter.com/${arguments.head}/status/${arguments(1)}">tweet by @${arguments.head}</a></blockquote>"""
-    case _ => ""
+    s"""<figure class="${node.label}">$embed_string</figure>"""
   }
 
 

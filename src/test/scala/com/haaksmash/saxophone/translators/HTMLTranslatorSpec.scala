@@ -141,42 +141,42 @@ class HTMLTranslatorSpec extends FlatSpec {
     val embed = ImageEmbedNode(Seq("some source here"), Map())
     val result = translator.embed(embed)
 
-    assert(result == s"""<img src="${embed.arguments.head}"/>""")
+    assert(result == s"""<figure class="image"><img src="${embed.arguments.head}"/></figure>""")
   }
 
   it should "put links and alts in the right place" in {
     val embed = ImageEmbedNode(Seq("some source here"), Map("alt" -> "alt text", "link" -> "linkylinky", "link-class" -> "image"))
     val result = translator.embed(embed)
 
-    assert(result == s"""<a href="linkylinky" class="image"><img src="${embed.arguments.head}" alt="alt text"/></a>""")
+    assert(result == s"""<figure class="image"><a href="linkylinky" class="image"><img src="${embed.arguments.head}" alt="alt text"/></a></figure>""")
   }
 
   it should "recognize (youtube) VideoEmbedNodes" in {
     val embed = VideoEmbedNode(Seq("youtube", "the_video_id"), Map())
     val result = translator.embed(embed)
 
-    assert(result == s"""<iframe id="ytplayer" class="ytplayer" type="text/html" src="http://www.youtube.com/embed/the_video_id?autoplay=0" frameborder="0"></iframe>""")
+    assert(result == s"""<figure class="video"><iframe id="ytplayer" class="ytplayer" type="text/html" src="http://www.youtube.com/embed/the_video_id?autoplay=0" frameborder="0"></iframe></figure>""")
   }
 
   it should "recognize (vimeo) VideoEmbedNodes" in {
     val embed = VideoEmbedNode(Seq("vimeo", "the_video_id"), Map())
     val result = translator.embed(embed)
 
-    assert(result == s"""<iframe class="vimeoplayer" src="https://player.vimeo.com/video/the_video_id" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>""")
+    assert(result == s"""<figure class="video"><iframe class="vimeoplayer" src="https://player.vimeo.com/video/the_video_id" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe></figure>""")
   }
 
   it should "fallback when video isn't a special type" in {
     val embed = VideoEmbedNode(Seq("some_src.mp4", "some_src.ogg"), Map())
     val result = translator.embed(embed)
 
-    assert(result == s"""<video><source src="some_src.mp4" type="video/mp4"><source src="some_src.ogg" type="video/ogg">Whoops, your browser doesn't support the video tag!</video>""")
+    assert(result == s"""<figure class="video"><video><source src="some_src.mp4" type="video/mp4"><source src="some_src.ogg" type="video/ogg">Whoops, your browser doesn't support the video tag!</video></figure>""")
   }
 
   it should "recognize TweetEmbedNodes" in {
     val embed = TweetEmbedNode(Seq("username", "tweetid"), Map())
     val result = translator.embed(embed)
 
-    assert(result == "<blockquote class=\"twitter-tweet\"><a href=\"https://twitter.com/username/status/tweetid\">tweet by @username</a></blockquote>")
+    assert(result == "<figure class=\"tweet\"><blockquote class=\"twitter-tweet\"><a href=\"https://twitter.com/username/status/tweetid\">tweet by @username</a></blockquote></figure>")
   }
 
   "link" should "translate a Link" in {
