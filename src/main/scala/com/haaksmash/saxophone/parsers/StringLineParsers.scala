@@ -22,7 +22,7 @@ import com.haaksmash.saxophone.primitives._
 
 
 /**
- * Translates [[String]] to specific instances of [[com.haaksmash.saxophone.Line]]
+ * Translates [[String]] to specific instances of [[com.haaksmash.saxophone.primitives.Line]]
  */
 trait StringLineParsers extends UtilParsers {
 
@@ -30,8 +30,9 @@ trait StringLineParsers extends UtilParsers {
   val CODE_START = "{{{"
   val CODE_END = "}}}"
   val QUOTE_LINE = ">>>"
+  val EMBED_LINE = "::"
 
-  val headingParser: Parser[HeadingLine] = s"${HEADING_GLYPH}+ ".r ~ rest ^^ {
+  val headingParser: Parser[HeadingLine] = s"$HEADING_GLYPH+ ".r ~ rest ^^ {
     case glyphs ~ text =>
       // glyphs will end with a space that we want to throw away
       HeadingLine(glyphs.trim, text)
@@ -60,6 +61,10 @@ trait StringLineParsers extends UtilParsers {
   val unorderedListParser: Parser[UnorderedLine] = "\\*\\s".r ~ rest ^^ {case leader ~ text => UnorderedLine(leader, text)}
 
   val orderedListParser: Parser[OrderedLine] = ("\\d+\\.\\s".r | "- ") ~ rest ^^ {case leader ~ text => OrderedLine(leader.trim, text)}
+
+  val embedParser: Parser[EmbedLine] = (EMBED_LINE ~> ((not(EMBED_LINE) ~> aChar).+ ^^ (_.mkString)) <~ EMBED_LINE) ~ metadata.? ^^ {
+    case text ~ meta =>
+      EmbedLine(text.split(" "), text, meta.getOrElse(Map()))}
 
 }
 

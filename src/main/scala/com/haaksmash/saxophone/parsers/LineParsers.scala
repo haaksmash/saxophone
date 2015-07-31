@@ -62,6 +62,7 @@ class LineParsers extends Parsers {
         case '>' => delegateParsing(line_parsers.quoteParser)(in)
         case '{' => delegateParsing(line_parsers.codeStart)(in)
         case '}' => delegateParsing(line_parsers.codeEnd)(in)
+        case ':' => delegateParsing(line_parsers.embedParser)(in)
         case _ => Failure("no matching start char", in)
       }
 

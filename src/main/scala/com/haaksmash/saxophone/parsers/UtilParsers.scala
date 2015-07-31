@@ -35,4 +35,37 @@ trait UtilParsers extends RegexParsers {
       )
     }
   }
+
+  def restUntil(until: Char): Parser[String] = Parser { in =>
+    if (in.atEnd)
+      Success("", in)
+    else {
+      var input = in
+      while (!input.atEnd && !(input.first == until))
+        input = input.rest
+
+      Success(
+        in.source.subSequence(in.offset, input.offset).toString,
+        input
+      )
+    }
+  }
+
+  val aChar = Parser { in =>
+    if (in.atEnd) {
+      Failure("End of input reached.", in)
+    } else {
+      Success(in.first, in.rest)
+    }
+  }
+
+
+  val metadata: Parser[Map[String, String]] = "[" ~> ((not("]") ~> aChar).+) <~ "]" ^^ {
+    case metas =>
+      metas.mkString.split('|')
+        .map(metapair => metapair.split(':'))
+        .map(l => l(0) -> l.slice(1,l.length).mkString(":"))
+        .toMap
+  }
+
 }

@@ -59,6 +59,8 @@ class SaxophoneTreeStringTranslator extends NodeTranslator {
 
   override def monospacedText(node: MonospaceText): String = ???
 
+  override def embed(node: EmbedNode): String = ???
+
   override def translate(document: Node) = {
     document.toString
   }

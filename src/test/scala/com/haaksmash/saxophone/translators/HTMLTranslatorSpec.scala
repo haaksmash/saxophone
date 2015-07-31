@@ -137,6 +137,48 @@ class HTMLTranslatorSpec extends FlatSpec {
     assert(result contains "<li>Line Three</li>")
   }
 
+  "embed" should "recognize ImageEmbedNodes" in {
+    val embed = ImageEmbedNode(Seq("some source here"), Map())
+    val result = translator.embed(embed)
+
+    assert(result == s"""<figure class="image"><img src="${embed.arguments.head}"/></figure>""")
+  }
+
+  it should "put links and alts in the right place" in {
+    val embed = ImageEmbedNode(Seq("some source here"), Map("alt" -> "alt text", "link" -> "linkylinky", "link-class" -> "image"))
+    val result = translator.embed(embed)
+
+    assert(result == s"""<figure class="image"><a href="linkylinky" class="image"><img src="${embed.arguments.head}" alt="alt text"/></a></figure>""")
+  }
+
+  it should "recognize (youtube) VideoEmbedNodes" in {
+    val embed = VideoEmbedNode(Seq("youtube", "the_video_id"), Map())
+    val result = translator.embed(embed)
+
+    assert(result == s"""<figure class="video"><iframe id="ytplayer" class="ytplayer" type="text/html" src="http://www.youtube.com/embed/the_video_id?autoplay=0" frameborder="0"></iframe></figure>""")
+  }
+
+  it should "recognize (vimeo) VideoEmbedNodes" in {
+    val embed = VideoEmbedNode(Seq("vimeo", "the_video_id"), Map())
+    val result = translator.embed(embed)
+
+    assert(result == s"""<figure class="video"><iframe class="vimeoplayer" src="https://player.vimeo.com/video/the_video_id" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe></figure>""")
+  }
+
+  it should "fallback when video isn't a special type" in {
+    val embed = VideoEmbedNode(Seq("some_src.mp4", "some_src.ogg"), Map())
+    val result = translator.embed(embed)
+
+    assert(result == s"""<figure class="video"><video><source src="some_src.mp4" type="video/mp4"><source src="some_src.ogg" type="video/ogg">Whoops, your browser doesn't support the video tag!</video></figure>""")
+  }
+
+  it should "recognize TweetEmbedNodes" in {
+    val embed = TweetEmbedNode(Seq("username", "tweetid"), Map())
+    val result = translator.embed(embed)
+
+    assert(result == "<figure class=\"tweet\"><blockquote class=\"twitter-tweet\"><a href=\"https://twitter.com/username/status/tweetid\">tweet by @username</a></blockquote></figure>")
+  }
+
   "link" should "translate a Link" in {
     val link = Link(Seq(StandardText("the link!")), LinkTarget("the target"))
 
@@ -161,7 +203,7 @@ class HTMLTranslatorSpec extends FlatSpec {
     assert(result == "<em>IMPORTANT!</em>")
   }
 
-  it should "honor metadata" in {
+  it should "honor meta" in {
     val text = EmphasizedText("IMPORTANT!", Map("class" -> "red"))
 
     val result = translator.emphasizedText(text)
@@ -197,7 +239,7 @@ class HTMLTranslatorSpec extends FlatSpec {
     assert(result.contains("&amp;"))
   }
 
-  it should "honor metadata" in {
+  it should "honor meta" in {
     val text = WeightedText(1, "HEAVY!", Map("class" -> "red"))
 
     val result = translator.weightedText(text)
@@ -239,7 +281,7 @@ class HTMLTranslatorSpec extends FlatSpec {
     assert(result == "<mark>defective link</mark>")
   }
 
-  it should "honor metadata" in {
+  it should "honor meta" in {
     val text = MarkedText("defective link", Map("class" -> "red"))
 
     val result = translator.markedText(text)
@@ -297,7 +339,7 @@ class HTMLTranslatorSpec extends FlatSpec {
     assert(result.contains("&amp;"))
   }
 
-  it should "honor metadata" in {
+  it should "honor meta" in {
     val text = MonospaceText("defective link", Map("class" -> "red"))
 
     val result = translator.monospacedText(text)

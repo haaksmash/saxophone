@@ -31,7 +31,7 @@ trait NodeTranslator extends BaseTranslator {
   /**
    * Fallback translator, blindly returns `node.toString`. If we reach
    * this method, something's gone wrong with the translator.
-   * @param node
+   * @param node The node to be translated
    * @return String
    */
   def node(node: Node): String = node.toString
@@ -72,7 +72,9 @@ trait NodeTranslator extends BaseTranslator {
 
   def rawText(node: RawText): String
 
-  def node_to_translator(n: Node) = n match {
+  def embed(node: EmbedNode): String
+
+  def node_to_translator(node: Node) = node match {
     case n: StandardText => standardText(n)
     case n: Link => link(n)
     case n: EmphasizedText => emphasizedText(n)
@@ -88,6 +90,7 @@ trait NodeTranslator extends BaseTranslator {
     case n: RawText => rawText(n)
     case n: Quote => quote(n)
     case n: Footnote => footnote(n)
+    case n: EmbedNode => embed(n)
     case n => this.node(n)
   }
 
@@ -96,7 +99,7 @@ trait NodeTranslator extends BaseTranslator {
     val output = node.children match {
       case Seq() => Traversable(translateSingle(node))
       case children => children map {
-        node_to_translator(_)
+        node_to_translator
       }
     }
     output.mkString

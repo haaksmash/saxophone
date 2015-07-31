@@ -50,7 +50,7 @@ class HTMLTranslator(
   }
 
   def orderedList(node:OrderedList) = {
-    val list_items = node.items.map(li => s"<li>${li.map(translate(_)).mkString}</li>") mkString ""
+    val list_items = node.items.map(li => s"<li>${li.map(translate).mkString}</li>") mkString ""
     if (node.present_unordered)
       s"""<ul>$list_items</ul>"""
     else
@@ -58,7 +58,7 @@ class HTMLTranslator(
   }
 
   def unorderedList(node:UnorderedList) = {
-    val list_items = node.items.map(li => s"""<li>${li.map(translate(_)).mkString}</li>""") mkString ""
+    val list_items = node.items.map(li => s"""<li>${li.map(translate).mkString}</li>""") mkString ""
     s"""<ul>$list_items</ul>"""
   }
 
@@ -67,7 +67,7 @@ class HTMLTranslator(
     if (footnote_as_title_text) {
       footnotes = footnotes :+ ""
       val title_text = translate(node).replaceAll("\"", "\\\\\"")
-      s"""<a title="${title_text}" rel="footnote">$footnote_number</a>"""
+      s"""<a title="$title_text" rel="footnote">$footnote_number</a>"""
     } else {
       footnotes = footnotes :+ translate(node)
       s"""<a href="#note:$footnote_number" name="rn:$footnote_number" rel="footnote">$footnote_number</a>"""
@@ -76,7 +76,7 @@ class HTMLTranslator(
 
   /*
    * Inline nodes; i.e., nodes that don't have children, but only capture
-   * metadata about their contents.
+   * meta about their contents.
    */
   def link(node:Link) = s"""<a href="${node.to}">${translate(node)}</a>"""
   def emphasizedText(node:EmphasizedText) = s"<em${convertMetaToHTMLAttrs(node.meta)}>${escapeTextForHTML(node.text)}</em>"
@@ -90,12 +90,53 @@ class HTMLTranslator(
   }
   def rawText(node: RawText) = if (allow_raw_strings) node.text else escapeTextForHTML(node.text)
 
+  def embed(node:EmbedNode) = {
+
+    val embed_string = node match {
+      case ImageEmbedNode(arguments, meta) =>
+        val link_prefix = "link-"
+        val image_out = s"""<img src="${arguments.head}"${
+          convertMetaToHTMLAttrs(
+            meta
+              .filterKeys(!_.startsWith("link"))
+          )
+        }/>"""
+        meta.get("link") match {
+          case Some(link) =>
+            val link_meta = meta
+              .filterKeys(_.startsWith(link_prefix))
+              .map { case (k, v) => k.drop(link_prefix.length) -> v }
+            s"""<a href="$link"${convertMetaToHTMLAttrs(link_meta)}>$image_out</a>"""
+          case None => image_out
+        }
+      case VideoEmbedNode(arguments, meta) => arguments.head match {
+        case "youtube" =>
+          s"""<iframe id="ytplayer" class="ytplayer" type="text/html" src="http://www.youtube.com/embed/${arguments(1)}?autoplay=0" frameborder="0"></iframe>"""
+        case "vimeo" => s"""<iframe class="vimeoplayer" src="https://player.vimeo.com/video/${arguments(1)}" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>"""
+        case src => s"""<video>${
+          arguments
+            .map(src => "<source src=\"" + src + "\" type=\"video/" + src.split('.').last + "\">")
+            .mkString("")
+        }Whoops, your browser doesn't support the video tag!</video>"""
+      }
+      case TweetEmbedNode(
+      arguments,
+      meta
+      ) => s"""<blockquote class="twitter-tweet"><a href="https://twitter.com/${
+        arguments
+          .head
+      }/status/${arguments(1)}">tweet by @${arguments.head}</a></blockquote>"""
+      case _ => ""
+    }
+    s"""<figure class="${node.label}">$embed_string</figure>"""
+  }
+
 
   override def translate(node: Node): String = {
     val s = super.translate(node)
 
     val footer_string = node match {
-      case n:Document if !footnotes.isEmpty && !(footnote_as_title_text) =>
+      case n:Document if footnotes.nonEmpty && !footnote_as_title_text =>
         "<footer>" + footnotes.zipWithIndex.map { case (note, num) => s"""<p><a class="fnote" href="#rn:${num + 1}" name="note:${num + 1}">${num + 1}</a> $note</p>"""}.mkString + "</footer>"
       case _ => ""
     }
@@ -108,7 +149,7 @@ class HTMLTranslator(
    * @param text the string that needs escaping
    * @return escaped version of the input
    */
-  private def escapeTextForHTML(text:String):String = {
+  private def escapeTextForHTML(text:String) = {
     // Order is important here, so we use a ListMap to preserve it.
     val chars_to_escape_sequence = ListMap(
       "&" -> "&amp;", // must be first so we don't accidentally kill anything in the below
@@ -125,6 +166,14 @@ class HTMLTranslator(
     new_text
   }
 
+  /**
+   * Converts a map into html-friendly attributes like you'd see in any HTML tag.
+   * Inserts a leading space FOR YOU if meta is nonEmpty, otherwise returns the
+   * empty string.
+   *
+   * @param meta map of keys to values, like "alt" -> "alternate text"
+   * @return stringified view of meta, like alt="alternate text"
+   */
   private def convertMetaToHTMLAttrs(meta:Map[String, String]): String = {
     val meta_string = meta.map{case (k,v) => s"""$k="$v""""}.mkString(" ")
     if (!meta_string.isEmpty)

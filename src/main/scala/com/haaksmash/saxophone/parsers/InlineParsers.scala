@@ -22,7 +22,7 @@ import com.haaksmash.saxophone.primitives._
 
 import scala.util.parsing.combinator.RegexParsers
 
-object InlineParsers extends RegexParsers {
+object InlineParsers extends UtilParsers {
 
   val FOOTNOTE_START = '{'
   val FOOTNOTE_END = '}'
@@ -47,14 +47,6 @@ object InlineParsers extends RegexParsers {
     MONOSPACE_START -> ("m", MONOSPACE_END),
     RAW_START -> ("r", RAW_END)
   )
-
-  def aChar = Parser { in =>
-    if (in.atEnd) {
-      Failure("End of input reached.", in)
-    } else {
-      Success(in.first, in.rest)
-    }
-  }
 
   def standardText(special: Set[Char]): Parser[StandardText] = Parser { in =>
     if (in.atEnd)
@@ -87,15 +79,6 @@ object InlineParsers extends RegexParsers {
         Success(StandardText(text), in.drop(pos - in.offset))
     }
   }
-
-  val metadata: Parser[Map[String, String]] = "[" ~> ((not("]") ~> aChar).+) <~ "]" ^^ {
-    case metas =>
-      metas.mkString.split('|')
-        .map(metapair => metapair.split(':'))
-        .map(l => l(0) -> l(1))
-        .toMap
-  }
-
   val raw_text: Parser[RawText] = RAW_START ~> ((not(RAW_END) ~> aChar).+) <~ RAW_END ^^ {
     case chars => RawText(chars.mkString)
   }

@@ -24,7 +24,7 @@ import com.haaksmash.saxophone.readers.LineReader
 import scala.util.parsing.combinator.Parsers
 
 /**
- * The block parsers translate com.haaksmash.saxophone.Line -> com.haaksmash.saxophone.Node
+ * The block parsers translate [[com.haaksmash.saxophone.primitives.Line]] to [[com.haaksmash.saxophone.primitives.Node]]
  */
 class BlockParsers extends Parsers {
   type Elem = Line
@@ -62,18 +62,18 @@ class BlockParsers extends Parsers {
       Success(in.first, in.rest)
   }
 
-  val header_node: Parser[Heading] = line(classOf[HeadingLine]) ^^ {
+  lazy val header_node: Parser[Heading] = line(classOf[HeadingLine]) ^^ {
     case h => Heading(h.headerLevel, Seq(StandardText(h.payload)))
   }
 
-  val paragraph: Parser[Paragraph] = line(classOf[TextLine]).+ ^^ {
+  lazy val paragraph: Parser[Paragraph] = line(classOf[TextLine]).+ ^^ {
     case text_lines =>
       val text = text_lines.map(_.payload).mkString(" ").trim
       val parsed_text = InlineParsers.parseAll(InlineParsers.elements(Set.empty), text).get
       Paragraph(parsed_text)
   }
 
-  val ordered_list_node: Parser[OrderedList] = Parser { in =>
+  lazy val ordered_list_node: Parser[OrderedList] = Parser { in =>
     if (in.atEnd)
       Failure("End of input", in)
     else if (!in.first.isInstanceOf[OrderedLine])
@@ -81,10 +81,11 @@ class BlockParsers extends Parsers {
     else {
       var input = in
       var items = Seq[Seq[Node]]()
-      val present_unordered = if (input.first.isInstanceOf[OrderedLine]) {
-        val line = input.first.asInstanceOf[OrderedLine]
-        line.glyph == ORDERED_AS_UNORDERED_GLYPH
-      } else false
+      val present_unordered = input.first match {
+        case line: OrderedLine =>
+          line.glyph == ORDERED_AS_UNORDERED_GLYPH
+        case _ => false
+      }
       while (input.first.isInstanceOf[OrderedLine]) {
         val leading_line = input.first.asInstanceOf[OrderedLine]
         // This is unfortunate; I'd like to use the `source` method on Reader[T], but that
@@ -102,7 +103,7 @@ class BlockParsers extends Parsers {
 
         items = items ++ Seq(
         {
-          if (sublines.length > 0)
+          if (sublines.nonEmpty)
             Seq(
               nodes(new LineReader(TextLine(leading_line.payload) +: sublines)).get
             )
@@ -122,7 +123,7 @@ class BlockParsers extends Parsers {
     }
   }
 
-  val unordered_list_node: Parser[UnorderedList] = Parser { in =>
+  lazy val unordered_list_node: Parser[UnorderedList] = Parser { in =>
     if (in.atEnd)
       Failure("End of input", in)
     else if (!in.first.isInstanceOf[UnorderedLine])
@@ -147,7 +148,7 @@ class BlockParsers extends Parsers {
 
         items = items ++ Set(
         {
-          if (sublines.length > 0)
+          if (sublines.nonEmpty)
             Seq(
               nodes(new LineReader(TextLine(leading_line.payload) +: sublines)).get
             )
@@ -164,7 +165,7 @@ class BlockParsers extends Parsers {
     }
   }
 
-  val code_node: Parser[Code] = (line(classOf[CodeStartLine]) ~ notLine(classOf[CodeEndLine])
+  lazy val code_node: Parser[Code] = (line(classOf[CodeStartLine]) ~ notLine(classOf[CodeEndLine])
     .+ <~ line(classOf[CodeEndLine])) ^^ {
     case start ~ code =>
       val code_strings = code map {
@@ -177,7 +178,7 @@ class BlockParsers extends Parsers {
       )
   }
 
-  val quote_source: Parser[Seq[InlineNode]] = Parser { in =>
+  lazy val quote_source: Parser[Seq[InlineNode]] = Parser { in =>
     if (!in.first.isInstanceOf[TextLine])
       Failure("not a standard text line", in)
     else if (!in.first.text.startsWith("["))
@@ -194,7 +195,7 @@ class BlockParsers extends Parsers {
       )
   }
 
-  val quote_node: Parser[Quote] = line(classOf[QuoteLine]).+ ~ quote_source.? ^^ {
+  lazy val quote_node: Parser[Quote] = line(classOf[QuoteLine]).+ ~ quote_source.? ^^ {
     case quotes ~ source =>
       Quote(
         InlineParsers.parseAll(
@@ -205,7 +206,16 @@ class BlockParsers extends Parsers {
       )
   }
 
-  val nodes: Parser[Node] = Parser { in =>
+  lazy val embed_node: Parser[EmbedNode] = line(classOf[EmbedLine]) ^? ({
+    case embed_line if EmbedNode.VALID_EMBED_TYPES.contains(embed_line.arguments.head) =>
+      EmbedNode.VALID_EMBED_TYPES.get(embed_line.arguments.head).map(
+        f => f(embed_line.arguments.tail, embed_line.meta)
+      ).get
+  }, line => {
+    s"unrecognized embed type: ${line.arguments.head}; known types: [${EmbedNode.VALID_EMBED_TYPES.keys.mkString(", ")}]"
+  })
+
+  lazy val nodes: Parser[Node] = Parser { in =>
     if (in.atEnd)
       Failure("end of input", in)
     else {
@@ -221,6 +231,8 @@ class BlockParsers extends Parsers {
           code_node(in)
         case l: QuoteLine =>
           quote_node(in)
+        case l: EmbedLine =>
+          embed_node(in)
         case _ =>
           paragraph(in)
       }

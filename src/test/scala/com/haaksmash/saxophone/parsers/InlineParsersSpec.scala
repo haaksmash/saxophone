@@ -24,13 +24,6 @@ import org.scalatest._
 class InlineParsersSpec extends FlatSpec {
   val parsers = InlineParsers
 
-  "metadata" should "match things between '[]'" in {
-    val input = "[some:stuff|that:makes|meta:data]"
-    val result = parsers.parseAll(parsers.metadata, input).get
-
-    assert(result == Map("some" -> "stuff", "that" -> "makes", "meta" -> "data"))
-  }
-
   "standardText" should "match a regular sentence" in {
     val input = "some regular old input"
     val result = parsers.parseAll(parsers.standardText(Set()), input).get
@@ -94,7 +87,7 @@ class InlineParsersSpec extends FlatSpec {
     assert(result.text == "hello")
   }
 
-  it should "support metadata" in {
+  it should "support meta" in {
     val input = "/hello/[class:red]"
     val result = parsers.parseAll(parsers.emphasized_text, input).get
 
@@ -109,7 +102,7 @@ class InlineParsersSpec extends FlatSpec {
     assert(result.text == "hello")
   }
 
-  it should "support metadata" in {
+  it should "support meta" in {
     val input = "*hello*[class:red]"
     val result = parsers.parseAll(parsers.weighted_text, input).get
 
@@ -124,7 +117,7 @@ class InlineParsersSpec extends FlatSpec {
     assert(result.text == "hello")
   }
 
-  it should "support metadata" in {
+  it should "support meta" in {
     val input = "_hello_[class:red]"
     val result = parsers.parseAll(parsers.marked_text, input).get
 
@@ -139,7 +132,7 @@ class InlineParsersSpec extends FlatSpec {
     assert(result.text == "hello")
   }
 
-  it should "support metadata" in {
+  it should "support meta" in {
     val input = "~hello~[class:red]"
     val result = parsers.parseAll(parsers.struckthrough_text, input).get
 
