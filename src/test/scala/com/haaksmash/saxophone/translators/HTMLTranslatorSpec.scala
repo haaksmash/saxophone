@@ -30,7 +30,7 @@ class HTMLTranslatorSpec extends FlatSpec {
 
     val result = translator.quote(quote)
 
-    assert(result == "<figure class=\"quote\"><blockquote>Hello, Clarice.</blockquote></figure>")
+    assert(result == "<blockquote>Hello, Clarice.</blockquote>")
   }
 
   it should "translate a Quote with a source" in {
@@ -38,7 +38,7 @@ class HTMLTranslatorSpec extends FlatSpec {
 
     val result = translator.quote(quote)
 
-    assert(result == "<figure class=\"quote\"><blockquote>Hello, Clarice.</blockquote><figcaption>Silence of the Lambs</figcaption></figure>")
+    assert(result == "<blockquote>Hello, Clarice.<footer>Silence of the Lambs</footer></blockquote>")
   }
 
   "heading" should "translate a Heading" in {
