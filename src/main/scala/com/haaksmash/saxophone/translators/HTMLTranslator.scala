@@ -44,9 +44,9 @@ class HTMLTranslator(
 
   def quote(node:Quote) = {
     if (node.source.isDefined)
-      s"""<figure class="quote"><blockquote>${translate(node)}</blockquote><figcaption>${node.source.get.map(translate(_)).mkString}</figcaption></figure>"""
+      s"""<blockquote>${translate(node)}<footer>${node.source.get.map(translate(_)).mkString}</footer></blockquote>"""
     else
-      s"""<figure class="quote"><blockquote>${translate(node)}</blockquote></figure>"""
+      s"""<blockquote>${translate(node)}</blockquote>"""
   }
 
   def orderedList(node:OrderedList) = {
@@ -175,7 +175,9 @@ class HTMLTranslator(
    * @return stringified view of meta, like alt="alternate text"
    */
   private def convertMetaToHTMLAttrs(meta:Map[String, String]): String = {
-    val meta_string = meta.map{case (k,v) => s"""$k="$v""""}.mkString(" ")
+    val meta_string = meta.map{
+      case (k,v) => s"""$k="${v.replaceAll("\"", "\\\\\"")}""""
+    }.mkString(" ")
     if (!meta_string.isEmpty)
       " " + meta_string
     else

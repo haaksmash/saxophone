@@ -30,7 +30,7 @@ class HTMLTranslatorSpec extends FlatSpec {
 
     val result = translator.quote(quote)
 
-    assert(result == "<figure class=\"quote\"><blockquote>Hello, Clarice.</blockquote></figure>")
+    assert(result == "<blockquote>Hello, Clarice.</blockquote>")
   }
 
   it should "translate a Quote with a source" in {
@@ -38,7 +38,7 @@ class HTMLTranslatorSpec extends FlatSpec {
 
     val result = translator.quote(quote)
 
-    assert(result == "<figure class=\"quote\"><blockquote>Hello, Clarice.</blockquote><figcaption>Silence of the Lambs</figcaption></figure>")
+    assert(result == "<blockquote>Hello, Clarice.<footer>Silence of the Lambs</footer></blockquote>")
   }
 
   "heading" should "translate a Heading" in {
@@ -145,10 +145,10 @@ class HTMLTranslatorSpec extends FlatSpec {
   }
 
   it should "put links and alts in the right place" in {
-    val embed = ImageEmbedNode(Seq("some source here"), Map("alt" -> "alt text", "link" -> "linkylinky", "link-class" -> "image"))
+    val embed = ImageEmbedNode(Seq("some source here"), Map("alt" -> "alt \"text", "link" -> "linkylinky", "link-class" -> "image"))
     val result = translator.embed(embed)
 
-    assert(result == s"""<figure class="image"><a href="linkylinky" class="image"><img src="${embed.arguments.head}" alt="alt text"/></a></figure>""")
+    assert(result == s"""<figure class="image"><a href="linkylinky" class="image"><img src="${embed.arguments.head}" alt="alt \\"text"/></a></figure>""")
   }
 
   it should "recognize (youtube) VideoEmbedNodes" in {
