@@ -36,7 +36,7 @@ Here's how!
 add
 
 ```scala
-libraryDependencies += "com.haaksmash" %% "saxophone" % "1.4.0"
+libraryDependencies += "com.haaksmash" %% "saxophone" % "2.0.0"
 ```
 to one of your project's sbt files.
 
