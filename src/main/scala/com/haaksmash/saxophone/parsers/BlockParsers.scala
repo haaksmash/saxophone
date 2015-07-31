@@ -170,6 +170,7 @@ class BlockParsers extends Parsers {
     case start ~ code =>
       val code_strings = code map {
         case l: EmptyLine => "\n"
+        case HeadingLine(prefix, text) => s"$prefix $text"
         case l: Line => l.text
       }
       Code(

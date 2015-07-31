@@ -106,11 +106,11 @@ class StringLineParserSpec extends FlatSpec {
     assert(the_line.isEmpty)
   }
 
-  "embed_line" should "match a line that starts with :" in {
+  "embed_line" should "match a line that starts with ::" in {
     val input = "::image http://haaksmash.com/myhumbs.jpg \"nobody move\"::"
     val embed_line = parsers.parseAll(parsers.embedParser, input).get
 
-    assert(embed_line.text == "image http://haaksmash.com/myhumbs.jpg \"nobody move\"")
+    assert(embed_line.text == "::image http://haaksmash.com/myhumbs.jpg \"nobody move\"::")
     assert(embed_line.arguments == Seq("image", "http://haaksmash.com/myhumbs.jpg", "\"nobody", "move\""))
   }
 
@@ -118,7 +118,7 @@ class StringLineParserSpec extends FlatSpec {
     val input = "::image myhumbs.jpg \"nobody move\"::[class:red]"
     val embed_line = parsers.parseAll(parsers.embedParser, input).get
 
-    assert(embed_line.text == "image myhumbs.jpg \"nobody move\"")
+    assert(embed_line.text == "::image myhumbs.jpg \"nobody move\"::")
     assert(embed_line.arguments == Seq("image", "myhumbs.jpg", "\"nobody", "move\""))
     assert(embed_line.meta == Map("class" -> "red"))
   }

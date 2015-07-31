@@ -70,14 +70,25 @@ class BlockParsersSpec extends FlatSpec {
     val codez = Seq(
       CodeStartLine(Map()),
       TextLine("line one"),
+      HeadingLine("###", "seriously commentworthy"),
       TextLine("/line two/"),
       UnorderedLine("*", "a line a line"),
+      OrderedLine("-", "an ordered line"),
+      EmbedLine(Seq("video", "video", "video"), "::video video video::", Map()),
+      OrderedLine("1.", "ordered again!"),
       CodeEndLine()
     )
 
     val result = parsers.code_node(new LineReader(codez)).get
 
-    assert(result.contents == "line one\n/line two/\n* a line a line")
+    assert(result.contents ==
+      """line one
+        |### seriously commentworthy
+        |/line two/
+        |* a line a line
+        |- an ordered line
+        |::video video video::
+        |1. ordered again!""".stripMargin)
     assert(result.directives == Map())
   }
 

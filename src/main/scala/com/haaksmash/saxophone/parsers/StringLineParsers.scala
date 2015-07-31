@@ -61,7 +61,7 @@ trait StringLineParsers extends UtilParsers {
 
   val embedParser: Parser[EmbedLine] = (EMBED_LINE ~> ((not(EMBED_LINE) ~> aChar).+ ^^ (_.mkString)) <~ EMBED_LINE) ~ metadata.? ^^ {
     case text ~ meta =>
-      EmbedLine(text.split(" "), text, meta.getOrElse(Map()))}
+      EmbedLine(text.split(" "), "::"+text+"::", meta.getOrElse(Map()))}
 
 }
 
