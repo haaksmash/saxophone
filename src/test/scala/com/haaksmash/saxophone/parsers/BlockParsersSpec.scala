@@ -22,6 +22,8 @@ import com.haaksmash.saxophone.primitives._
 import com.haaksmash.saxophone.readers.LineReader
 import org.scalatest._
 
+import scala.util.Failure
+
 class BlockParsersSpec extends FlatSpec {
 
   object parsers extends BlockParsers
@@ -273,6 +275,53 @@ class BlockParsersSpec extends FlatSpec {
     val text = HeadingLine("#", "*strong header*!")
     val result = parsers.header_node(new LineReader(Seq(text))).get
     assert(result.children == Seq(StandardText("*strong header*!")))
+  }
+
+  "embed_node" must "recognize ImageEmbedLines" in {
+    val text = EmbedLine(Seq("image", "http://www.google.com/header.jpg"), "image http://www.google.com/header.jpg", Map())
+
+    val result = parsers.embed_node(new LineReader(Seq(text))).get
+
+    result match {
+      case ImageEmbedNode(arguments, meta) =>
+        assert(result.arguments == Seq("http://www.google.com/header.jpg"))
+        assert(result.meta == Map())
+      case x => fail(s"should have been an ImageEmbedNode, but was a ${x.getClass.getSimpleName}")
+    }
+  }
+
+  it must "recognize VideoEmbedLines" in {
+    val text = EmbedLine(Seq("video", "http://www.google.com/header.jpg"), "video http://www.google.com/header.jpg", Map())
+
+    val result = parsers.embed_node(new LineReader(Seq(text))).get
+
+    result match {
+      case VideoEmbedNode(arguments, meta) =>
+        assert(result.arguments == Seq("http://www.google.com/header.jpg"))
+        assert(result.meta == Map())
+      case x => fail(s"should have been an VideoEmbedNode, but was a ${x.getClass.getSimpleName}")
+    }
+  }
+
+  it must "recognize TweetEmbedLines" in {
+    val text = EmbedLine(Seq("tweet", "http://www.google.com/header.jpg"), "video http://www.google.com/header.jpg", Map())
+
+    val result = parsers.embed_node(new LineReader(Seq(text))).get
+
+    result match {
+      case TweetEmbedNode(arguments, meta) =>
+        assert(result.arguments == Seq("http://www.google.com/header.jpg"))
+        assert(result.meta == Map())
+      case x => fail(s"should have been an TweetEmbedNode, but was a ${x.getClass.getSimpleName}")
+    }
+  }
+
+  it should "fail on unrecognized embed types" in {
+    val text = EmbedLine(Seq("red", "leather"), "red leather", Map())
+    val result = parsers.embed_node(new LineReader(Seq(text)))
+
+    assert(result.isEmpty)
+    assert(result.asInstanceOf[parsers.Failure].msg == "unrecognized embed type: red; known types: [image, video, tweet]")
   }
 
   "line" must "match the provided Line class" in {

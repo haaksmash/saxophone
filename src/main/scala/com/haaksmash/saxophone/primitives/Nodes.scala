@@ -26,6 +26,8 @@ sealed abstract class Node {
   def label_display = s"$label"
 
   override def toString = s"<$label_display>${children.mkString("")}</$label>"
+
+  def meta = Map[String, String]()
 }
 
 case class Document(children: Seq[Node]) extends Node {
@@ -69,6 +71,36 @@ case class Quote(children: Seq[Node], source: Option[Seq[InlineNode]]) extends N
   }
 }
 
+trait EmbedNode extends Node {
+  override val children = Seq.empty
+  def arguments:Seq[String]
+
+  override val label = "embed"
+  override def label_display = {
+    s"$label ${arguments.mkString}"
+  }
+}
+
+object EmbedNode {
+  val VALID_EMBED_TYPES = Map(
+    "image" -> ImageEmbedNode.apply _,
+    "video" -> VideoEmbedNode.apply _,
+    "tweet" -> TweetEmbedNode.apply _
+  )
+}
+
+case class ImageEmbedNode(arguments: Seq[String], override val meta: Map[String, String]) extends EmbedNode {
+  override val label = "image"
+}
+
+case class VideoEmbedNode(arguments: Seq[String], override val meta: Map[String, String]) extends EmbedNode {
+  override val label = "video"
+}
+
+case class TweetEmbedNode(arguments: Seq[String], override val meta: Map[String, String]) extends EmbedNode {
+  override val label = "tweet"
+}
+
 
 sealed abstract class ListNode(items: Traversable[Seq[Node]]) extends Node {
   /**
@@ -90,9 +122,7 @@ case class UnorderedList(items: Set[Seq[Node]]) extends ListNode(items) {
 }
 
 
-trait InlineNode extends Node {
-  def meta = Map[String, String]()
-}
+trait InlineNode extends Node
 
 case class Footnote(children: Seq[InlineNode]) extends InlineNode {
   override val label = "foot"

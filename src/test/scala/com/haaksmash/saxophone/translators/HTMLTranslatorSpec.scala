@@ -137,6 +137,34 @@ class HTMLTranslatorSpec extends FlatSpec {
     assert(result contains "<li>Line Three</li>")
   }
 
+  "embed" should "recognize ImageEmbedNodes" in {
+    val embed = ImageEmbedNode(Seq("some source here"), Map())
+    val result = translator.embed(embed)
+
+    assert(result == s"""<img src="${embed.arguments.head}" alt=""/>""")
+  }
+
+  it should "recognize (youtube) VideoEmbedNodes" in {
+    val embed = VideoEmbedNode(Seq("youtube", "the_video_id"), Map())
+    val result = translator.embed(embed)
+
+    assert(result == s"""<iframe id="ytplayer" class="ytplayer" type="text/html" src="http://www.youtube.com/embed/the_video_id?autoplay=0" frameborder="0"/>""")
+  }
+
+  it should "recognize (vimeo) VideoEmbedNodes" in {
+    val embed = VideoEmbedNode(Seq("vimeo", "the_video_id"), Map())
+    val result = translator.embed(embed)
+
+    assert(result == s"""<iframe class="vimeoplayer" src="https://player.vimeo.com/video/the_video_id" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>""")
+  }
+
+  it should "recognize TweetEmbedNodes" in {
+    val embed = TweetEmbedNode(Seq("username", "tweetid"), Map())
+    val result = translator.embed(embed)
+
+    assert(result == "<blockquote class=\"twitter-tweet\"><a href=\"https://twitter.com/username/status/tweetid\">tweet by @username</a></blockquote>")
+  }
+
   "link" should "translate a Link" in {
     val link = Link(Seq(StandardText("the link!")), LinkTarget("the target"))
 

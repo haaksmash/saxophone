@@ -205,6 +205,13 @@ class BlockParsers extends Parsers {
       )
   }
 
+  val embed_node: Parser[EmbedNode] = line(classOf[EmbedLine]) ^? ({
+    case embed_line if EmbedNode.VALID_EMBED_TYPES.contains(embed_line.arguments.head) =>
+      EmbedNode.VALID_EMBED_TYPES.get(embed_line.arguments.head).map(
+        f => f(embed_line.arguments.tail, embed_line.meta)
+      ).get
+  }, line => s"unrecognized embed type: ${line.arguments.head}; known types: [${EmbedNode.VALID_EMBED_TYPES.keys.mkString(", ")}]")
+
   val nodes: Parser[Node] = Parser { in =>
     if (in.atEnd)
       Failure("end of input", in)

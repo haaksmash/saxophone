@@ -90,6 +90,18 @@ class HTMLTranslator(
   }
   def rawText(node: RawText) = if (allow_raw_strings) node.text else escapeTextForHTML(node.text)
 
+  def embed(node:EmbedNode) = node match {
+    case ImageEmbedNode(arguments, meta) => s"""<img src="${arguments.head}" alt="${meta.getOrElse("alt", "")}"/>"""
+    case VideoEmbedNode(arguments, meta) => arguments.head match {
+      case "youtube" =>
+        s"""<iframe id="ytplayer" class="ytplayer" type="text/html" src="http://www.youtube.com/embed/${arguments(1)}?autoplay=0" frameborder="0"/>"""
+      case "vimeo" => s"""<iframe class="vimeoplayer" src="https://player.vimeo.com/video/${arguments(1)}" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>"""
+      case src => s"""<video>${arguments.map(src => "<source src=\""+src+"\" type=\"video/"+src.split('.').last+"\"")}Whoops, your browser doesn't support the video tag!</video>"""
+    }
+    case TweetEmbedNode(arguments, meta) => s"""<blockquote class="twitter-tweet"><a href="https://twitter.com/${arguments(0)}/status/${arguments(1)}">tweet by @${arguments(0)}</a></blockquote>"""
+    case _ => ""
+  }
+
 
   override def translate(node: Node): String = {
     val s = super.translate(node)

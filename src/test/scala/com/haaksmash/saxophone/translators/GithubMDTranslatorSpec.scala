@@ -115,6 +115,28 @@ class GithubMDTranslatorSpec extends FlatSpec {
     assert(result contains "* Line Three\n")
   }
 
+  "embed" should "translate an EmbedNode" in {
+    val embed = ImageEmbedNode(Seq("helloooo"), Map())
+    val result = translator.embed(embed)
+
+    assert(result == "![](helloooo)")
+  }
+
+  it should "include alt text if present" in {
+    val embed = ImageEmbedNode(Seq("helloooo"), Map("alt" -> "an image"))
+    val result = translator.embed(embed)
+
+    assert(result == "![an image](helloooo)")
+  }
+
+  it should "ignore non-image embeds" in {
+
+    val embed = VideoEmbedNode(Seq("helloooo"), Map("alt" -> "an image"))
+    val result = translator.embed(embed)
+
+    assert(result == "")
+  }
+
   "link" should "translate a Link" in {
     val link = Link(Seq(StandardText("the link!")), LinkTarget("the target"))
 
